@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCDRS - 현장 등록 및 관리</title>
+    <style>
+        :root {
+            --primary: #1e293b; --bg-main: #f1f5f9; --bg-card: #ffffff;
+            --border: #cbd5e1; --text: #334155; --accent: #3b82f6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "맑은 고딕", sans-serif; }
+        body { background-color: var(--bg-main); padding: 20px; display: flex; justify-content: center; }
+        
+        .container {
+            width: 100%; max-width: 1200px; background: var(--bg-card);
+            border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 30px;
+        }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 20px; }
+        .header h1 { font-size: 24px; color: var(--primary); }
+        .btn { padding: 10px 20px; background: var(--accent); color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .btn:hover { opacity: 0.9; }
+
+        .section-title { background: #e2e8f0; padding: 8px 15px; font-size: 15px; font-weight: bold; border-left: 4px solid var(--accent); margin: 20px 0 10px 0; }
+        
+        /* Grid Layout for Forms */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full-width { grid-column: 1 / -1; }
+        
+        label { font-size: 13px; font-weight: bold; color: var(--text); }
+        input[type="text"], input[type="date"], input[type="number"], select, textarea {
+            padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px;
+        }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        
+        /* Radio Button Styling */
+        .radio-group { display: flex; gap: 15px; align-items: center; height: 40px; padding: 0 10px; border: 1px solid var(--border); border-radius: 6px; background: #f8fafc; }
+        .radio-item { display: flex; align-items: center; gap: 5px; font-size: 13px; cursor: pointer; }
+
+        /* Site List Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 13px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: var(--primary); color: white; }
+        tr:hover { background: #f8fafc; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🏗️ 신규 현장 등록 (Project Manager)</h1>
+        <button class="btn" onclick="saveSite()">현장 정보 저장</button>
+    </div>
+
+    <form id="siteForm">
+        <div class="section-title">기본 정보</div>
+        <div class="form-grid">
+            <div class="form-group"><label>현장코드</label><input type="text" id="siteCode" placeholder="예: 26001"></div>
+            <div class="form-group"><label>현장명</label><input type="text" id="siteName" placeholder="예: 신반포 18차 재건축"></div>
+            <div class="form-group"><label>공사명</label><input type="text" id="projectName" placeholder="정식 공사 명칭 입력"></div>
+            <div class="form-group"><label>공종</label><input type="text" id="workType" placeholder="예: 전기 / 소방 / 정보통신"></div>
+            <div class="form-group"><label>전화번호</label><input type="text" id="phone" placeholder="현장 사무실 연락처"></div>
+            <div class="form-group">
+                <label>현장 현황</label>
+                <div class="radio-group">
+                    <label class="radio-item"><input type="radio" name="status" value="진행" checked> 진행</label>
+                    <label class="radio-item"><input type="radio" name="status" value="준공"> 준공</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">계약 및 금액 정보</div>
+        <div class="form-grid">
+            <div class="form-group"><label>발주처명</label><input type="text" id="clientName"></div>
+            <div class="form-group"><label>도급사명 (고용보험관리번호)</label><input type="text" id="contractorInfo" placeholder="도급사명 / 관리번호"></div>
+            <div class="form-group"><label>도급금액 (원)</label><input type="number" id="contractAmount"></div>
+            <div class="form-group"><label>실행금액 (원)</label><input type="number" id="executionAmount"></div>
+            <div class="form-group">
+                <label>도급/하도급 여부</label>
+                <div class="radio-group">
+                    <label class="radio-item"><input type="radio" name="contractType" value="도급" checked> 도급</label>
+                    <label class="radio-item"><input type="radio" name="contractType" value="하도급"> 하도급</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>단가 공개 여부</label>
+                <div class="radio-group">
+                    <label class="radio-item"><input type="radio" name="pricePublic" value="발주공개_일용공개" checked> 발주 공개 / 일용 공개</label>
+                    <label class="radio-item"><input type="radio" name="pricePublic" value="발주비공개_일용비공개"> 모두 비공개</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">공사 기간 및 면적</div>
+        <div class="form-grid">
+            <div class="form-group"><label>착공일</label><input type="date" id="startDate"></div>
+            <div class="form-group"><label>준공일</label><input type="date" id="endDate"></div>
+            <div class="form-group"><label>연면적 (㎡)</label><input type="number" id="grossArea"></div>
+            <div class="form-group"><label>건축면적 (㎡)</label><input type="number" id="buildArea"></div>
+        </div>
+
+        <div class="section-title">관리자 및 출역 관리</div>
+        <div class="form-grid">
+            <div class="form-group"><label>프로젝트 매니저 (PM)</label><input type="text" id="pmName"></div>
+            <div class="form-group"><label>현장소장</label><input type="text" id="directorName"></div>
+            <div class="form-group"><label>관리감독자</label><input type="text" id="supervisorName"></div>
+            <div class="form-group"><label>공무</label><input type="text" id="adminName"></div>
+            <div class="form-group"><label>안전관리자 (담당자)</label><input type="text" id="safetyManagerName"></div>
+            <div class="form-group">
+                <label>출역등록 방식</label>
+                <div class="radio-group" style="flex-wrap: wrap; height: auto; padding: 10px;">
+                    <label class="radio-item"><input type="radio" name="attendance" value="직접입력" checked> 직접입력</label>
+                    <label class="radio-item"><input type="radio" name="attendance" value="스마트폰"> 스마트폰</label>
+                    <label class="radio-item"><input type="radio" name="attendance" value="얼굴인식기"> 얼굴인식기</label>
+                    <label class="radio-item"><input type="radio" name="attendance" value="바코드인식기"> 바코드인식기</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">4대보험 및 퇴직공제 관리번호</div>
+        <div class="form-grid">
+            <div class="form-group"><label>국민연금 관리번호</label><input type="text" id="npNumber"></div>
+            <div class="form-group"><label>건강보험 관리번호</label><input type="text" id="hiNumber"></div>
+            <div class="form-group"><label>고용보험 관리번호</label><input type="text" id="eiNumber"></div>
+            <div class="form-group"><label>산재보험 관리번호</label><input type="text" id="wcNumber"></div>
+            <div class="form-group"><label>퇴직공제 가입번호</label><input type="text" id="retirementNumber"></div>
+            <div class="form-group">
+                <label>연금/건강보험 가입 기준 (일용직)</label>
+                <div class="radio-group">
+                    <label class="radio-item"><input type="radio" name="insuranceRule" value="8일이상" checked> 8일 이상</label>
+                    <label class="radio-item"><input type="radio" name="insuranceRule" value="20일이상"> 20일 이상</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">현장 특이사항 (메모)</div>
+        <div class="form-group full-width">
+            <textarea id="siteMemo" rows="4" placeholder="현장에 대한 특이사항, 주의사항 등을 3줄 이상 기입해 주십시오."></textarea>
+        </div>
+    </form>
+
+    <div class="section-title" style="margin-top: 40px;">등록된 현장 목록</div>
+    <table>
+        <thead>
+            <tr>
+                <th>현장코드</th>
+                <th>현장명</th>
+                <th>현장소장</th>
+                <th>착공일 ~ 준공일</th>
+                <th>현황</th>
+            </tr>
+        </thead>
+        <tbody id="siteListBody">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // 현장 저장 로직 (localStorage 활용)
+    function saveSite() {
+        const siteCode = document.getElementById('siteCode').value;
+        const siteName = document.getElementById('siteName').value;
+        
+        if(!siteCode || !siteName) {
+            alert("현장코드와 현장명은 필수 입력 항목입니다.");
+            return;
+        }
+
+        // 라디오 버튼 값 가져오기
+        const status = document.querySelector('input[name="status"]:checked').value;
+
+        const newSite = {
+            siteCode: siteCode,
+            siteName: siteName,
+            director: document.getElementById('directorName').value,
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value,
+            status: status
+            // 실제 상용화 시에는 폼의 모든 24개 데이터를 객체에 담습니다.
+        };
+
+        // 기존 저장된 현장 목록 불러오기
+        let sites = JSON.parse(localStorage.getItem('scdrs_sites')) || [];
+        sites.push(newSite);
+        
+        // 로컬 스토리지에 업데이트
+        localStorage.setItem('scdrs_sites', JSON.stringify(sites));
+        
+        alert(`[${siteName}] 현장이 등록되었습니다. 이제 작업/안전일보에서 선택할 수 있습니다.`);
+        document.getElementById('siteForm').reset();
+        renderSiteList();
+    }
+
+    // 하단 표에 등록된 현장 목록 그리기
+    function renderSiteList() {
+        const tbody = document.getElementById('siteListBody');
+        let sites = JSON.parse(localStorage.getItem('scdrs_sites')) || [];
+        
+        tbody.innerHTML = '';
+        sites.forEach(site => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${site.siteCode}</td>
+                <td><strong>${site.siteName}</strong></td>
+                <td>${site.director || '-'}</td>
+                <td>${site.startDate || '-'} ~ ${site.endDate || '-'}</td>
+                <td><span style="color:${site.status === '진행' ? 'blue' : 'gray'}">${site.status}</span></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // 페이지 로드 시 목록 렌더링
+    window.onload = renderSiteList;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>신규채용자 특별안전·보건교육 수강 확인서</title>
+    <style>
+        /* Base styles (화면용 - 가독성 유지) */
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; color: #333; }
+        .app-container { max-width: 800px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .header-container { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; gap: 20px; }
+        .header-left { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        h1 { font-size: 1.6rem; margin: 0 0 15px 0; color: #111; letter-spacing: -1px; }
+        
+        .site-name-wrap { display: flex; align-items: center; font-size: 1.1rem; font-weight: bold; width: 100%; }
+        .site-name-input { margin-left: 10px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; flex: 1; outline: none; }
+        
+        .approval-table { border-collapse: collapse; text-align: center; font-size: 0.9rem; margin-left: auto; }
+        .approval-table th, .approval-table td { border: 1px solid #333; padding: 5px; }
+        .approval-title { background-color: #f0f0f0; font-weight: bold; width: 30px; }
+        .approval-table th { background-color: #f0f0f0; width: 75px; font-weight: bold; }
+        .sign-space { height: 60px; }
+        
+        .section { margin-bottom: 15px; border: 1px solid #ddd; padding: 12px; border-radius: 5px; page-break-inside: avoid; }
+        .section-title { font-size: 1rem; font-weight: bold; color: #0056b3; margin-bottom: 10px; border-bottom: 2px solid #0056b3; padding-bottom: 5px; }
+        .form-group { margin-bottom: 8px; }
+        label { display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 3px; color: #555; }
+        input[type="text"], input[type="date"], input[type="number"], select { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 0.9rem; }
+        .checkbox-group { display: flex; align-items: flex-start; margin-bottom: 6px; font-size: 0.85rem; line-height: 1.3; }
+        .checkbox-group input { margin-top: 2px; margin-right: 8px; transform: scale(1.1); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+        
+        .btn-submit, .btn-print { width: 48%; padding: 12px; border: none; border-radius: 5px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-submit { background-color: #0056b3; color: white; float: right; }
+        .btn-submit:hover { background-color: #004494; }
+        .btn-print { background-color: #5cb85c; color: white; float: left; }
+        .btn-print:hover { background-color: #4cae4c; }
+        .btn-wrap { overflow: hidden; margin-top: 20px; }
+        
+        .info-text { font-size: 0.8rem; color: #d9534f; margin-bottom: 8px; }
+        
+        /* Signature Box Box style */
+        .signature-box-container { overflow: hidden; margin-top: 10px; }
+        .signature-box { float: right; border: 1px solid #333; padding: 12px 25px; font-weight: bold; font-size: 0.95rem; background-color: #fff; border-radius: 4px; }
+        
+        /* A4 1페이지 인쇄를 위한 극단적 압축 스타일 (@media print) */
+        @media print {
+            @page { size: A4; margin: 6mm 10mm; } /* 용지 여백 최적화 */
+            body { margin: 0; padding: 0; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; line-height: 1.1; }
+            .app-container { box-shadow: none; padding: 0; max-width: 100%; border: none; }
+            .btn-wrap { display: none !important; } /* 인쇄 시 버튼 완전 숨김 */
+            
+            /* 헤더 압축 */
+            .header-container { padding-bottom: 4px; margin-bottom: 4px; border-bottom: 2px solid #000; gap: 10px; }
+            h1 { font-size: 14pt; margin: 0 0 4px 0; color: #000; }
+            .site-name-wrap { font-size: 9.5pt; }
+            .site-name-input { border: none; border-bottom: 1px solid #000; border-radius: 0; padding: 0 5px; height: 15px; font-size: 9.5pt; color: #000; }
+            
+            /* 결재란 압축 */
+            .approval-table th, .approval-table td { padding: 1px; border: 1px solid #000; }
+            .approval-table th { font-size: 8pt; background-color: #e6e6e6 !important; width: 55px; }
+            .approval-title { font-size: 8pt; background-color: #e6e6e6 !important; width: 20px; }
+            .sign-space { height: 30px; }
+            
+            /* 섹션 여백 및 패딩 최소화 */
+            .section { margin-bottom: 3px; padding: 3px 8px; border: 1px solid #000; }
+            .section-title { font-size: 9.5pt; margin-bottom: 2px; padding-bottom: 1px; border-bottom: 1px solid #000; color: #000; }
+            
+            /* 폼 및 텍스트 요소 압축 */
+            .form-group { margin-bottom: 1px; }
+            label { font-size: 8pt; margin-bottom: 1px; color: #000; }
+            input[type="text"], input[type="date"], select { border: 1px solid #666; padding: 1px 3px; font-size: 8pt; height: 15px; border-radius: 0; color: #000; }
+            
+            /* 체크박스 및 안내 텍스트 압축 */
+            .info-text { font-size: 7.5pt; margin-bottom: 1px; color: #333; }
+            .checkbox-group { font-size: 8.5pt; margin-bottom: 1px; line-height: 1.1; }
+            .checkbox-group input { margin-top: 1px; margin-right: 4px; transform: scale(0.8); }
+            
+            /* 그리드 간격 최소화 */
+            .grid-2, .grid-3, .grid-4 { gap: 3px; }
+            
+            /* 7번 항목 개인정보 동의 문구 크기 추가 축소 */
+            .section p { font-size: 7.2pt !important; margin-bottom: 1px !important; line-height: 1.15 !important; text-align: justify; }
+            .signature-box { padding: 6px 15px; font-size: 9pt; border: 1px solid #000; }
+            .signature-box-container { margin-top: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- Header -->
+    <div class="header-container">
+        <div class="header-left">
+            <h1>신규채용자 특별안전·보건교육 확인서</h1>
+            <div class="site-name-wrap">
+                <label for="siteName">현장명</label>
+                <input type="text" id="siteName" class="site-name-input" placeholder="예: YSP 기숙사 신축공사 현장">
+            </div>
+        </div>
+        <div class="header-right">
+            <table class="approval-table">
+                <tr>
+                    <td rowspan="2" class="approval-title">결<br>재</td>
+                    <th>담당자</th>
+                    <th>관리감독자</th>
+                    <th>현장소장</th>
+                </tr>
+                <tr>
+                    <td class="sign-space"></td>
+                    <td class="sign-space"></td>
+                    <td class="sign-space"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <form id="safetyForm">
+        <!-- 1. 기본 인적 사항 -->
+        <div class="section">
+            <div class="section-title">1. 기본 인적 사항</div>
+            <div class="grid-2">
+                <div class="form-group"><label>성명 *</label><input type="text" required></div>
+                <div class="form-group">
+                    <label>성별 *</label>
+                    <select required><option value="">선택</option><option value="남">남</option><option value="여">여</option></select>
+                </div>
+                <div class="form-group"><label>생년월일 *</label><input type="date" required></div>
+                <div class="form-group"><label>연락처 *</label><input type="text" placeholder="010-0000-0000" required></div>
+                <div class="form-group"><label>소속 *</label><input type="text" required></div>
+                <div class="form-group"><label>직종 *</label><input type="text" required></div>
+                <div class="form-group"><label>건설업 경력 *</label><input type="text" placeholder="O년 O개월" required></div>
+                <div class="form-group"><label>긴급연락처 *</label><input type="text" required></div>
+            </div>
+            <div class="form-group"><label>주소 *</label><input type="text" required></div>
+        </div>
+
+        <!-- 2. 현장 안전수칙 -->
+        <div class="section">
+            <div class="section-title">2. 현장 안전수칙 확인</div>
+            <p class="info-text">■ 작업자 본인이 필히 읽고 확인해주세요.</p>
+            <label class="checkbox-group"><input type="checkbox" required><span>1. 안전보호구(안전모, 턱끈, 안전화, 안전대 등)는 반드시 착용합니다.</span></label>
+            <label class="checkbox-group"><input type="checkbox" required><span>2. 모든 기기는 누전 차단기를 설치하고, 공도구는 승인된 것만 사용합니다.</span></label>
+            <label class="checkbox-group"><input type="checkbox" required><span>3. 화재 위험 장소에서는 소화기 비치 후 작업에 임합니다.</span></label>
+            <label class="checkbox-group"><input type="checkbox" required><span>4. 작업 후 정리 정돈 및 지정된 장소에 잔재물을 버립니다.</span></label>
+            <label class="checkbox-group"><input type="checkbox" required><span>5. 선 안전조치 후 작업하며, 재해 위험 시 작업을 거부합니다 (작업중지권).</span></label>
+            <label class="checkbox-group"><input type="checkbox" required><span>6. 관리감독자의 작업 안전지시에 따라야 할 의무가 있습니다.</span></label>
+        </div>
+
+        <!-- 3. 개인보호구 지급 -->
+        <div class="section">
+            <div class="section-title">3. 개인보호구 지급 및 착용 확인</div>
+            <div class="grid-4">
+                <label class="checkbox-group"><input type="checkbox" value="안전모"> 안전모</label>
+                <label class="checkbox-group"><input type="checkbox" value="안전화"> 안전화</label>
+                <label class="checkbox-group"><input type="checkbox" value="안전대"> 안전대</label>
+                <label class="checkbox-group"><input type="checkbox" value="각반"> 각반</label>
+                <label class="checkbox-group"><input type="checkbox" value="보안경"> 보안경</label>
+                <label class="checkbox-group"><input type="checkbox" value="방진마스크"> 방진마스크</label>
+                <label class="checkbox-group"><input type="checkbox" value="귀마개"> 귀마개</label>
+                <label class="checkbox-group"><input type="checkbox" value="기타"> 기타( )</label>
+            </div>
+        </div>
+
+        <!-- 4. 위험성평가 -->
+        <div class="section">
+            <div class="section-title">4. 위험성평가 (필수 작성)</div>
+            <div class="form-group"><input type="text" placeholder="1. 위험 요인 작성" required></div>
+            <div class="form-group"><input type="text" placeholder="2. 위험 요인 작성" required></div>
+        </div>
+
+        <!-- 5. 건강문진표 -->
+        <div class="section">
+            <div class="section-title">5. 건강문진표</div>
+            <div class="grid-2">
+                <div class="form-group"><label>음주 주기 (1주/회)</label><input type="text" placeholder="예: 2회"></div>
+                <div class="form-group"><label>음주량 (1회/병)</label><input type="text" placeholder="예: 1병"></div>
+                <div class="form-group"><label>흡연 기간 (년)</label><input type="text" placeholder="예: 10년"></div>
+                <div class="form-group"><label>흡연량 (1일/갑)</label><input type="text" placeholder="예: 1갑"></div>
+            </div>
+            <div class="form-group" style="margin-top: 4px;"><label>① 의사에게 주의를 받은 병 및 복용중인 약이 있습니까?</label><select required><option value="">선택</option><option value="예">예</option><option value="아니오">아니오</option></select></div>
+            <div class="form-group"><label>② 과거 수술(무릎, 어깨 등 관절)한 부위의 신전 및 굴절 시 이상이 있습니까?</label><select required><option value="">선택</option><option value="예">예</option><option value="아니오">아니오</option></select></div>
+            <div class="form-group"><label>③ 기저질환과 관련된 약을 금일 복용 하였습니까?</label><select required><option value="">선택</option><option value="예">예</option><option value="아니오">아니오</option></select></div>
+            <div class="form-group"><label>④ 6개월 이내 배치 전 건강검진 수검 이력이 있습니까?</label><select required><option value="">선택</option><option value="예">예</option><option value="아니오">아니오</option></select></div>
+            <div class="form-group"><label>⑤ 과거 산업재해가 일어난 적 있습니까? (산재 연도/내용)</label><input type="text" placeholder="예: 없음 또는 2020년/허리"></div>
+        </div>
+
+        <!-- 6. 기초안전보건교육 이수여부 -->
+        <div class="section">
+            <div class="section-title">6. 건설업 기초안전·보건교육 이수여부</div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>이수 여부 *</label>
+                    <select required id="eduStatus">
+                        <option value="">선택</option>
+                        <option value="이수">이수 완료 (이수증 소지)</option>
+                        <option value="미이수">미이수 (현장 출입 불가)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>이수증 등록번호</label><input type="text" placeholder="예: 2024-000000"></div>
+            </div>
+        </div>
+
+        <!-- 7. 개인정보 동의 -->
+        <div class="section" style="margin-bottom: 0;">
+            <div class="section-title">7. 개인정보 및 고유식별정보 제공 동의</div>
+            <p style="font-size: 0.8rem; color: #555; margin-top:0; line-height: 1.4; text-align: justify;">
+                본인은 개인정보보호법 제15조 및 제24조에 따라 수집하는 개인정보항목은 성명, 생년월일, 성별, 연락처, 산업안전보건법상 건강진단내역, CCTV/바디캠/드론 영상정보, 교육정보(수료증 등)와 민감정보인 혈압, 맥박수, 지문, 각막, 산업안전보건법상 건강진단 내역, 개인건강문진표이며 개인식별, 작업중 안전기준 준수확인, 재해처리, 공지사항 전달, 인사관리 등 근로자 확인 및 퇴직공제금 처리 등 및 제3자(발주처, 고용노동부, 국토교통부, 산업안전보건공단, 현장 소재지 시,군,구청 및 경찰서)제공을 위한 개인정보 수집 및 이용에 동의하고, 보유, 이용기간은 현장 공사 종료 후 5년입니다.
+            </p>
+            <label class="checkbox-group" style="margin-bottom: 0; margin-top: 5px;">
+                <input type="checkbox" required>
+                <span style="font-weight: bold; color: #d9534f;">위 개인정보 및 고유식별·민감정보 제공 마스터 조항에 동의합니다. (필수)</span>
+            </label>
+            
+            <!-- 우측 하단 근로자 서명 사각박스 추가 -->
+            <div class="signature-box-container">
+                <div class="signature-box">
+                    근로자: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (서명)
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-wrap">
+            <button type="button" class="btn-print" onclick="window.print()">🖨️ A4 인쇄하기</button>
+            <button type="submit" class="btn-submit">제출 및 전자 서명하기</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.getElementById('safetyForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const eduStatus = document.getElementById('eduStatus').value;
+        if(eduStatus === '미이수') {
+            alert('건설업 기초안전·보건교육 미이수자는 산업안전보건법 제31조에 의거하여 현장에 출입할 수 없습니다.');
+            return;
+        }
+        alert('제출이 완료되었습니다. 안전한 작업 되시길 바랍니다.');
+    });
+</script>
+</body>
+</html>

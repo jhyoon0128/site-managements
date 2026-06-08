@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SCDRS - 스마트 작업/안전일보 시스템</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-bg: #1e293b; --secondary-bg: #f8fafc; --accent-blue: #3b82f6; --accent-orange: #f97316;
+            --text-main: #334155; --text-light: #64748b; --white: #ffffff; --border-color: #e2e8f0;
+            --danger: #ef4444; --success: #10b981;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #e2e8f0; padding: 20px; font-family: 'Pretendard', sans-serif; color: var(--text-main); }
+
+        /* 가로 슬라이드가 아닌, A4 세로 형태에 맞춘 직관적인 반응형 컨테이너 */
+        .app-container {
+            max-width: 850px; margin: 0 auto; background-color: var(--white);
+            border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            padding: 30px; display: flex; flex-direction: column; gap: 20px;
+        }
+
+        /* 상단 헤더 및 버튼 그룹 */
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-bg); padding-bottom: 15px; }
+        .header h1 { font-family: 'Montserrat', sans-serif; font-size: 22px; color: var(--primary-bg); letter-spacing: -0.5px; display: flex; align-items: center; gap: 10px; }
+        
+        .btn-group { display: flex; gap: 8px; }
+        .btn { padding: 10px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: 0.2s; display: flex; align-items: center; gap: 6px; font-size: 14px; }
+        .btn-primary { background-color: var(--accent-blue); color: white; }
+        .btn-success { background-color: var(--success); color: white; }
+        .btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-danger { background-color: var(--danger); color: white; padding: 4px 8px; font-size: 12px; border-radius: 4px; }
+        .btn-add { background-color: var(--white); border: 1px solid var(--accent-blue); color: var(--accent-blue); font-size: 12px; padding: 4px 10px; border-radius: 4px; font-weight: bold; }
+        .btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+        /* 섹션 공통 */
+        .section { border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; background: #fff; }
+        .section-title { font-size: 16px; font-weight: 700; color: var(--primary-bg); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 6px; }
+
+        /* 기본 정보 Grid */
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .input-box { display: flex; flex-direction: column; gap: 6px; }
+        .label { font-weight: 600; color: var(--text-main); font-size: 13px; }
+        input, select, textarea { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; width: 100%; color: #333; background: var(--secondary-bg); }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent-blue); background: #fff; }
+
+        /* 테이블 스타일 */
+        table { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
+        th { background-color: #f1f5f9; padding: 10px; text-align: center; border: 1px solid var(--border-color); font-size: 13px; font-weight: 700; }
+        td { padding: 4px; border: 1px solid var(--border-color); font-size: 13px; text-align: center; }
+        .editable-cell { background: transparent; border: none; width: 100%; height: 100%; text-align: center; padding: 6px; }
+        .editable-cell:focus { background: #fff; outline: 1px solid var(--accent-blue); border-radius: 4px; }
+        .editable-cell.text-left { text-align: left; }
+
+        /* 공정률 및 하단 교육정보 레이아웃 */
+        .progress-box { display: flex; gap: 15px; background: var(--secondary-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); align-items: center; }
+        .progress-box input { text-align: right; font-weight: 700; background: #fff; }
+        
+        #status-msg { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; background: var(--primary-bg); color: white; border-radius: 8px; display: none; z-index: 999; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+        /* ========================================================
+           A4 세로 1장 인쇄 최적화 스타일 (@media print)
+           ======================================================== */
+        @media print {
+            @page { size: A4 portrait; margin: 8mm 10mm; }
+            body { background: #fff; padding: 0; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .app-container { max-width: 100% !important; padding: 0 !important; box-shadow: none !important; border-radius: 0 !important; gap: 8px !important; }
+            
+            /* 인쇄 시 상단 기능 버튼 일체 숨김 */
+            .btn-group, .btn-add, .btn-danger, #status-msg { display: none !important; }
+            .header { padding-bottom: 8px; margin-bottom: 5px; border-bottom: 2px solid #000; }
+            .header h1 { font-size: 16pt !important; color: #000; }
+
+            /* 섹션별 간격 최소 압축 */
+            .section { margin-bottom: 2px !important; padding: 6px 10px !important; border: 1px solid #999 !important; background: #fff !important; }
+            .section-title { font-size: 10.5pt !important; margin-bottom: 5px !important; padding-bottom: 2px !important; border-bottom: 1px solid #000; color: #000; }
+            
+            /* 입력 필드 압축 */
+            .grid-3, .grid-2 { gap: 8px !important; }
+            .label { font-size: 8.5pt !important; color: #000; }
+            input, select, textarea { padding: 3px 6px !important; font-size: 9pt !important; border: 1px solid #777 !important; border-radius: 2px !important; background: transparent !important; height: 22px; color: #000 !important; }
+            textarea#safety-detail { height: 75px !important; line-height: 1.3 !important; font-size: 8.5pt !important; }
+
+            /* 테이블 테두리 강화 및 압축 */
+            table { border: 1px solid #000 !important; }
+            th { padding: 4px !important; font-size: 9pt !important; background-color: #e2e8f0 !important; border: 1px solid #000 !important; color: #000; }
+            td { padding: 2px !important; font-size: 9pt !important; border: 1px solid #000 !important; }
+            .editable-cell { padding: 2px !important; height: auto !important; }
+            
+            /* 행 삭제 버튼 열 완전 제외 */
+            table th:last-child, table td:last-child { display: none !important; }
+
+            /* 공정률 및 안내 박스 */
+            .progress-box { padding: 6px 10px !important; margin-top: 2px !important; gap: 10px !important; border: 1px solid #000 !important; background: transparent !important; }
+            .progress-box input { font-size: 10pt !important; height: 22px; text-align: center !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="header">
+            <h1><i class="fa-solid fa-clipboard-check"></i> 일일 작업 및 안전보건 보고서</h1>
+            <div class="btn-group">
+                <button class="btn btn-outline" onclick="location.href='index.html'"><i class="fa-solid fa-house"></i> 홈</button>
+                <button class="btn btn-success" onclick="saveCurrentData()"><i class="fa-solid fa-floppy-disk"></i> 💾 데이터 저장</button>
+                <button class="btn btn-primary" onclick="window.print()"><i class="fa-solid fa-print"></i> 🖨️ 인쇄하기</button>
+            </div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title"><i class="fa-solid fa-circle-info"></i> 기본 보고 정보</div>
+            <div class="grid-3">
+                <div class="input-box">
+                    <label class="label">관리 현장 선택</label>
+                    <select id="site-select" onchange="loadSiteData()"></select>
+                </div>
+                <div class="input-box">
+                    <label class="label">출역 일자</label>
+                    <input type="date" id="report-date" onchange="loadSiteData()">
+                </div>
+                <div class="input-box">
+                    <label class="label">작성 담당자</label>
+                    <input type="text" id="author-name" placeholder="담당자 성명 입력">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title"><i class="fa-solid fa-list-check"></i> 금일 작업 내역 및 명일 계획 현황</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:160px;">공종 / 팀명</th>
+                        <th>상세 작업 내용</th>
+                        <th style="width:140px;">작업자 (출역현황)</th>
+                        <th style="width:55px;">관리</th>
+                    </tr>
+                </thead>
+                
+                <tbody id="today-tbody">
+                    <tr>
+                        <td colspan="4" style="background:#e2e8f0; font-weight:700; text-align: left; padding: 6px 10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:#1e293b;"><i class="fa-solid fa-arrow-right"></i> [금일 작업 내역]</span>
+                                <button type="button" class="btn btn-add" onclick="addRow('today')"><i class="fa-solid fa-plus"></i> 행 추가</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+
+                <tbody id="tmr-tbody">
+                    <tr>
+                        <td colspan="4" style="background:#ffedd5; font-weight:700; text-align: left; padding: 6px 10px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:#9a3412;"><i class="fa-solid fa-calendar-days"></i> [명일 작업 계획]</span>
+                                <button type="button" class="btn btn-add" onclick="addRow('tmr')"><i class="fa-solid fa-plus"></i> 행 추가</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="progress-box">
+                <div class="input-box" style="flex:1;">
+                    <label class="label">🎯 예정 공정률 (%)</label>
+                    <input type="number" id="planned-rate" step="0.1" placeholder="0.0" oninput="calculateProgress()">
+                </div>
+                <div class="input-box" style="flex:1;">
+                    <label class="label">🏃 진행 공정률 (%)</label>
+                    <input type="number" id="actual-rate" step="0.1" placeholder="0.0" oninput="calculateProgress()">
+                </div>
+                <div class="input-box" style="flex:1;">
+                    <label class="label">⚖️ 공정률 기준 차이 (%)</label>
+                    <input type="text" id="diff-rate" readonly placeholder="0.0" style="background: #e2e8f0; border:none; text-align: center;">
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title"><i class="fa-solid fa-shield-halved"></i> 안전보건교육 및 TBM 지시사항</div>
+            <div class="grid-2" style="margin-bottom: 12px;">
+                <div class="input-box">
+                    <label class="label">안전교육 주제 선택 (TBM 자동 매칭)</label>
+                    <select id="safety-topic-select" onchange="applySafetyTopic()">
+                        <option value="">-- 직접 입력 또는 선택 하세요 --</option>
+                        <option value="fall">추락재해 예방 및 안전난간 점검</option>
+                        <option value="confine">밀폐공간 질식 재해 예방 및 산소농도 측정</option>
+                        <option value="electric">감전사고 방지 및 절연보호구 착용</option>
+                        <option value="heavy">중량물 취급 및 요통 예방 교육</option>
+                        <option value="fire">화재 폭발 사고 발생 시 대피 요령</option>
+                    </select>
+                </div>
+                <div class="grid-2">
+                    <div class="input-box">
+                        <label class="label">교육 장소</label>
+                        <input type="text" id="edu-place" placeholder="예: 현장 안전교육장">
+                    </div>
+                    <div class="input-box">
+                        <label class="label">참석 인원 (명)</label>
+                        <input type="number" id="edu-count" placeholder="숫자만 입력">
+                    </div>
+                </div>
+            </div>
+            <div class="input-box">
+                <label class="label">중점 위험성평가 및 상세 교육 점검 지시 내용</label>
+                <textarea id="safety-detail" rows="4" placeholder="위험성평가 기반 교육 세부 대책 사항을 입력하십시오."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div id="status-msg">💾 데이터가 로컬 스토리지에 안전하게 기록되었습니다!</div>
+
+    <script>
+        // 현재 날짜 표준 세팅
+        document.getElementById('report-date').value = new Date().toISOString().substring(0, 10);
+
+        // 현장 리스트 동적 동기화 파싱
+        function populateSiteDropdown() {
+            const siteSelect = document.getElementById('site-select');
+            let sites = JSON.parse(localStorage.getItem('scdrs_sites')) || [];
+            siteSelect.innerHTML = '<option value="">-- 관리 현장을 선택하세요 --</option>';
+            if (sites.length === 0) {
+                siteSelect.innerHTML += '<option disabled>등록된 현장이 존재하지 않습니다. 메인 대시보드 1번에서 먼저 현장을 설정하세요.</option>';
+            } else {
+                sites.forEach(site => {
+                    const optionText = `[${site.siteCode}] ${site.siteName}`;
+                    siteSelect.innerHTML += `<option value="${site.siteCode}">${optionText}</option>`;
+                });
+            }
+        }
+        populateSiteDropdown();
+
+        // 테이블 동적 인라인 행 추가 제어 로직
+        function addRow(section, team='', content='', worker='') {
+            const tbody = document.getElementById(section + '-tbody');
+            const tr = document.createElement('tr');
+            tr.className = 'data-row';
+            tr.innerHTML = `
+                <td><input type="text" class="editable-cell team-input" value="${team}" placeholder="공종/팀명"></td>
+                <td><input type="text" class="editable-cell content-input text-left" value="${content}" placeholder="상세 작업내용 입력"></td>
+                <td><input type="text" class="editable-cell worker-input" value="${worker}" placeholder="근로자 명단"></td>
+                <td style="text-align:center;"><button type="button" class="btn btn-danger" onclick="deleteRow(this)"><i class="fa-solid fa-minus"></i></button></td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function deleteRow(button) {
+            button.closest('tr').remove();
+        }
+
+        // 공정률 차이 실시간 연산 시스템
+        function calculateProgress() {
+            const planned = parseFloat(document.getElementById('planned-rate').value) || 0;
+            const actual = parseFloat(document.getElementById('actual-rate').value) || 0;
+            const diff = actual - planned;
+            const diffEl = document.getElementById('diff-rate');
+            
+            diffEl.value = (diff > 0 ? '+' : '') + diff.toFixed(1) + '%';
+            
+            if (diff < 0) {
+                diffEl.style.color = '#ef4444'; // 지연
+            } else if (diff > 0) {
+                diffEl.style.color = '#3b82f6'; // 초과 달성
+            } else {
+                diffEl.style.color = '#334155';
+            }
+        }
+
+        // TBM 핵심 안전조치 데이터베이스 사전 정의 데이터
+        const topicData = {
+            fall: "1. 추락 방지용 안전난간 및 개구부 안전덮개 설치 고정 여부 상태 점검 철저\\n2. 2m 이상 고소 작업 구간 진입 근로자 안전대 풀해치 및 안전고리 체결 여부 상시 모니터링",
+            confine: "1. 밀폐공간(저수조, 지하시설) 내부 진입 전 산소 농도 및 황화수소 등 유해가스 측정계 가동\\n2. 작업 전 밀폐 전용 송풍 가설 환기팬 상시 가동 상태 보장 및 감시인 지정 배치 의무화",
+            electric: "1. 가설 가동 배전반 분전함 외함 접지 전면 점검 및 고감도 누전차단기 정격 작동 확인\\n2. 동력 케이블 피복 손상 유무 육안 점검 및 통로 횡단 시 전선 보호 피트 가설 적용 고정",
+            heavy: "1. 인력 운반 작업 시 허리를 곧게 펴고 무릎을 이용한 수직 인양 자세 지도 교정 조치\\n2. 25kg 초과 중량물 인양 전 중량 상태 식별 라벨 확인 및 2인 1조 공동 중량물 취급 원칙 준수",
+            fire: "1. 가스용접 및 밀폐구간 화재 위험 작업 전 주변 인화성 유류 가연물 제거 및 방화포 가설 설치\\n2. 화재감시자 전담 지정 임명 배치 및 통로 구간 내 유효 규격 소화기 2대 이상 근접 전면 배치"
+        };
+
+        function applySafetyTopic() {
+            const select = document.getElementById('safety-topic-select');
+            const detailArea = document.getElementById('safety-detail');
+            if (topicData[select.value]) detailArea.value = topicData[select.value];
+            else detailArea.value = "";
+        }
+
+        // 로컬 데이터 원천 영구 저장 알고리즘
+        function saveCurrentData() {
+            const siteId = document.getElementById('site-select').value;
+            const date = document.getElementById('report-date').value;
+            const author = document.getElementById('author-name').value;
+            
+            if(!siteId) { alert('현장을 필히 선택하여야 데이터가 세이브됩니다.'); return; }
+
+            const getTableData = (sectionId) => {
+                const rows = document.getElementById(sectionId).querySelectorAll('.data-row');
+                return Array.from(rows).map(row => ({
+                    team: row.querySelector('.team-input').value,
+                    content: row.querySelector('.content-input').value,
+                    worker: row.querySelector('.worker-input').value
+                })).filter(item => item.team || item.content || item.worker);
+            };
+
+            const data = {
+                author: author,
+                today: getTableData('today-tbody'),
+                tomorrow: getTableData('tmr-tbody'),
+                progress: {
+                    planned: document.getElementById('planned-rate').value,
+                    actual: document.getElementById('actual-rate').value
+                },
+                safety: {
+                    detail: document.getElementById('safety-detail').value,
+                    place: document.getElementById('edu-place').value,
+                    count: document.getElementById('edu-count').value
+                }
+            };
+
+            localStorage.setItem(`scdrs_${siteId}_${date}`, JSON.stringify(data));
+            
+            const msg = document.getElementById('status-msg');
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 2000);
+        }
+
+        // 로컬 데이터 원천 로딩 동기화 알고리즘
+        function loadSiteData() {
+            const siteId = document.getElementById('site-select').value;
+            const date = document.getElementById('report-date').value;
+            const saved = localStorage.getItem(`scdrs_${siteId}_${date}`);
+            
+            document.getElementById('author-name').value = "";
+            document.querySelectorAll('.data-row').forEach(row => row.remove());
+            document.getElementById('planned-rate').value = "";
+            document.getElementById('actual-rate').value = "";
+            document.getElementById('diff-rate').value = "";
+            document.getElementById('safety-detail').value = "";
+            document.getElementById('edu-place').value = "";
+            document.getElementById('edu-count').value = "";
+
+            if (saved) {
+                const data = JSON.parse(saved);
+                document.getElementById('author-name').value = data.author || "";
+                
+                if(data.today && data.today.length > 0) data.today.forEach(item => addRow('today', item.team, item.content, item.worker));
+                else { addRow('today'); addRow('today'); }
+                
+                if(data.tomorrow && data.tomorrow.length > 0) data.tomorrow.forEach(item => addRow('tmr', item.team, item.content, item.worker));
+                else { addRow('tmr'); addRow('tmr'); }
+
+                if(data.progress) {
+                    document.getElementById('planned-rate').value = data.progress.planned || "";
+                    document.getElementById('actual-rate').value = data.progress.actual || "";
+                    calculateProgress();
+                }
+
+                if(data.safety) {
+                    document.getElementById('safety-detail').value = data.safety.detail || "";
+                    document.getElementById('edu-place').value = data.safety.place || "";
+                    document.getElementById('edu-count').value = data.safety.count || "";
+                }
+            } else {
+                addRow('today'); addRow('today');
+                addRow('tmr'); addRow('tmr');
+            }
+        }
+    </script>
+</body>
+</html>

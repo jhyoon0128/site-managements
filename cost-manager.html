@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCDRS - 현장별 손익/원가 현황 보고서</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #1e293b; --secondary: #f8fafc; --accent: #3b82f6; --danger: #ef4444; --success: #10b981;
+            --text-main: #334155; --border: #cbd5e1; --bg-main: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
+        body { background-color: var(--bg-main); padding: 20px; display: flex; justify-content: center; }
+
+        .container {
+            width: 100%; max-width: 1000px; background: #fff; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); padding: 30px;
+        }
+
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); padding-bottom: 15px; margin-bottom: 25px; }
+        .header h1 { font-size: 26px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;}
+        .btn { padding: 10px 15px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-dark { background: var(--primary); color: white; }
+        .btn:hover { opacity: 0.8; }
+
+        .top-filter { display: flex; gap: 20px; background: var(--secondary); padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 30px; }
+        .filter-item { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+        .filter-item label { font-size: 13px; font-weight: bold; color: var(--text-main); }
+        select, input[type="text"], input[type="month"] { padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 15px; width: 100%; }
+        select:focus, input:focus { outline: none; border-color: var(--accent); }
+
+        .section-title { font-size: 18px; font-weight: bold; color: var(--primary); margin-bottom: 10px; border-left: 4px solid var(--accent); padding-left: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px; }
+        th, td { padding: 12px; border: 1px solid var(--border); text-align: right; }
+        th { background: #f1f5f9; text-align: center; font-weight: bold; }
+        td:first-child { text-align: center; font-weight: bold; background: #f8fafc; }
+        
+        .num-input { width: 100%; border: none; text-align: right; font-size: 15px; background: transparent; color: var(--text-main); }
+        .num-input:focus { outline: none; border-bottom: 2px solid var(--accent); background: white; }
+        .readonly-cell { background: #f1f5f9; font-weight: bold; color: var(--primary); }
+
+        .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+        .summary-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px; text-align: center; }
+        .summary-card.highlight { border-color: var(--accent); background: #eff6ff; }
+        .summary-title { font-size: 13px; color: var(--text-main); font-weight: bold; margin-bottom: 10px; }
+        .summary-value { font-size: 22px; font-weight: 800; color: var(--primary); }
+        .danger-text { color: var(--danger) !important; }
+        .success-text { color: var(--accent) !important; }
+
+        #status-msg { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; background: var(--primary); color: white; border-radius: 8px; display: none; z-index: 999; }
+
+        /* ================= 인쇄용(1장 보고서) CSS ================= */
+        @media print {
+            @page { size: A4 portrait; margin: 15mm; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; max-width: 100%; padding: 0; }
+            .btn-group, #status-msg { display: none !important; }
+            
+            .top-filter { border: none; background: transparent; padding: 0; border-bottom: 2px solid #000; border-radius: 0; margin-bottom: 20px; }
+            .top-filter input, .top-filter select { border: none; font-weight: bold; font-size: 14px; appearance: none; -webkit-appearance: none; background: transparent; padding: 0; }
+            
+            table { border: 2px solid #000; }
+            th, td { border: 1px solid #000; padding: 8px; color: #000; }
+            .num-input { color: #000; font-weight: bold; }
+            
+            .summary-card { border: 1px solid #000; break-inside: avoid; padding: 15px; }
+            .summary-card.highlight { background: #f8fafc !important; border: 2px solid #000; }
+            .summary-title, .summary-value { color: #000 !important; }
+            
+            .header h1 { color: #000; font-size: 24px; border-bottom: 0; }
+            .section-title { color: #000; border-left: 4px solid #000; }
+            .readonly-cell { background: #f8fafc !important; color: #000 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="report-container">
+    <div class="header">
+        <h1><i class="fa-solid fa-chart-pie"></i> 현장별 손익 및 원가 현황 보고서</h1>
+        <div class="btn-group">
+            <button class="btn btn-outline" onclick="location.href='index.html'"><i class="fa-solid fa-house"></i> 메인</button>
+            <input type="file" id="excel-upload" accept=".csv, .xls, .xlsx" style="display:none;" onchange="importExcel(event)">
+            <button class="btn btn-success" onclick="document.getElementById('excel-upload').click()"><i class="fa-solid fa-file-excel"></i> 엑셀 파일 불러오기</button>
+            <button class="btn btn-primary" onclick="saveCostData()"><i class="fa-solid fa-floppy-disk"></i> 저장</button>
+            <button class="btn btn-dark" onclick="window.print()"><i class="fa-solid fa-print"></i> 1장 보고서 출력</button>
+        </div>
+    </div>
+
+    <div class="top-filter">
+        <div class="filter-item">
+            <label>관리 현장</label>
+            <select id="site-select" onchange="loadCostData()"></select>
+        </div>
+        <div class="filter-item">
+            <label>기준 년월 (마감월)</label>
+            <input type="month" id="base-month" onchange="loadCostData()">
+        </div>
+        <div class="filter-item">
+            <label>당월 기성 청구액 (원)</label>
+            <input type="text" class="num-input" id="monthly-revenue" style="background:#fff; border:1px solid #cbd5e1; padding:10px; border-radius:6px; text-align:left;" value="0" oninput="formatAndCalc(this)">
+        </div>
+    </div>
+
+    <div class="section-title">📊 원가 및 손익 종합 브리핑</div>
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-title">총 예정원가 (실행예산)</div>
+            <div class="summary-value" id="dash-budget">0</div>
+        </div>
+        <div class="summary-card highlight">
+            <div class="summary-title">누계 실행원가 (총 투입금액)</div>
+            <div class="summary-value" id="dash-actual">0</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-title">예산 대비 원가 집행률</div>
+            <div class="summary-value" id="dash-rate">0.0%</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-title">누계 손익금 (기성 - 투입원가)</div>
+            <div class="summary-value" id="dash-profit">0</div>
+        </div>
+    </div>
+
+    <div class="section-title">비목별 예정원가 vs 실행원가 상세 대비표 (단위: 원)</div>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 15%;">구분 (비목)</th>
+                <th style="width: 20%;">예정원가 (실행예산) [A]</th>
+                <th style="width: 20%;">누계 실행원가 (투입) [B]</th>
+                <th style="width: 20%;">집행 잔액 [A - B]</th>
+                <th style="width: 15%;">원가 집행률 (%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>자재비</td>
+                <td><input type="text" class="num-input" id="mat-budget" value="0" oninput="formatAndCalc(this)"></td>
+                <td><input type="text" class="num-input" id="mat-actual" value="0" oninput="formatAndCalc(this)"></td>
+                <td class="readonly-cell" id="mat-balance">0</td>
+                <td class="readonly-cell" id="mat-rate">0.0%</td>
+            </tr>
+            <tr>
+                <td>인건비 (노무비)</td>
+                <td><input type="text" class="num-input" id="lab-budget" value="0" oninput="formatAndCalc(this)"></td>
+                <td><input type="text" class="num-input" id="lab-actual" value="0" oninput="formatAndCalc(this)"></td>
+                <td class="readonly-cell" id="lab-balance">0</td>
+                <td class="readonly-cell" id="lab-rate">0.0%</td>
+            </tr>
+            <tr>
+                <td>경비 (현장/본사)</td>
+                <td><input type="text" class="num-input" id="exp-budget" value="0" oninput="formatAndCalc(this)"></td>
+                <td><input type="text" class="num-input" id="exp-actual" value="0" oninput="formatAndCalc(this)"></td>
+                <td class="readonly-cell" id="exp-balance">0</td>
+                <td class="readonly-cell" id="exp-rate">0.0%</td>
+            </tr>
+            <tr>
+                <td>외주비</td>
+                <td><input type="text" class="num-input" id="sub-budget" value="0" oninput="formatAndCalc(this)"></td>
+                <td><input type="text" class="num-input" id="sub-actual" value="0" oninput="formatAndCalc(this)"></td>
+                <td class="readonly-cell" id="sub-balance">0</td>
+                <td class="readonly-cell" id="sub-rate">0.0%</td>
+            </tr>
+            <tr style="background: #e2e8f0; border-top: 2px solid var(--primary);">
+                <td>총 계</td>
+                <td class="readonly-cell" id="total-budget" style="font-size: 16px;">0</td>
+                <td class="readonly-cell" id="total-actual" style="font-size: 16px;">0</td>
+                <td class="readonly-cell" id="total-balance" style="font-size: 16px;">0</td>
+                <td class="readonly-cell" id="total-rate" style="font-size: 16px;">0.0%</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div style="font-size: 12px; color: #64748b; text-align: right;">
+        * 모든 금액 칸은 클릭하여 자유롭게 직접 수정할 수 있습니다.
+    </div>
+</div>
+
+<div id="status-msg">원가/손익 데이터가 저장되었습니다!</div>
+
+<script>
+    document.getElementById('base-month').value = new Date().toISOString().substring(0, 7);
+
+    function setComma(val) { return Number(val).toLocaleString('ko-KR'); }
+    function removeComma(val) { return Number(String(val).replace(/[^0-9.-]+/g, '')) || 0; }
+    function parseNum(val) { if (!val) return 0; return Number(String(val).replace(/[^0-9.-]+/g,"")) || 0; }
+
+    function populateSiteDropdown() {
+        const siteSelect = document.getElementById('site-select');
+        let sites = JSON.parse(localStorage.getItem('scdrs_sites')) || [];
+        siteSelect.innerHTML = '<option value="">-- 직접입력 또는 현장 선택 --</option>';
+        sites.forEach(site => {
+            siteSelect.innerHTML += `<option value="${site.siteCode}">[${site.siteCode}] ${site.siteName}</option>`;
+        });
+    }
+
+    function formatAndCalc(input) {
+        input.value = setComma(removeComma(input.value));
+        calculateCost();
+    }
+
+    function calculateCost() {
+        const categories = ['mat', 'lab', 'exp', 'sub'];
+        let totBudget = 0, totActual = 0;
+
+        categories.forEach(cat => {
+            let budget = removeComma(document.getElementById(`${cat}-budget`).value);
+            let actual = removeComma(document.getElementById(`${cat}-actual`).value);
+            
+            totBudget += budget;
+            totActual += actual;
+
+            let balance = budget - actual;
+            let balEl = document.getElementById(`${cat}-balance`);
+            balEl.innerText = setComma(balance);
+            balEl.style.color = balance < 0 ? 'red' : 'inherit';
+
+            let rate = budget === 0 ? 0 : (actual / budget) * 100;
+            let rateEl = document.getElementById(`${cat}-rate`);
+            rateEl.innerText = rate.toFixed(1) + '%';
+            rateEl.style.color = rate > 100 ? 'red' : 'inherit';
+        });
+
+        document.getElementById('total-budget').innerText = setComma(totBudget);
+        document.getElementById('total-actual').innerText = setComma(totActual);
+        
+        let totBalance = totBudget - totActual;
+        document.getElementById('total-balance').innerText = setComma(totBalance);
+        
+        let totRate = totBudget === 0 ? 0 : (totActual / totBudget) * 100;
+        document.getElementById('total-rate').innerText = totRate.toFixed(1) + '%';
+
+        document.getElementById('dash-budget').innerText = setComma(totBudget);
+        document.getElementById('dash-actual').innerText = setComma(totActual);
+        
+        let dashRateEl = document.getElementById('dash-rate');
+        dashRateEl.innerText = totRate.toFixed(1) + '%';
+        dashRateEl.className = 'summary-value ' + (totRate > 100 ? 'danger-text' : (totRate < 80 ? 'success-text' : ''));
+
+        let revenue = removeComma(document.getElementById('monthly-revenue').value);
+        let profit = revenue - totActual;
+        let profitEl = document.getElementById('dash-profit');
+        profitEl.innerText = setComma(profit);
+        profitEl.className = 'summary-value ' + (profit < 0 ? 'danger-text' : 'success-text');
+    }
+
+    // 파일명과 확장자(.xls, .xlsx, .csv)에 구애받지 않는 범용 엑셀 파싱 로직
+    function importExcel(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            try {
+                // SheetJS를 사용하여 바이너리 데이터 분석
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                
+                // 첫 번째 시트 선택
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                
+                // 시트의 데이터를 2차원 배열 형태로 변환
+                const rows = XLSX.utils.sheet_to_json(worksheet, {header: 1});
+
+                let budgetMat = 0, budgetLab = 0, budgetExp = 0;
+                let actualMat = 0, actualLab = 0, actualExp = 0, actualSub = 0;
+                let revenue = 0;
+
+                // 1. 예정원가 추출
+                for (let i = 0; i < Math.min(20, rows.length); i++) {
+                    if (!rows[i] || !rows[i][0]) continue;
+                    let title = String(rows[i][0]).replace(/\s/g, ''); 
+                    if (title.includes('자재비')) budgetMat = parseNum(rows[i][16]) || parseNum(rows[i][1]);
+                    if (title.includes('인건비')) budgetLab = parseNum(rows[i][16]) || parseNum(rows[i][1]);
+                    if (title.includes('경비')) budgetExp = parseNum(rows[i][16]) || parseNum(rows[i][1]);
+                }
+
+                // 2. 실행원가 추출 (하단 합계 행 추적)
+                for (let i = rows.length - 1; i >= 0; i--) {
+                    if (rows[i] && rows[i][0] && String(rows[i][0]).includes('합계')) {
+                        actualMat = parseNum(rows[i][3]);  
+                        actualLab = parseNum(rows[i][6]);  
+                        actualExp = parseNum(rows[i][9]);  
+                        actualSub = parseNum(rows[i][13]); 
+                        revenue = parseNum(rows[i][16]) || parseNum(rows[i][15]) || parseNum(rows[i][17]); 
+                        break;
+                    }
+                }
+
+                document.getElementById('mat-budget').value = setComma(budgetMat);
+                document.getElementById('lab-budget').value = setComma(budgetLab);
+                document.getElementById('exp-budget').value = setComma(budgetExp);
+
+                document.getElementById('mat-actual').value = setComma(actualMat);
+                document.getElementById('lab-actual').value = setComma(actualLab);
+                document.getElementById('exp-actual').value = setComma(actualExp);
+                document.getElementById('sub-actual').value = setComma(actualSub);
+
+                document.getElementById('monthly-revenue').value = setComma(revenue);
+
+                calculateCost();
+                alert("엑셀 데이터가 성공적으로 분석 및 입력되었습니다.");
+                
+            } catch (error) {
+                console.error(error);
+                alert("엑셀 파일을 읽는 중 오류가 발생했습니다. 파일 형식을 다시 확인해주세요.");
+            }
+        };
+        
+        // 파일을 바이너리 버퍼로 읽어들임 (모든 엑셀 포맷 지원)
+        reader.readAsArrayBuffer(file);
+        
+        // 동일한 파일을 다시 선택할 수 있도록 input 초기화
+        event.target.value = '';
+    }
+
+    function saveCostData() {
+        const siteId = document.getElementById('site-select').value;
+        const month = document.getElementById('base-month').value;
+        
+        const data = {
+            revenue: removeComma(document.getElementById('monthly-revenue').value),
+            mat: { b: removeComma(document.getElementById('mat-budget').value), a: removeComma(document.getElementById('mat-actual').value) },

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>근로자 작업안전 및 건강상태 확인</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; padding: 20px; background: #f1f5f9; }
+        .container { max-width: 1200px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+        th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: center; word-break: keep-all; }
+        th { background: #f8fafc; font-weight: bold; }
+        input[type="text"] { width: 100%; border: none; padding: 5px; text-align: center; }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; margin-left: 5px; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-primary { background: #3b82f6; color: white; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>근로자 작업안전 및 건강상태 확인</h2>
+        <div>
+            <button class="btn btn-primary" onclick="location.href='index.html'">🏠 홈</button>
+            <input type="file" id="excel-upload" style="display:none" onchange="importExcel(event)">
+            <button class="btn btn-success" onclick="document.getElementById('excel-upload').click()">엑셀 불러오기</button>
+            <button class="btn btn-primary" onclick="window.print()">인쇄</button>
+        </div>
+    </div>
+    <table id="check-table">
+        <thead>
+            <tr>
+                <th rowspan="2">정렬</th><th rowspan="2">성명</th><th rowspan="2">주민번호</th><th rowspan="2">직종</th>
+                <th colspan="2">보호구착용</th><th colspan="2">안전수칙</th><th colspan="2">고소작업</th>
+                <th colspan="2">중량물</th><th colspan="2">정리정돈</th><th colspan="2">건강상태</th>
+                <th colspan="2">음주여부</th><th rowspan="2">비고</th>
+            </tr>
+            <tr><th>오전</th><th>오후</th><th>오전</th><th>오후</th><th>오전</th><th>오후</th><th>오전</th><th>오후</th><th>오전</th><th>오후</th><th>오전</th><th>오후</th><th>오전</th><th>오후</th></tr>
+        </thead>
+        <tbody id="data-body">
+            </tbody>
+    </table>
+</div>
+<script>
+    function createRows() {
+        const body = document.getElementById('data-body');
+        for(let i=1; i<=20; i++) {
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<td>${i}</td><td><input type="text"></td><td><input type="text"></td><td><input type="text"></td>` + 
+                           `<td><input type="checkbox"></td><td><input type="checkbox"></td>`.repeat(7) +
+                           `<td><input type="text"></td>`;
+            body.appendChild(tr);
+        }
+    }
+    createRows();
+
+    function importExcel(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const wb = XLSX.read(e.target.result, {type:'array'});
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            const data = XLSX.utils.sheet_to_json(ws, {header:1});
+            
+            const rows = document.querySelectorAll('#data-body tr');
+            // CSV 데이터 7행부터 시작하는 것으로 가정
+            for(let i=0; i<Math.min(rows.length, data.length-7); i++) {
+                let rowData = data[i+7];
+                let inputs = rows[i].querySelectorAll('input[type="text"]');
+                if(rowData) {
+                    inputs[0].value = rowData[1] || ""; // 성명
+                    inputs[1].value = rowData[2] || ""; // 주민번호
+                    inputs[2].value = rowData[3] || ""; // 직종
+                }
+            }
+        };
+        reader.readAsArrayBuffer(file);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCDRS - 차량계 건설기계 사전 반입 점검표</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e293b; --secondary: #f8fafc; --accent: #3b82f6; --text-main: #334155; --border: #cbd5e1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
+        body { background-color: #e2e8f0; padding: 20px; display: flex; justify-content: center; }
+
+        .container {
+            width: 100%; max-width: 900px; background: #fff; border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); padding: 30px 40px; margin-bottom: 20px;
+        }
+
+        .header-actions { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; transition: 0.2s; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-info { background: #06b6d4; color: white; }
+        .btn-dark { background: var(--primary); color: white; }
+        .btn:hover { opacity: 0.8; }
+
+        .doc-title { text-align: center; font-size: 26px; font-weight: 800; color: var(--primary); margin-bottom: 10px; text-decoration: underline; text-underline-offset: 8px; }
+        .doc-subtitle { text-align: center; font-size: 14px; font-weight: bold; color: #64748b; margin-bottom: 25px; }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; border: 2px solid var(--primary); padding: 10px; border-radius: 6px; background: #f8fafc; }
+        .info-item { display: flex; align-items: center; font-size: 14px; }
+        .info-item label { font-weight: bold; width: 80px; color: var(--primary); }
+        .info-input { flex: 1; padding: 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 14px; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 15px; }
+        /* 단어 단위 끊어짐 방지 적용 */
+        th, td { border: 1px solid var(--border); padding: 8px; text-align: center; vertical-align: middle; word-break: keep-all; }
+        th { background: #f1f5f9; font-weight: 700; color: var(--primary); }
+        .text-left { text-align: left; line-height: 1.4; padding-left: 10px; }
+        
+        .result-select { width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; font-weight: bold; text-align: center; cursor: pointer; }
+        .remark-input { width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; }
+        
+        input:disabled, select:disabled { background-color: transparent; border: none; color: black; -webkit-appearance: none; appearance: none; font-weight: bold; }
+        input:disabled.remark-input { font-weight: normal; }
+
+        /* 첨부파일 영역 */
+        .attachment-section { display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 10px; padding: 10px; background: #f8fafc; border: 1px dashed var(--border); border-radius: 6px; }
+        
+        /* 결재란 */
+        .signature-section { display: flex; justify-content: flex-end; margin-top: 10px; }
+        .sign-table { border-collapse: collapse; text-align: center; margin-bottom: 0; }
+        .sign-table th, .sign-table td { border: 1px solid #000; padding: 5px; font-size: 13px; }
+        .sign-table th { background: #f1f5f9; width: 80px; }
+        .sign-table td { height: 60px; vertical-align: bottom; padding-bottom: 5px; color: #94a3b8; width: 80px; }
+
+        #status-msg { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; background: var(--primary); color: white; border-radius: 8px; display: none; z-index: 999; }
+
+        /* ================= A4 1장 인쇄용 CSS ================= */
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+            .header-actions, #status-msg, #attachBtn { display: none !important; }
+            
+            .info-grid { border-color: #000; background: transparent; }
+            .info-input { border: none !important; font-weight: bold; background: transparent !important; padding: 0; }
+            
+            table { border: 2px solid #000; margin-bottom: 10px; }
+            th, td { border: 1px solid #000; padding: 6px 4px; font-size: 11px; color: #000; word-break: keep-all; }
+            th { background: #f8fafc !important; -webkit-print-color-adjust: exact; }
+            
+            .result-select { border: none !important; background: transparent !important; padding: 0; appearance: none; -webkit-appearance: none; }
+            .remark-input { border: none !important; background: transparent !important; padding: 0; }
+
+            .attachment-section { border: none; background: transparent; padding: 0; justify-content: flex-end; }
+            
+            .signature-section { margin-top: 5px; }
+            .sign-table th, .sign-table td { border: 1px solid #000; color: #000; font-size: 12px; }
+            .sign-table td { height: 65px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="report-container">
+    <div class="header-actions">
+        <button class="btn btn-outline" onclick="location.href='index.html'"><i class="fa-solid fa-house"></i> 메인</button>
+        <button class="btn btn-info" onclick="shareURL()"><i class="fa-solid fa-share-nodes"></i> URL 공유</button>
+        
+        <button class="btn btn-warning" id="editBtn" onclick="toggleEdit()"><i class="fa-solid fa-pen"></i> 수정</button>
+        <button class="btn btn-primary" id="saveBtn" onclick="saveData()"><i class="fa-solid fa-floppy-disk"></i> 저장</button>
+        <button class="btn btn-dark" onclick="window.print()"><i class="fa-solid fa-print"></i> A4 인쇄</button>
+    </div>
+
+    <div class="doc-title">차량계 건설기계 사전 반입 점검표</div>
+    <div class="doc-subtitle">(임대업체/운전자 1차 점검용)</div>
+
+    <div class="info-grid">
+        <div class="info-item"><label>제출일자</label><input type="date" class="info-input" id="submitDate"></div>
+        <div class="info-item"><label>업 체 명</label><input type="text" class="info-input" id="compName" placeholder="(주)○○기계"></div>
+        <div class="info-item"><label>장 비 명</label><input type="text" class="info-input" id="equipName" placeholder="굴착기, 지게차 등"></div>
+        <div class="info-item"><label>운 전 자</label><input type="text" class="info-input" id="driverName" placeholder="성명 입력"></div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 12%;">대분류</th>
+                <th style="width: 20%;">점검항목 (체크리스트)</th>
+                <th style="width: 43%;">확인 내용 및 관련 법적 근거</th>
+                <th style="width: 8%;">결과</th>
+                <th style="width: 17%;">비고 (제출서류 등)</th>
+            </tr>
+        </thead>
+        <tbody id="check-tbody">
+            <tr>
+                <td rowspan="4">업체 및<br>장비 서류</td>
+                <td>건설기계 등록증 및 보험</td>
+                <td class="text-left">건설기계 등록증을 보유하고 있으며, 자동차보험 및 건설기계 영업배상책임보험 등에 가입되어 유효기간 내에 있는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="사본 첨부"></td>
+            </tr>
+            <tr>
+                <td>법정 검사 합격 여부</td>
+                <td class="text-left">건설기계관리법 등에 따른 법정 정기검사, 안전검사(KCs)를 이수하고 유효기간 내에 있는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="사본 첨부"></td>
+            </tr>
+            <tr>
+                <td>정비 및 수리 이력</td>
+                <td class="text-left">장비에 대한 수리, 보수, 점검 이력 기록부가 작성되어 관리되고 있는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="사본 첨부"></td>
+            </tr>
+            <tr>
+                <td>제원표 및 설명서 비치</td>
+                <td class="text-left">제조사에서 제공한 장비 제원표, 인양능력표, 작업설명서(매뉴얼)가 차량 내에 비치되어 있는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="차량 내 비치 확인"></td>
+            </tr>
+
+            <tr>
+                <td rowspan="4">운전자 자격<br>및 교육</td>
+                <td>조종사 면허 및 자격</td>
+                <td class="text-left">해당 장비의 운전 적정 자격을 소지하고 있는가? (예: 소형건설기계 이수증, 건설기계 조종사 면허 등)</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="사본 첨부"></td>
+            </tr>
+            <tr>
+                <td>법정 안전교육 이수</td>
+                <td class="text-left">건설업 기초안전보건교육, 조종사 안전교육 및 해당 공종의 특별안전교육을 이수하였는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="사본 첨부"></td>
+            </tr>
+            <tr>
+                <td>외국인 근로자 소통</td>
+                <td class="text-left">(해당 시) 외국인 운전자 또는 주변 작업자와 소통을 위한 대책(번역 앱, 다국어 표지판 등)이 마련되어 있는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="해당 없음"></td>
+            </tr>
+            <tr>
+                <td>작업계획 및 TBM 숙지</td>
+                <td class="text-left">현장 투입 시 해당 장비의 표준 작업계획서를 숙지하고, 일일 TBM(작업 전 안전점검회의)에 참석할 준비가 되었는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="TBM 서명부 작성 예정"></td>
+            </tr>
+
+            <tr>
+                <td rowspan="4">공통 안전<br>장치 점검</td>
+                <td>시야 확보 장치 (후방)</td>
+                <td class="text-left">후방영상표시장치(후방카메라), 후진경보장치, 후사경이 파손 없이 설치되어 정상 작동하는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="정상 작동 확인"></td>
+            </tr>
+            <tr>
+                <td>조명 장치 (전조등 등)</td>
+                <td class="text-left">작업을 안전하게 수행하기 위한 전조등 및 후미등이 설치되어 있고 점등되는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="정상 작동 확인"></td>
+            </tr>
+            <tr>
+                <td>보호 및 제동 장치</td>
+                <td class="text-left">운전자 보호를 위한 좌석 안전띠가 결속되며, 브레이크 및 조향장치 작동에 이상이 없는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="직접 테스트 확인"></td>
+            </tr>
+            <tr>
+                <td>스마트 안전 장비 (선택)</td>
+                <td class="text-left">현장 도입이 의무화된 스마트 장비(스마트 안전턱끈, 지능형/이동형 감시 카메라)가 부착되어 있는가?</td>
+                <td><select class="result-select"><option>O</option><option>X</option><option>-</option></select></td>
+                <td><input type="text" class="remark-input" value="현장 지급 여부 협의"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="attachment-section">
+        <span id="attachedFileName" style="font-size: 13px; color: var(--accent); font-weight: bold;"></span>
+        <input type="file" id="equipFile" style="display:none;" onchange="handleEquipFile(this)" multiple>
+        <button type="button" class="btn btn-outline" id="attachBtn" onclick="document.getElementById('equipFile').click()">
+            <i class="fa-solid fa-paperclip"></i> 관련 서류 첨부 (보험/검사증 등)
+        </button>
+    </div>
+
+    <div class="signature-section">
+        <table class="sign-table">
+            <tr>
+                <th rowspan="2" style="writing-mode: vertical-lr; width: 30px;">결재</th>
+                <th>운전자</th>
+                <th>공 무</th>
+                <th>관리감독자</th>
+                <th>현장소장</th>
+            </tr>
+            <tr>
+                <td>(서명)</td>
+                <td>(서명)</td>
+                <td>(서명)</td>
+                <td>(서명)</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div id="status-msg"></div>
+
+<script>
+    let isEditing = true;
+    let attachedFilesText = "";
+
+    document.getElementById('submitDate').value = new Date().toISOString().substring(0, 10);
+
+    function showMsg(text) {
+        const msg = document.getElementById('status-msg');
+        msg.innerText = text;
+        msg.style.display = 'block';
+        setTimeout(() => { msg.style.display = 'none'; }, 2000);
+    }
+
+    // URL 공유 기능 (클립보드 복사)
+    function shareURL() {
+        const currentUrl = window.location.href;
+        navigator.clipboard.writeText(currentUrl).then(() => {
+            alert("점검표 URL이 복사되었습니다.\n운전자나 현장 관리자에게 카카오톡, 문자로 붙여넣기 하여 공유하세요.\n\n" + currentUrl);
+        }).catch(err => {
+            alert("URL 복사에 실패했습니다. 브라우저 상단의 주소창을 직접 복사해 주세요.");
+        });
+    }
+
+    // 다중 첨부파일 처리
+    function handleEquipFile(input) {
+        if(input.files.length > 0) {
+            const fileNames = Array.from(input.files).map(f => f.name).join(', ');
+            attachedFilesText = "첨부됨: " + fileNames;
+            document.getElementById('attachedFileName').innerText = attachedFilesText;
+        }
+    }
+
+    function setEditMode(editable) {
+        isEditing = editable;
+        
+        const inputs = document.querySelectorAll('.info-input, .remark-input');
+        const selects = document.querySelectorAll('.result-select');
+        
+        inputs.forEach(el => el.disabled = !editable);
+        selects.forEach(el => el.disabled = !editable);
+
+        const editBtn = document.getElementById('editBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        const attachBtn = document.getElementById('attachBtn');
+
+        if(editable) {
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'flex';
+            attachBtn.style.display = 'flex'; // 수정 모드일 때만 첨부 버튼 보임
+        } else {
+            editBtn.style.display = 'flex';
+            saveBtn.style.display = 'none';
+            attachBtn.style.display = 'none'; // 서류 모드에서는 첨부 버튼 숨김
+        }
+    }
+
+    function toggleEdit() { setEditMode(true); }
+
+    function saveData() {
+        const checkData = {
+            submitDate: document.getElementById('submitDate').value,
+            compName: document.getElementById('compName').value,
+            equipName: document.getElementById('equipName').value,
+            driverName: document.getElementById('driverName').value,
+            attachedFiles: attachedFilesText,
+            items: []
+        };
+
+        const rows = document.getElementById('check-tbody').querySelectorAll('tr');
+        rows.forEach(row => {
+            const select = row.querySelector('.result-select');
+            const remark = row.querySelector('.remark-input');
+            if(select && remark) {
+                checkData.items.push({
+                    result: select.value,
+                    remark: remark.value
+                });
+            }
+        });
+
+        const key = 'scdrs_machinery_' + (checkData.equipName || 'temp');
+        localStorage.setItem(key, JSON.stringify(checkData));
+        
+        showMsg("점검 내역이 저장되어 서류가 확정되었습니다.");
+        setEditMode(false);
+    }
+
+    function loadData() {
+        const equipName = document.getElementById('equipName').value;
+        const key = 'scdrs_machinery_' + (equipName || 'temp');
+        const saved = localStorage.getItem(key);
+
+        if(saved) {
+            const data = JSON.parse(saved);
+            document.getElementById('submitDate').value = data.submitDate || '';
+            document.getElementById('compName').value = data.compName || '';
+            document.getElementById('equipName').value = data.equipName || '';
+            document.getElementById('driverName').value = data.driverName || '';
+            
+            if(data.attachedFiles) {
+                attachedFilesText = data.attachedFiles;
+                document.getElementById('attachedFileName').innerText = attachedFilesText;
+            }
+
+            const rows = document.getElementById('check-tbody').querySelectorAll('tr');
+            data.items.forEach((item, index) => {
+                if(rows[index]) {
+                    rows[index].querySelector('.result-select').value = item.result;
+                    rows[index].querySelector('.remark-input').value = item.remark;
+                }
+            });
+            setEditMode(false);
+        } else {
+            setEditMode(true);
+        }
+    }
+
+    loadData();
+</script>
+</body>
+</html>

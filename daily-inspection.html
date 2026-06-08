@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>현장 일일 안전 순회점검</title>
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="안전점검">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style>
+:root{
+  --amber:#fbbf24; --amber-d:#f59e0b; --amber-l:#fef3c7;
+  --s900:#0f172a; --s800:#1e293b; --s700:#334155; --s600:#475569;
+  --s500:#64748b; --s400:#94a3b8; --s300:#cbd5e1; --s200:#e2e8f0;
+  --s100:#f1f5f9; --s50:#f8fafc;
+  --red:#dc2626; --red-l:#fef2f2; --red-b:#fecaca;
+  --green:#10b981; --green-l:#ecfdf5;
+  --blue:#3b82f6; --blue-l:#eff6ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  font-family:"Noto Sans KR","맑은 고딕","Malgun Gothic",-apple-system,sans-serif;
+  background:var(--s900); color:var(--s900);
+  -webkit-text-size-adjust:100%;
+}
+#app{max-width:640px;margin:0 auto;min-height:100vh;background:var(--s50);
+  box-shadow:0 0 40px rgba(0,0,0,.4);padding-bottom:90px;position:relative;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+input,select,textarea{font-family:inherit;font-size:16px;width:100%;
+  border:1px solid var(--s200);border-radius:9px;padding:9px 11px;outline:none;background:#fff;}
+input:focus,select:focus,textarea:focus{border-color:var(--amber);}
+textarea{resize:none;}
+.muted{color:var(--s500);}
+
+/* 헤더 */
+.hdr{background:linear-gradient(135deg,#1e293b,#0f172a 60%,#000);
+  color:#fff;padding:30px 20px 22px;position:relative;overflow:hidden;}
+.hdr::before{content:"";position:absolute;inset:0;opacity:.08;
+  background:repeating-linear-gradient(45deg,#fbbf24 0 10px,transparent 10px 20px);}
+.hdr-row{display:flex;align-items:center;justify-content:space-between;position:relative;}
+.hdr-logo{display:flex;align-items:center;gap:10px;}
+.hdr-badge{width:42px;height:42px;background:var(--amber);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:22px;}
+.hdr-eyebrow{font-size:11px;font-weight:800;color:var(--amber);letter-spacing:2px;}
+.hdr-title{font-size:18px;font-weight:800;}
+.hdr-sub{font-size:12px;color:var(--s400);margin-top:8px;position:relative;}
+.icon-btn{color:var(--s400);padding:6px;border-radius:8px;font-size:20px;}
+.icon-btn:hover{color:#fff;}
+
+/* 통계 */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 20px;
+  margin-top:-16px;position:relative;z-index:2;}
+.stat{background:#fff;border:1px solid var(--s200);border-radius:12px;padding:11px 12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.06);}
+.stat-l{font-size:11px;font-weight:600;color:var(--s500);}
+.stat-l.red{color:var(--red);}
+.stat-v{font-size:24px;font-weight:800;margin-top:3px;}
+.stat-v.red{color:var(--red);}
+.stat-v small{font-size:13px;font-weight:400;color:var(--s400);margin-left:3px;}
+
+/* 버튼 */
+.btn{display:flex;align-items:center;justify-content:center;gap:7px;
+  font-weight:700;border-radius:12px;padding:13px;transition:.12s;width:100%;font-size:15px;}
+.btn-amber{background:var(--amber);color:var(--s900);box-shadow:0 4px 14px rgba(251,191,36,.35);}
+.btn-amber:active{background:var(--amber-d);}
+.btn-dark{background:var(--s900);color:#fff;}
+.btn-dark:active{background:var(--s700);}
+.btn-grey{background:var(--s100);color:var(--s700);}
+.btn-grey:active{background:var(--s200);}
+.btn-lg{font-size:17px;padding:15px;}
+.btn-dashed{background:#fff;border:2px dashed var(--s300);color:var(--s600);}
+.btn-dashed:active{border-color:var(--amber);color:var(--amber-d);}
+
+.pad{padding:20px;}
+.sec-title{font-size:13px;font-weight:800;color:var(--s700);letter-spacing:1px;}
+.card{background:#fff;border:1px solid var(--s200);border-radius:12px;}
+.field{background:#fff;border:1px solid var(--s200);border-radius:12px;padding:14px;}
+.field-lbl{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700;
+  color:var(--s700);margin-bottom:8px;}
+.field-lbl .ic{color:var(--amber-d);font-size:15px;}
+.note{border-radius:12px;padding:12px 14px;font-size:13px;line-height:1.6;}
+.note-amber{background:var(--amber-l);border:1px solid #fde68a;color:#92400e;}
+.note-blue{background:var(--blue-l);border:1px solid #bfdbfe;color:#1e40af;}
+.note-green{background:var(--green-l);border:1px solid #a7f3d0;color:#065f46;}
+.note-red{background:var(--red-l);border:1px solid var(--red-b);color:#991b1b;}
+
+/* 점검 이력 카드 */
+.hist{display:block;width:100%;background:#fff;border:1px solid var(--s200);
+  border-radius:12px;padding:15px;text-align:left;transition:.12s;}
+.hist:active{border-color:var(--amber);}
+.hist-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.hist-site{font-weight:800;font-size:15px;display:flex;align-items:center;gap:6px;}
+.hist-meta{font-size:12px;color:var(--s500);margin-top:3px;padding-left:22px;}
+.hist-ng{background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:800;
+  padding:3px 8px;border-radius:6px;white-space:nowrap;}
+.hist-bar{margin-top:11px;display:flex;align-items:center;gap:8px;}
+.bar{flex:1;height:6px;background:var(--s100);border-radius:99px;overflow:hidden;}
+.bar-fill{height:100%;background:var(--amber);}
+.hist-pct{font-size:11px;color:var(--s500);font-weight:600;}
+.hist-sign{font-size:11px;color:var(--green);font-weight:700;}
+
+.empty{background:#fff;border:2px dashed var(--s200);border-radius:12px;
+  padding:34px 20px;text-align:center;color:var(--s500);}
+.empty .big{font-size:38px;}
+
+/* 진행 상단바 */
+.topbar{background:var(--s900);color:#fff;position:sticky;top:0;z-index:30;}
+.topbar-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;}
+.topbar-title{font-size:14px;font-weight:800;}
+.progress{height:4px;background:var(--s700);}
+.progress-fill{height:100%;background:var(--amber);transition:.2s;}
+
+/* 점검 카테고리 */
+.cat{background:#fff;border:1px solid var(--s200);border-radius:12px;overflow:hidden;}
+.cat-head{display:flex;align-items:center;justify-content:space-between;
+  padding:13px 15px;width:100%;background:#fff;}
+.cat-left{display:flex;align-items:center;gap:11px;}
+.cat-ic{width:40px;height:40px;border-radius:10px;display:flex;
+  align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.cat-name{font-weight:800;font-size:14px;text-align:left;}
+.cat-stat{font-size:11px;color:var(--s500);margin-top:2px;text-align:left;}
+.cat-stat .ng{color:var(--red);font-weight:800;margin-left:6px;}
+.chev{color:var(--s400);font-size:18px;transition:.2s;}
+.chev.open{transform:rotate(90deg);}
+
+.citem{padding:12px;border-top:1px solid var(--s100);}
+.citem.ng{background:var(--red-l);}
+.citem-top{display:flex;gap:8px;margin-bottom:8px;}
+.citem-no{font-size:11px;font-weight:800;color:var(--s400);width:18px;flex-shrink:0;padding-top:2px;}
+.citem-txt{font-size:13px;line-height:1.45;color:var(--s800);}
+.status-row{display:flex;gap:6px;margin-left:26px;}
+.st-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;
+  padding:9px 4px;border-radius:9px;font-size:12px;font-weight:800;
+  border:2px solid var(--s200);background:#fff;color:var(--s500);transition:.1s;}
+.st-btn.on-ok{background:var(--green);border-color:transparent;color:#fff;}
+.st-btn.on-ng{background:var(--red);border-color:transparent;color:#fff;}
+.st-btn.on-na{background:var(--s400);border-color:transparent;color:#fff;}
+.ng-detail{margin-left:26px;margin-top:9px;display:flex;flex-direction:column;gap:8px;}
+.ng-detail textarea{border-color:var(--red-b);font-size:14px;}
+.photo-row{display:flex;gap:8px;align-items:center;}
+.photo-btn{flex:1;background:#fff;border:1px solid var(--red-b);color:var(--red);
+  font-size:12px;font-weight:800;padding:9px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;gap:5px;}
+.photo-del{padding:9px 11px;color:var(--red);}
+.photo-prev{width:100%;max-height:190px;object-fit:contain;border:1px solid var(--s200);
+  border-radius:9px;background:var(--s50);}
+
+/* 시정조치 */
+.act{background:#fff;border:1px solid var(--s200);border-radius:12px;padding:14px;
+  display:flex;flex-direction:column;gap:8px;}
+.act-head{display:flex;align-items:center;justify-content:between;}
+.act-no{font-size:11px;font-weight:800;color:var(--s500);flex:1;}
+.act-del{color:var(--red);font-size:16px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.mini-lbl{font-size:11px;color:var(--s500);font-weight:600;margin-bottom:3px;display:block;}
+.chk-lbl{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;
+  color:var(--s700);background:var(--s50);padding:9px 11px;border-radius:9px;}
+.chk-lbl input{width:auto;}
+
+/* 요약 박스 */
+.sum3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.sum-box{border-radius:10px;padding:12px;text-align:center;}
+.sum-box .v{font-size:24px;font-weight:800;}
+.sum-box .l{font-size:11px;font-weight:600;margin-top:1px;}
+.sum-ok{background:var(--green-l);} .sum-ok .v,.sum-ok .l{color:#047857;}
+.sum-ng{background:var(--red-l);} .sum-ng .v,.sum-ng .l{color:#b91c1c;}
+.sum-na{background:var(--s100);} .sum-na .v,.sum-na .l{color:var(--s500);}
+
+/* 결재/서명 */
+.appr{border:1px solid var(--s200);border-radius:10px;padding:12px;}
+.appr-lbl{font-size:11px;font-weight:800;color:var(--s600);margin-bottom:7px;}
+.sigwrap{position:relative;background:#fff;border:2px dashed var(--s300);
+  border-radius:9px;overflow:hidden;}
+.sigwrap canvas{display:block;width:100%;height:100px;touch-action:none;}
+.sig-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--s300);font-size:13px;pointer-events:none;}
+.sig-clear{margin-top:4px;font-size:11px;color:var(--s500);text-decoration:underline;}
+.appr-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.appr-view{border:1px solid var(--s200);border-radius:9px;padding:9px;}
+.appr-view .nm{font-size:14px;font-weight:700;margin:3px 0;}
+.appr-view img{height:40px;object-fit:contain;}
+.appr-view .no-sig{height:40px;display:flex;align-items:center;color:var(--s300);font-size:11px;}
+
+/* 하단 고정 네비 */
+.bottombar{position:fixed;bottom:0;left:0;right:0;max-width:640px;margin:0 auto;
+  background:#fff;border-top:1px solid var(--s200);padding:11px 14px;
+  display:flex;gap:8px;box-shadow:0 -4px 14px rgba(0,0,0,.07);z-index:40;}
+
+/* 상세 */
+.dtl-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:13px;}
+.dtl-row .full{grid-column:1/-1;}
+.ng-card{background:var(--red-l);border-radius:9px;padding:11px;}
+.ng-card .cat{font-size:11px;font-weight:800;color:var(--red);background:none;border:none;}
+.ng-card .it{font-size:13px;font-weight:600;margin-top:2px;}
+.ng-card .nt{font-size:13px;background:#fff;border-radius:6px;padding:7px;margin-top:6px;}
+.ng-card img{width:100%;max-height:190px;object-fit:contain;margin-top:7px;
+  border:1px solid var(--red-b);border-radius:7px;}
+.act-card{border-radius:9px;padding:11px;border:1px solid;}
+.act-card.done{background:var(--green-l);border-color:#a7f3d0;}
+.act-card.todo{background:var(--amber-l);border-color:#fde68a;}
+.codeblock{background:var(--s900);color:#e2e8f0;padding:14px;border-radius:11px;
+  font-size:11px;white-space:pre-wrap;overflow-x:auto;line-height:1.5;}
+
+.flex{display:flex;} .between{justify-content:space-between;}
+.aic{align-items:center;} .gap8{gap:8px;} .gap10{gap:10px;}
+.mt8{margin-top:8px;}.mt10{margin-top:10px;}.mt12{margin-top:12px;}.mt16{margin-top:16px;}
+.mt20{margin-top:20px;}.mt6{margin-top:6px;}
+.col{display:flex;flex-direction:column;}
+.spinner{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--s900);color:var(--amber);font-size:16px;}
+
+/* 설치 배너 */
+.install{margin:14px 20px 0;background:#fff;border:1px solid var(--s200);
+  border-radius:12px;padding:13px;display:flex;align-items:center;gap:11px;}
+.install .txt{flex:1;font-size:12px;color:var(--s600);line-height:1.5;}
+.install .txt b{color:var(--s900);}
+.install button{background:var(--s900);color:#fff;font-weight:700;font-size:12px;
+  padding:9px 13px;border-radius:9px;white-space:nowrap;}
+
+@media print{
+  body{background:#fff;}
+  #app{box-shadow:none;max-width:none;padding-bottom:0;}
+  .topbar,.bottombar,.install,.hdr .icon-btn{display:none!important;}
+  .card,.cat,.field{break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="spinner">로딩 중...</div></div>
+
+<script>
+"use strict";
+
+/* ===================== 점검 항목 정의 (업로드 양식과 동일, 34개) ===================== */
+var CATEGORIES = [
+  { id:"ppe", name:"개인보호구", icon:"🦺", color:"#F59E0B", items:[
+    "안전모 착용 상태(턱끈 체결 포함)",
+    "안전화 착용 및 손상 여부",
+    "안전대(고소작업 시) 착용 및 부착설비 연결",
+    "절연장갑·절연화(전기작업 시) 사용 상태",
+    "보안경·방진마스크·귀마개 등 작업별 보호구",
+    "보호구 정기점검 및 손상품 교체"
+  ]},
+  { id:"electric", name:"전기작업 안전", icon:"⚡", color:"#DC2626", items:[
+    "정전작업 5대 절차 준수(차단→검전→방전·접지→표지부착→잠금)",
+    "검전기 정상 작동 확인 및 사용",
+    "단락접지기구 설치 상태",
+    "활선·근접작업 시 절연용 방호구 설치",
+    "차단기 잠금장치(LOTO) 및 표지 부착",
+    "임시배전반 외함 접지 및 시건장치",
+    "누전차단기(ELCB) 설치 및 작동 시험",
+    "임시배선 손상·피복 노출·문어발 연결 없음",
+    "전동공구 외함접지 또는 이중절연 확인",
+    "고압·특고압 접근한계거리 준수"
+  ]},
+  { id:"fall", name:"추락방지", icon:"🪜", color:"#7C3AED", items:[
+    "2m 이상 작업 시 안전대 부착설비 설치",
+    "작업발판 폭 40cm 이상, 틈새 3cm 이하",
+    "안전난간(상부 90~120cm, 중간대) 설치",
+    "사다리 사용 시 미끄럼방지, 3점지지 준수",
+    "이동식 비계 아웃트리거·바퀴 고정",
+    "개구부·맨홀 덮개 또는 안전난간 설치",
+    "고소작업차 안전벨트 체결 및 자격"
+  ]},
+  { id:"fire", name:"화재예방", icon:"🔥", color:"#EA580C", items:[
+    "용접·용단 작업 시 화기감시자 배치",
+    "불티 비산방지포·방화포 설치",
+    "전선 과부하·접속부 발열 점검"
+  ]},
+  { id:"critical", name:"기타 중대재해 위험요인", icon:"⚠️", color:"#BE185D", items:[
+    "중량물 인양 시 신호수 배치 및 출입통제",
+    "공구·자재 낙하방지(공구벨트, 낙하물방지망)",
+    "밀폐공간(맨홀·EPS실 등) 작업 전 산소·유해가스 측정"
+  ]},
+  { id:"env", name:"작업환경", icon:"🌬️", color:"#0891B2", items:[
+    "정리정돈(5S) 및 작업통로 확보",
+    "조명·환기 상태(지하·실내작업)",
+    "폭염·한파 시 휴게시간·휴게소 운영",
+    "근로자 건강이상자(고혈압·심혈관 등) 작업 배제",
+    "외국인 근로자 의사소통 수단 확보(통역·그림표지)"
+  ]}
+];
+var APPROVALS = [
+  { key:"inspector", label:"점검자(안전담당)" },
+  { key:"workerRep", label:"근로자 대표" },
+  { key:"teamLeader", label:"공사팀장" },
+  { key:"safetyManager", label:"안전보건관리책임자" }
+];
+var STEPS = ["기본정보","점검항목","시정조치","종합·결재"];
+
+/* ===================== 저장 (localStorage) ===================== */
+var PREFIX = "safetyPatrol:insp:";
+var SETTINGS_KEY = "safetyPatrol:settings";
+
+function saveInspection(insp){
+  try{ localStorage.setItem(PREFIX+insp.id, JSON.stringify(insp)); return true; }
+  catch(e){
+    alert("저장 공간이 부족합니다.\n오래된 점검 기록을 삭제하거나, 사진 첨부 수를 줄여주세요.");
+    return false;
+  }
+}
+function loadInspections(){
+  var arr=[];
+  for(var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if(k && k.indexOf(PREFIX)===0){
+      try{ arr.push(JSON.parse(localStorage.getItem(k))); }catch(e){}
+    }
+  }
+  arr.sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); });
+  return arr;
+}
+function deleteInspection(id){ try{ localStorage.removeItem(PREFIX+id); }catch(e){} }
+function loadSettings(){
+  try{ var r=localStorage.getItem(SETTINGS_KEY); return r?JSON.parse(r):{companyName:"",siteName:"",inspector:""}; }
+  catch(e){ return {companyName:"",siteName:"",inspector:""}; }
+}
+function saveSettings(s){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }catch(e){} }
+
+/* ===================== 유틸 ===================== */
+function esc(s){
+  if(s==null) return "";
+  return String(s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function compressImage(file,maxSize,quality){
+  maxSize=maxSize||800; quality=quality||0.6;
+  return new Promise(function(resolve){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var w=img.width,h=img.height;
+        if(w>h && w>maxSize){ h*=maxSize/w; w=maxSize; }
+        else if(h>maxSize){ w*=maxSize/h; h=maxSize; }
+        var cv=document.createElement("canvas");
+        cv.width=w; cv.height=h;
+        cv.getContext("2d").drawImage(img,0,0,w,h);
+        resolve(cv.toDataURL("image/jpeg",quality));
+      };
+      img.onerror=function(){ resolve(null); };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function newInspection(settings){
+  var ci={};
+  CATEGORIES.forEach(function(cat){
+    cat.items.forEach(function(_,ii){ ci[cat.id+"-"+ii]={status:null,note:"",photo:null}; });
+  });
+  var ap={};
+  APPROVALS.forEach(function(r){ ap[r.key]={name:"",signature:null}; });
+  if(settings.inspector) ap.inspector.name=settings.inspector;
+  return {
+    id:"insp_"+Date.now(),
+    createdAt:new Date().toISOString(),
+    date:todayStr(),
+    companyName:settings.companyName||"",
+    siteName:settings.siteName||"",
+    workName:"",
+    inspector:settings.inspector||"",
+    weather:"맑음", temperature:"", workerCount:"",
+    workDescription:"", client:"",
+    checkItems:ci, actions:[], overallComment:"",
+    approvals:ap, status:"draft"
+  };
+}
+function countStatus(insp){
+  var s={ok:0,ng:0,na:0,none:0};
+  for(var k in insp.checkItems){
+    var v=insp.checkItems[k];
+    if(v.status) s[v.status]++; else s.none++;
+  }
+  return s;
+}
+function exportText(insp){
+  var t="[현장 일일 안전 순회점검표]\n"+Array(39).join("=")+"\n\n";
+  if(insp.companyName) t+="■ 업체명: "+insp.companyName+"\n";
+  t+="■ 현장명: "+insp.siteName+"\n";
+  t+="■ 공사명: "+insp.workName+"\n";
+  t+="■ 점검일자: "+insp.date+"\n";
+  t+="■ 점검자: "+insp.inspector+"\n";
+  t+="■ 날씨/기온: "+insp.weather+" / "+insp.temperature+"℃\n";
+  t+="■ 작업인원: "+insp.workerCount+"명\n";
+  t+="■ 주요작업: "+insp.workDescription+"\n";
+  t+="■ 원청/발주처: "+insp.client+"\n\n";
+  var s=countStatus(insp);
+  t+="[점검 결과 요약]\n  적합 "+s.ok+" / 부적합 "+s.ng+" / 해당없음 "+s.na+"\n\n";
+  t+="[부적합 사항]\n";
+  var ng=0;
+  CATEGORIES.forEach(function(cat){
+    cat.items.forEach(function(item,ii){
+      var v=insp.checkItems[cat.id+"-"+ii];
+      if(v&&v.status==="ng"){ ng++; t+="  "+ng+". ["+cat.name+"] "+item+"\n";
+        if(v.note) t+="     → "+v.note+"\n"; }
+    });
+  });
+  if(ng===0) t+="  (없음)\n";
+  t+="\n";
+  if(insp.actions&&insp.actions.length){
+    t+="[지적사항 및 시정조치]\n";
+    insp.actions.forEach(function(a,i){
+      t+="  "+(i+1)+". "+a.issue+"\n";
+      if(a.location) t+="     위치: "+a.location+"\n";
+      if(a.action) t+="     조치: "+a.action+"\n";
+      if(a.dueDate) t+="     예정일: "+a.dueDate+(a.completed?" (완료)":"")+"\n";
+      if(a.confirmer) t+="     확인자: "+a.confirmer+"\n";
+    });
+    t+="\n";
+  }
+  if(insp.overallComment) t+="[점검자 종합의견]\n"+insp.overallComment+"\n\n";
+  t+="[결재]\n";
+  APPROVALS.forEach(function(r){
+    var a=insp.approvals&&insp.approvals[r.key];
+    t+="  "+r.label+": "+((a&&a.name)||"-")+((a&&a.signature)?" (서명)":"")+"\n";
+  });
+  t+="\n"+Array(39).join("=")+"\n";
+  t+="※ 부적합 항목은 즉시 시정조치 후 재점검, 중대재해 위험요인 발견 시\n";
+  t+="  작업중지·근로자 대피·상급자 보고 절차 즉시 가동\n";
+  t+="  (산업안전보건법 제51·52조, 중대재해처벌법 시행령 제4조)\n";
+  t+="작성: "+new Date(insp.createdAt).toLocaleString("ko-KR")+"\n";
+  return t;
+}
+
+/* ===================== 상태 ===================== */
+var state={
+  view:"home", step:0, draft:null, selectedId:null,
+  openCat:CATEGORIES[0].id, inspections:[], settings:{}, showFullText:false
+};
+var deferredPrompt=null;
+var app=document.getElementById("app");
+
+/* ===================== 렌더 ===================== */
+function render(){
+  if(state.view==="home") renderHome();
+  else if(state.view==="new") renderNew();
+  else if(state.view==="detail") renderDetail();
+  else if(state.view==="settings") renderSettings();
+  window.scrollTo(0,0);
+}
+
+function renderHome(){
+  var list=state.inspections;
+  var today=todayStr();
+  var todayCount=list.filter(function(i){return i.date===today;}).length;
+  var totalNG=list.reduce(function(n,i){
+    return n+Object.keys(i.checkItems||{}).filter(function(k){return i.checkItems[k].status==="ng";}).length;
+  },0);
+
+  var installHtml="";
+  if(deferredPrompt){
+    installHtml='<div class="install"><div style="font-size:24px">📲</div>'+
+      '<div class="txt"><b>홈 화면에 앱으로 설치</b><br>설치하면 인터넷 없이도 빠르게 실행됩니다.</div>'+
+      '<button data-act="install">설치</button></div>';
+  }
+
+  var histHtml;
+  if(list.length===0){
+    histHtml='<div class="empty"><div class="big">📋</div>'+
+      '<div style="margin-top:8px;font-size:14px">아직 점검 기록이 없습니다</div>'+
+      '<div style="font-size:12px;color:var(--s400);margin-top:3px">위 버튼을 눌러 시작하세요</div></div>';
+  }else{
+    histHtml=list.map(function(insp){
+      var vals=Object.keys(insp.checkItems||{}).map(function(k){return insp.checkItems[k];});
+      var ng=vals.filter(function(v){return v.status==="ng";}).length;
+      var done=vals.filter(function(v){return v.status;}).length;
+      var pct=Math.round(done/(vals.length||1)*100);
+      var signed=APPROVALS.filter(function(r){
+        return insp.approvals&&insp.approvals[r.key]&&insp.approvals[r.key].signature;
+      }).length;
+      return '<button class="hist" data-act="detail" data-id="'+esc(insp.id)+'">'+
+        '<div class="hist-top"><div style="flex:1;min-width:0">'+
+          '<div class="hist-site">📍 <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(insp.siteName||"(현장명 미입력)")+'</span></div>'+
+          '<div class="hist-meta">'+esc(insp.date)+' · '+esc(insp.inspector||"점검자 미기재")+'</div>'+
+        '</div>'+
+        (ng>0?'<div class="hist-ng">부적합 '+ng+'</div>':'')+
+        '<div class="chev">›</div></div>'+
+        '<div class="hist-bar"><div class="bar"><div class="bar-fill" style="width:'+pct+'%"></div></div>'+
+        '<span class="hist-pct">'+pct+'%</span>'+
+        (signed>0?'<span class="hist-sign">✍ '+signed+'</span>':'')+'</div>'+
+      '</button>';
+    }).join("");
+    histHtml='<div class="col gap8">'+histHtml+'</div>';
+  }
+
+  app.innerHTML=
+    '<div class="hdr"><div class="hdr-row"><div class="hdr-logo">'+
+      '<div class="hdr-badge">⛑️</div><div>'+
+        '<div class="hdr-eyebrow">SAFETY PATROL</div>'+
+        '<div class="hdr-title">현장 일일 안전 순회점검</div>'+
+      '</div></div>'+
+      '<button class="icon-btn" data-act="settings">⚙️</button>'+
+    '</div><div class="hdr-sub">전기·소방·정보통신공사 현장 안전관리자용</div></div>'+
+    '<div class="stats">'+
+      '<div class="stat"><div class="stat-l">오늘 점검</div><div class="stat-v">'+todayCount+'<small>건</small></div></div>'+
+      '<div class="stat"><div class="stat-l">누적 점검</div><div class="stat-v">'+list.length+'<small>건</small></div></div>'+
+      '<div class="stat"><div class="stat-l red">부적합 누적</div><div class="stat-v red">'+totalNG+'<small>건</small></div></div>'+
+    '</div>'+
+    installHtml+
+    '<div class="pad" style="padding-bottom:0"><button class="btn btn-amber btn-lg" data-act="new">＋ 새 점검 시작</button></div>'+
+    '<div class="pad">'+
+      '<div class="flex between aic" style="margin-bottom:11px"><div class="sec-title">최근 점검 이력</div>'+
+      '<span style="font-size:11px;color:var(--s400)">'+list.length+'건</span></div>'+
+      histHtml+
+    '</div>';
+
+  bindCommon();
+}
+
+/* ---------- 새 점검 ---------- */
+function renderNew(){
+  var d=state.draft;
+  var bodyHtml;
+  if(state.step===0) bodyHtml=stepBasic(d);
+  else if(state.step===1) bodyHtml=stepChecklist(d);
+  else if(state.step===2) bodyHtml=stepActions(d);
+  else bodyHtml=stepSummary(d);
+
+  var navHtml='<div class="bottombar">';
+  if(state.step>0) navHtml+='<button class="btn btn-grey" data-act="prevstep">‹ 이전</button>';
+  if(state.step<STEPS.length-1) navHtml+='<button class="btn btn-dark" data-act="nextstep">다음 ›</button>';
+  else navHtml+='<button class="btn btn-amber" data-act="submit">💾 점검 완료 저장</button>';
+  navHtml+='</div>';
+
+  app.innerHTML=
+    '<div class="topbar"><div class="topbar-row">'+
+      '<button class="icon-btn" data-act="home" style="color:#fff">‹</button>'+
+      '<div class="topbar-title">'+STEPS[state.step]+' ('+(state.step+1)+'/'+STEPS.length+')</div>'+
+      '<div style="width:28px"></div></div>'+
+      '<div class="progress"><div class="progress-fill" style="width:'+((state.step+1)/STEPS.length*100)+'%"></div></div>'+
+    '</div>'+
+    '<div class="pad col gap10" style="padding-bottom:30px">'+bodyHtml+'</div>'+
+    navHtml;
+
+  bindCommon();
+  bindNew();
+  if(state.step===3) initSignaturePads();
+}
+
+function stepBasic(d){
+  function f(label,ic,key,type,ph){
+    return '<div class="field"><div class="field-lbl"><span class="ic">'+ic+'</span>'+label+'</div>'+
+      '<input type="'+(type||"text")+'" data-field="'+key+'" value="'+esc(d[key])+'" placeholder="'+esc(ph||"")+'"></div>';
+  }
+  return ''+
+  '<div class="note note-amber"><b>기본 정보를 입력해 주세요.</b> 자주 쓰는 업체명·현장명·점검자는 설정에 저장하면 자동입력됩니다.</div>'+
+  f("업체명","🏢","companyName","text","○○전기공사(주)")+
+  f("현장명","📍","siteName","text","하나은행 구로디지털점")+
+  f("공사명","📄","workName","text","전기·소방 통합공사")+
+  '<div class="grid2">'+
+    f("점검일자","📅","date","date","")+
+    f("점검자(직책/성명)","👤","inspector","text","홍길동 팀장")+
+  '</div>'+
+  '<div class="grid3">'+
+    '<div class="field"><div class="field-lbl"><span class="ic">☁️</span>날씨</div>'+
+      '<select data-field="weather">'+
+      ["맑음","흐림","비","눈","강풍"].map(function(w){
+        return '<option'+(d.weather===w?' selected':'')+'>'+w+'</option>';}).join("")+
+      '</select></div>'+
+    f("기온(℃)","🌡️","temperature","number","22")+
+    f("작업인원","👷","workerCount","number","15")+
+  '</div>'+
+  '<div class="field"><div class="field-lbl"><span class="ic">📋</span>주요 작업내용</div>'+
+    '<textarea rows="3" data-field="workDescription" placeholder="예) 지하1층 전기실 배전반 설치, 5층 천장 케이블 포설">'+esc(d.workDescription)+'</textarea></div>'+
+  f("원청 / 발주처","#️⃣","client","text","○○건설(주)");
+}
+
+function stepChecklist(d){
+  var html='<div class="note note-blue">각 항목을 <b>적합 / 부적합 / 해당없음</b> 중 선택하세요. 부적합은 사진과 메모를 추가할 수 있습니다.</div>';
+  CATEGORIES.forEach(function(cat){
+    var ok=0,ng=0,na=0;
+    cat.items.forEach(function(_,ii){
+      var v=d.checkItems[cat.id+"-"+ii];
+      if(v&&v.status==="ok")ok++; else if(v&&v.status==="ng")ng++; else if(v&&v.status==="na")na++;
+    });
+    var open=state.openCat===cat.id;
+    var itemsHtml="";
+    if(open){
+      cat.items.forEach(function(item,ii){
+        var key=cat.id+"-"+ii;
+        var v=d.checkItems[key]||{};
+        var ng2=v.status==="ng";
+        var statusBtns=[
+          {k:"ok",l:"적합",on:"on-ok"},
+          {k:"ng",l:"부적합",on:"on-ng"},
+          {k:"na",l:"해당없음",on:"on-na"}
+        ].map(function(o){
+          return '<button class="st-btn'+(v.status===o.k?" "+o.on:"")+'" data-act="status" data-key="'+key+'" data-val="'+o.k+'">'+o.l+'</button>';
+        }).join("");
+        var ngHtml="";
+        if(ng2){
+          ngHtml='<div class="ng-detail">'+
+            '<textarea rows="2" data-checknote="'+key+'" placeholder="지적사항 / 위치 / 조치내용을 입력하세요">'+esc(v.note||"")+'</textarea>'+
+            '<div class="photo-row">'+
+              '<button class="photo-btn" data-act="photo" data-key="'+key+'">📷 '+(v.photo?"사진 다시 촬영":"사진 촬영/첨부")+'</button>'+
+              (v.photo?'<button class="photo-del" data-act="delphoto" data-key="'+key+'">🗑</button>':'')+
+            '</div>'+
+            (v.photo?'<img class="photo-prev" src="'+v.photo+'">':'')+
+          '</div>';
+        }
+        itemsHtml+='<div class="citem'+(ng2?" ng":"")+'">'+
+          '<div class="citem-top"><span class="citem-no">'+(ii+1)+'</span>'+
+          '<span class="citem-txt">'+esc(item)+'</span></div>'+
+          '<div class="status-row">'+statusBtns+'</div>'+ngHtml+'</div>';
+      });
+    }
+    html+='<div class="cat">'+
+      '<button class="cat-head" data-act="togglecat" data-cat="'+cat.id+'">'+
+        '<div class="cat-left"><div class="cat-ic" style="background:'+cat.color+'22">'+cat.icon+'</div>'+
+        '<div><div class="cat-name">'+esc(cat.name)+'</div>'+
+        '<div class="cat-stat">완료 '+(ok+ng+na)+'/'+cat.items.length+
+        (ng>0?'<span class="ng">부적합 '+ng+'</span>':'')+'</div></div></div>'+
+        '<span class="chev'+(open?" open":"")+'">›</span>'+
+      '</button>'+itemsHtml+'</div>';
+  });
+  return html;
+}
+
+function stepActions(d){
+  var html='<div class="note note-amber">부적합 항목별 <b>지적사항과 시정조치 계획</b>을 작성합니다.</div>'+
+    '<button class="btn btn-dark" data-act="importng">⬇ 부적합 항목 자동 가져오기</button>';
+  d.actions.forEach(function(a,i){
+    html+='<div class="act">'+
+      '<div class="flex between aic"><span class="act-no">#'+(i+1)+'</span>'+
+      '<button class="act-del" data-act="delaction" data-id="'+a.id+'">🗑</button></div>'+
+      '<textarea rows="2" data-action="'+a.id+'" data-prop="issue" placeholder="지적사항 (위험요인)">'+esc(a.issue)+'</textarea>'+
+      '<input data-action="'+a.id+'" data-prop="location" value="'+esc(a.location)+'" placeholder="발생위치 (예: B1 EPS실)">'+
+      '<textarea rows="2" data-action="'+a.id+'" data-prop="action" placeholder="시정 조치내용">'+esc(a.action)+'</textarea>'+
+      '<div class="grid2">'+
+        '<div><span class="mini-lbl">조치 예정일</span>'+
+        '<input type="date" data-action="'+a.id+'" data-prop="dueDate" value="'+esc(a.dueDate)+'"></div>'+
+        '<div><span class="mini-lbl">확인자</span>'+
+        '<input data-action="'+a.id+'" data-prop="confirmer" value="'+esc(a.confirmer)+'" placeholder="성명"></div>'+
+      '</div>'+
+      '<label class="chk-lbl"><input type="checkbox" data-action="'+a.id+'" data-prop="completed"'+(a.completed?" checked":"")+'> 조치 완료</label>'+
+    '</div>';
+  });
+  html+='<button class="btn btn-dashed" data-act="addaction">＋ 시정조치 직접 추가</button>';
+  return html;
+}
+
+function stepSummary(d){
+  var s=countStatus(d);
+  var apprHtml=APPROVALS.map(function(role){
+    var a=d.approvals[role.key]||{};
+    return '<div class="appr"><div class="appr-lbl">'+role.label+'</div>'+
+      '<input data-approval="'+role.key+'" value="'+esc(a.name||"")+'" placeholder="성명 입력" style="margin-bottom:8px">'+
+      '<div class="sigwrap"><canvas data-sig="'+role.key+'"></canvas>'+
+        (a.signature?"":'<div class="sig-ph">여기에 손가락으로 서명</div>')+
+      '</div>'+
+      '<button class="sig-clear" data-act="clearsig" data-key="'+role.key+'">서명 지우기</button>'+
+    '</div>';
+  }).join("");
+
+  return ''+
+  '<div class="note note-green">점검 결과를 확인하고, 종합의견 작성 후 결재란에 서명을 받아 저장합니다.</div>'+
+  '<div class="card pad" style="padding:14px"><div class="sec-title" style="margin-bottom:11px">점검 결과 요약</div>'+
+    '<div class="sum3">'+
+      '<div class="sum-box sum-ok"><div class="v">'+s.ok+'</div><div class="l">적합</div></div>'+
+      '<div class="sum-box sum-ng"><div class="v">'+s.ng+'</div><div class="l">부적합</div></div>'+
+      '<div class="sum-box sum-na"><div class="v">'+s.na+'</div><div class="l">해당없음</div></div>'+
+    '</div></div>'+
+  '<div class="field"><div class="field-lbl"><span class="ic">✏️</span>점검자 종합의견 / 익일 작업 시 유의사항</div>'+
+    '<textarea rows="5" data-field="overallComment" placeholder="예) 5층 임시배전반 누전차단기 교체 필요. 익일 강풍예보로 고소작업 전 풍속 측정 후 진행 권고.">'+esc(d.overallComment)+'</textarea></div>'+
+  '<div class="card pad" style="padding:14px"><div class="field-lbl"><span class="ic">✍️</span>결재</div>'+
+    '<div class="col gap10" style="margin-top:4px">'+apprHtml+'</div></div>'+
+  '<div class="note note-amber">저장 후에는 점검내용을 수정할 수 없습니다. 결재가 늦어지는 경우 우선 점검자 서명만으로 저장하고, 추후 <b>공유하기</b>로 보고할 수 있습니다.</div>';
+}
+
+/* ---------- 상세 ---------- */
+function renderDetail(){
+  var insp=state.inspections.filter(function(i){return i.id===state.selectedId;})[0];
+  if(!insp){ state.view="home"; render(); return; }
+  var s=countStatus(insp);
+
+  var ngItems=[];
+  CATEGORIES.forEach(function(cat){
+    cat.items.forEach(function(item,ii){
+      var v=insp.checkItems[cat.id+"-"+ii];
+      if(v&&v.status==="ng") ngItems.push({cat:cat.name,item:item,note:v.note,photo:v.photo});
+    });
+  });
+  var ngHtml="";
+  if(ngItems.length){
+    ngHtml='<div class="card pad" style="padding:14px;border-color:var(--red-b)">'+
+      '<div style="font-weight:800;color:var(--red);margin-bottom:10px">✕ 부적합 사항 ('+ngItems.length+'건)</div>'+
+      '<div class="col gap10">'+ngItems.map(function(n){
+        return '<div class="ng-card"><div class="cat">['+esc(n.cat)+']</div>'+
+          '<div class="it">'+esc(n.item)+'</div>'+
+          (n.note?'<div class="nt">→ '+esc(n.note)+'</div>':'')+
+          (n.photo?'<img src="'+n.photo+'">':'')+'</div>';
+      }).join("")+'</div></div>';
+  }
+
+  var actHtml="";
+  if(insp.actions&&insp.actions.length){
+    actHtml='<div class="card pad" style="padding:14px">'+
+      '<div class="sec-title" style="margin-bottom:10px">지적사항 및 시정조치 ('+insp.actions.length+'건)</div>'+
+      '<div class="col gap8">'+insp.actions.map(function(a){
+        return '<div class="act-card '+(a.completed?"done":"todo")+'">'+
+          '<div style="font-size:13px;font-weight:600">'+esc(a.issue)+(a.completed?' ✓':'')+'</div>'+
+          (a.location?'<div style="font-size:12px;color:var(--s500);margin-top:3px">📍 '+esc(a.location)+'</div>':'')+
+          (a.action?'<div style="font-size:12px;color:var(--s600);margin-top:3px">→ '+esc(a.action)+'</div>':'')+
+          ((a.dueDate||a.confirmer)?'<div style="font-size:11px;color:var(--s500);margin-top:3px">'+
+            (a.dueDate?'예정일: '+esc(a.dueDate):'')+(a.confirmer?'　확인자: '+esc(a.confirmer):'')+'</div>':'')+
+        '</div>';
+      }).join("")+'</div></div>';
+  }
+
+  var apprHtml='<div class="card pad" style="padding:14px"><div class="sec-title" style="margin-bottom:10px">결재</div>'+
+    '<div class="appr-grid">'+APPROVALS.map(function(role){
+      var a=insp.approvals&&insp.approvals[role.key];
+      return '<div class="appr-view"><div class="appr-lbl">'+role.label+'</div>'+
+        '<div class="nm">'+esc((a&&a.name)||"-")+'</div>'+
+        ((a&&a.signature)?'<img src="'+a.signature+'">':'<div class="no-sig">미서명</div>')+
+      '</div>';
+    }).join("")+'</div></div>';
+
+  app.innerHTML=
+    '<div class="topbar"><div class="topbar-row">'+
+      '<button class="icon-btn" data-act="home" style="color:#fff">‹</button>'+
+      '<div class="topbar-title">점검 상세</div>'+
+      '<button class="icon-btn" data-act="delete" data-id="'+esc(insp.id)+'" style="color:#f87171">🗑</button>'+
+    '</div></div>'+
+    '<div class="pad col gap10">'+
+      '<div class="card pad" style="padding:14px">'+
+        (insp.companyName?'<div style="font-size:11px;color:var(--s400);font-weight:600;margin-bottom:3px">'+esc(insp.companyName)+'</div>':'')+
+        '<div style="font-size:11px;color:var(--s500);font-weight:800">현장명</div>'+
+        '<div style="font-size:18px;font-weight:800;margin-bottom:10px">'+esc(insp.siteName)+'</div>'+
+        '<div class="dtl-row">'+
+          '<div><span class="muted">일자:</span> <b>'+esc(insp.date)+'</b></div>'+
+          '<div><span class="muted">점검자:</span> <b>'+esc(insp.inspector)+'</b></div>'+
+          '<div><span class="muted">날씨:</span> '+esc(insp.weather)+' / '+esc(insp.temperature)+'℃</div>'+
+          '<div><span class="muted">인원:</span> '+esc(insp.workerCount)+'명</div>'+
+          (insp.workName?'<div class="full"><span class="muted">공사명:</span> '+esc(insp.workName)+'</div>':'')+
+          (insp.client?'<div class="full"><span class="muted">원청/발주처:</span> '+esc(insp.client)+'</div>':'')+
+        '</div>'+
+        (insp.workDescription?'<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--s100);font-size:13px">'+
+          '<div class="muted" style="margin-bottom:3px">작업내용</div>'+esc(insp.workDescription)+'</div>':'')+
+      '</div>'+
+      '<div class="sum3">'+
+        '<div class="sum-box sum-ok"><div class="v">'+s.ok+'</div><div class="l">적합</div></div>'+
+        '<div class="sum-box sum-ng"><div class="v">'+s.ng+'</div><div class="l">부적합</div></div>'+
+        '<div class="sum-box sum-na"><div class="v">'+s.na+'</div><div class="l">해당없음</div></div>'+
+      '</div>'+
+      ngHtml+actHtml+
+      (insp.overallComment?'<div class="card pad" style="padding:14px">'+
+        '<div class="sec-title" style="margin-bottom:7px">점검자 종합의견 / 익일 유의사항</div>'+
+        '<div style="font-size:13px;white-space:pre-wrap">'+esc(insp.overallComment)+'</div></div>':'')+
+      apprHtml+
+      '<button class="btn btn-grey" data-act="toggletext">'+(state.showFullText?"전체 텍스트 숨기기":"👁 전체 텍스트 보기")+'</button>'+
+      (state.showFullText?'<pre class="codeblock">'+esc(exportText(insp))+'</pre>':'')+
+    '</div>'+
+    '<div class="bottombar">'+
+      '<button class="btn btn-grey" data-act="print">🖨 인쇄/PDF</button>'+
+      '<button class="btn btn-amber" data-act="share">📤 공유하기</button>'+
+    '</div>';
+
+  bindCommon();
+  bindDetail(insp);
+}
+
+/* ---------- 설정 ---------- */
+function renderSettings(){
+  var s=state.settings;
+  app.innerHTML=
+    '<div class="topbar"><div class="topbar-row">'+
+      '<button class="icon-btn" data-act="home" style="color:#fff">‹</button>'+
+      '<div class="topbar-title">설정</div><div style="width:28px"></div>'+
+    '</div></div>'+
+    '<div class="pad col gap10">'+
+      '<div class="note note-blue">자주 쓰는 정보를 저장하면 새 점검 시작 시 자동입력됩니다.</div>'+
+      '<div class="field"><div class="field-lbl">🏢 업체명</div>'+
+        '<input data-setting="companyName" value="'+esc(s.companyName)+'" placeholder="○○전기공사(주)"></div>'+
+      '<div class="field"><div class="field-lbl">👤 기본 점검자(직책/성명)</div>'+
+        '<input data-setting="inspector" value="'+esc(s.inspector)+'" placeholder="홍길동 안전팀장"></div>'+
+      '<div class="field"><div class="field-lbl">📍 기본 현장명</div>'+
+        '<input data-setting="siteName" value="'+esc(s.siteName)+'" placeholder="하나은행 구로디지털점"></div>'+
+      '<button class="btn btn-amber" data-act="savesettings">💾 저장</button>'+
+      '<div style="background:var(--s100);border-radius:12px;padding:14px;font-size:12px;color:var(--s600);line-height:1.6;margin-top:10px">'+
+        '<b style="color:var(--s800)">📌 이 앱에 대해</b><br>'+
+        '「현장 일일 안전 순회점검표」 양식(점검항목 34개)을 모바일·웹용으로 만든 프로그램입니다. '+
+        '데이터는 <b>현재 사용 중인 휴대폰·브라우저에만</b> 저장되며 다른 기기와 자동 동기화되지 않습니다. '+
+        '점검 완료 후 반드시 <b>공유하기</b>로 결재라인·본사에 전송하세요.</div>'+
+      '<div style="text-align:center;font-size:11px;color:var(--s400);margin-top:6px">버전 1.0 · 오프라인 작동</div>'+
+    '</div>';
+  bindCommon();
+  bindSettings();
+}
+
+/* ===================== 이벤트 바인딩 ===================== */
+function bindCommon(){
+  app.querySelectorAll("[data-act]").forEach(function(el){
+    var act=el.getAttribute("data-act");
+    if(["status","photo","delphoto","togglecat","importng","addaction","delaction",
+        "prevstep","nextstep","submit","clearsig"].indexOf(act)>=0) return;
+    el.addEventListener("click",function(){
+      if(act==="home"){ state.view="home"; state.showFullText=false; render(); }
+      else if(act==="settings"){ state.view="settings"; render(); }
+      else if(act==="new"){ state.draft=newInspection(state.settings); state.step=0; state.openCat=CATEGORIES[0].id; state.view="new"; render(); }
+      else if(act==="detail"){ state.selectedId=el.getAttribute("data-id"); state.showFullText=false; state.view="detail"; render(); }
+      else if(act==="install"){ doInstall(); }
+    });
+  });
+}
+
+function bindNew(){
+  // 텍스트/셀렉트 입력 → state.draft 갱신 (재렌더 없음)
+  app.querySelectorAll("[data-field]").forEach(function(el){
+    el.addEventListener("input",function(){
+      state.draft[el.getAttribute("data-field")]=el.value;
+    });
+  });
+  // 점검항목 메모
+  app.querySelectorAll("[data-checknote]").forEach(function(el){
+    el.addEventListener("input",function(){
+      var k=el.getAttribute("data-checknote");
+      state.draft.checkItems[k].note=el.value;
+    });
+  });
+  // 시정조치 입력
+  app.querySelectorAll("[data-action]").forEach(function(el){
+    var id=el.getAttribute("data-action"), prop=el.getAttribute("data-prop");
+    var evt=el.type==="checkbox"?"change":"input";
+    el.addEventListener(evt,function(){
+      var a=state.draft.actions.filter(function(x){return String(x.id)===String(id);})[0];
+      if(a) a[prop]=el.type==="checkbox"?el.checked:el.value;
+    });
+  });
+  // 결재자 이름
+  app.querySelectorAll("[data-approval]").forEach(function(el){
+    el.addEventListener("input",function(){
+      var k=el.getAttribute("data-approval");
+      state.draft.approvals[k].name=el.value;
+    });
+  });
+  // 상태 버튼
+  app.querySelectorAll('[data-act="status"]').forEach(function(el){
+    el.addEventListener("click",function(){
+      var k=el.getAttribute("data-key"), v=el.getAttribute("data-val");
+      state.draft.checkItems[k].status=v;
+      render();
+    });
+  });
+  // 카테고리 토글
+  app.querySelectorAll('[data-act="togglecat"]').forEach(function(el){
+    el.addEventListener("click",function(){
+      var c=el.getAttribute("data-cat");
+      state.openCat=state.openCat===c?null:c;
+      render();
+    });
+  });
+  // 사진 촬영
+  app.querySelectorAll('[data-act="photo"]').forEach(function(el){
+    el.addEventListener("click",function(){
+      var k=el.getAttribute("data-key");
+      var inp=document.createElement("input");
+      inp.type="file"; inp.accept="image/*"; inp.capture="environment";
+      inp.onchange=function(){
+        var file=inp.files&&inp.files[0];
+        if(!file) return;
+        compressImage(file).then(function(dataUrl){
+          if(dataUrl){ state.draft.checkItems[k].photo=dataUrl; render(); }
+        });
+      };
+      inp.click();
+    });
+  });
+  app.querySelectorAll('[data-act="delphoto"]').forEach(function(el){
+    el.addEventListener("click",function(){
+      state.draft.checkItems[el.getAttribute("data-key")].photo=null;
+      render();
+    });
+  });
+  // 시정조치 추가/삭제/가져오기
+  var addBtn=app.querySelector('[data-act="addaction"]');
+  if(addBtn) addBtn.addEventListener("click",function(){
+    state.draft.actions.push({id:Date.now(),issue:"",location:"",action:"",dueDate:"",completed:false,confirmer:""});
+    render();
+  });
+  app.querySelectorAll('[data-act="delaction"]').forEach(function(el){
+    el.addEventListener("click",function(){
+      var id=el.getAttribute("data-id");
+      state.draft.actions=state.draft.actions.filter(function(x){return String(x.id)!==String(id);});
+      render();
+    });
+  });
+  var impBtn=app.querySelector('[data-act="importng"]');
+  if(impBtn) impBtn.addEventListener("click",function(){
+    var added=[];
+    CATEGORIES.forEach(function(cat){
+      cat.items.forEach(function(item,ii){
+        var v=state.draft.checkItems[cat.id+"-"+ii];
+        if(v&&v.status==="ng"){
+          added.push({id:Date.now()+Math.random(),issue:"["+cat.name+"] "+item,
+            location:"",action:v.note||"",dueDate:"",completed:false,confirmer:""});
+        }
+      });
+    });
+    if(added.length===0){ alert("부적합으로 체크된 항목이 없습니다."); return; }
+    state.draft.actions=state.draft.actions.concat(added);
+    render();
+  });
+  // 서명 지우기
+  app.querySelectorAll('[data-act="clearsig"]').forEach(function(el){
+    el.addEventListener("click",function(){
+      var k=el.getAttribute("data-key");
+      state.draft.approvals[k].signature=null;
+      render();
+    });
+  });
+  // 단계 이동
+  var prevB=app.querySelector('[data-act="prevstep"]');
+  if(prevB) prevB.addEventListener("click",function(){ if(state.step>0){state.step--;render();} });
+  var nextB=app.querySelector('[data-act="nextstep"]');
+  if(nextB) nextB.addEventListener("click",function(){ if(state.step<STEPS.length-1){state.step++;render();} });
+  var subB=app.querySelector('[data-act="submit"]');
+  if(subB) subB.addEventListener("click",function(){
+    var d=state.draft;
+    d.status="submitted"; d.submittedAt=new Date().toISOString();
+    if(saveInspection(d)){
+      state.inspections=loadInspections();
+      state.view="home"; render();
+    }
+  });
+}
+
+function bindDetail(insp){
+  var pr=app.querySelector('[data-act="print"]');
+  if(pr) pr.addEventListener("click",function(){ window.print(); });
+  var sh=app.querySelector('[data-act="share"]');
+  if(sh) sh.addEventListener("click",function(){
+    var text=exportText(insp);
+    if(navigator.share){
+      navigator.share({title:"점검결과_"+insp.date,text:text}).catch(function(){});
+    }else if(navigator.clipboard){
+      navigator.clipboard.writeText(text).then(function(){
+        alert("점검 내용이 클립보드에 복사되었습니다.\n카톡·메일에 붙여넣기 하세요.");
+      }).catch(function(){ fallbackCopy(text); });
+    }else{ fallbackCopy(text); }
+  });
+  var del=app.querySelector('[data-act="delete"]');
+  if(del) del.addEventListener("click",function(){
+    if(confirm("이 점검 기록을 삭제하시겠습니까?")){
+      deleteInspection(insp.id);
+      state.inspections=loadInspections();
+      state.view="home"; render();
+    }
+  });
+  var tt=app.querySelector('[data-act="toggletext"]');
+  if(tt) tt.addEventListener("click",function(){ state.showFullText=!state.showFullText; render(); });
+}
+function fallbackCopy(text){
+  var ta=document.createElement("textarea");
+  ta.value=text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand("copy"); alert("점검 내용이 복사되었습니다."); }
+  catch(e){ alert("복사를 지원하지 않는 환경입니다."); }
+  document.body.removeChild(ta);
+}
+
+function bindSettings(){
+  app.querySelectorAll("[data-setting]").forEach(function(el){
+    el.addEventListener("input",function(){
+      state.settings[el.getAttribute("data-setting")]=el.value;
+    });
+  });
+  var sv=app.querySelector('[data-act="savesettings"]');
+  if(sv) sv.addEventListener("click",function(){
+    saveSettings(state.settings);
+    alert("저장되었습니다.");
+    state.view="home"; render();
+  });
+}
+
+/* ===================== 서명 패드 ===================== */
+function initSignaturePads(){
+  app.querySelectorAll("canvas[data-sig]").forEach(function(canvas){
+    var key=canvas.getAttribute("data-sig");
+    var ratio=window.devicePixelRatio||1;
+    var rect=canvas.getBoundingClientRect();
+    canvas.width=rect.width*ratio;
+    canvas.height=rect.height*ratio;
+    var ctx=canvas.getContext&&canvas.getContext("2d");
+    if(!ctx) return;
+    ctx.scale(ratio,ratio);
+    ctx.lineWidth=2.2; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle="#1e293b";
+
+    var existing=state.draft.approvals[key].signature;
+    if(existing){
+      var im=new Image();
+      im.onload=function(){ ctx.drawImage(im,0,0,rect.width,rect.height); };
+      im.src=existing;
+    }
+    var drawing=false, last={x:0,y:0};
+    function pos(e){
+      var r=canvas.getBoundingClientRect();
+      var t=e.touches&&e.touches[0];
+      return {x:(t?t.clientX:e.clientX)-r.left, y:(t?t.clientY:e.clientY)-r.top};
+    }
+    function start(e){ e.preventDefault(); drawing=true; last=pos(e);
+      var ph=canvas.parentNode.querySelector(".sig-ph"); if(ph) ph.style.display="none"; }
+    function move(e){
+      if(!drawing) return; e.preventDefault();
+      var p=pos(e);
+      ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+      last=p;
+    }
+    function end(){
+      if(!drawing) return; drawing=false;
+      state.draft.approvals[key].signature=canvas.toDataURL("image/png");
+    }
+    canvas.addEventListener("mousedown",start);
+    canvas.addEventListener("mousemove",move);
+    canvas.addEventListener("mouseup",end);
+    canvas.addEventListener("mouseleave",end);
+    canvas.addEventListener("touchstart",start,{passive:false});
+    canvas.addEventListener("touchmove",move,{passive:false});
+    canvas.addEventListener("touchend",end);
+  });
+}
+
+/* ===================== PWA 설치 ===================== */
+window.addEventListener("beforeinstallprompt",function(e){
+  e.preventDefault(); deferredPrompt=e;
+  if(state.view==="home") renderHome();
+});
+function doInstall(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(function(){ deferredPrompt=null; if(state.view==="home") renderHome(); });
+}
+
+/* ===================== 서비스워커 등록 ===================== */
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("sw.js").catch(function(){
+      /* sw.js 없이 단독 파일로 열어도 앱은 정상 작동 */
+    });
+  });
+}
+
+/* ===================== 시작 ===================== */
+(function init(){
+  try{
+    state.settings=loadSettings();
+    state.inspections=loadInspections();
+  }catch(e){
+    state.settings={companyName:"",siteName:"",inspector:""};
+    state.inspections=[];
+  }
+  render();
+})();
+</script>
+</body>
+</html>
