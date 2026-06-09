@@ -20,7 +20,7 @@ body{ background:var(--s900); color:var(--s900); }
 .hdr-title{ font-size:24px; font-weight:800; margin-top:10px; letter-spacing:-0.5px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;}
 .hdr-sub{ font-size:14px; color:var(--s400); margin-top:5px; }
 
-/* 데이터 백업/복구 관리 패널 (신규 추가) */
+/* 데이터 백업/복구 관리 패널 */
 .data-manager-panel { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.2); }
 .data-manager-title { font-size: 13px; color: var(--s200); margin-bottom: 10px; font-weight: bold; }
 .data-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -42,12 +42,16 @@ body{ background:var(--s900); color:var(--s900); }
 .pad{ padding:25px 30px; }
 .sec-title{ font-size:15px; font-weight:800; color:var(--s700); margin-bottom:15px; }
 
-/* Dashboard Stats */
+/* Dashboard Stats (10칸 반영 및 반응형 적용) */
 .dashboard { background:#fff; border:1px solid var(--s200); border-radius:16px; padding:20px; margin-bottom:25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-.stat-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
-.stat-box { background:var(--s50); padding:15px 10px; border-radius:12px; text-align:center; border: 1px solid var(--s200); }
-.stat-lbl { font-size:12px; color:var(--s500); font-weight:700; margin-bottom:8px; word-break: keep-all;}
-.stat-val { font-size:22px; font-weight:800; color:var(--s800); }
+.stat-grid { display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; }
+.stat-box { background:var(--s50); padding:12px 6px; border-radius:12px; text-align:center; border: 1px solid var(--s200); }
+.stat-lbl { font-size:11px; color:var(--s500); font-weight:700; margin-bottom:6px; word-break: keep-all; line-height:1.2; }
+.stat-val { font-size:20px; font-weight:800; color:var(--s800); }
+
+/* 모바일 화면 대응 (화면이 좁아지면 칸 수를 자동으로 줄임) */
+@media (max-width: 650px) { .stat-grid { grid-template-columns:repeat(4, 1fr); } }
+@media (max-width: 480px) { .stat-grid { grid-template-columns:repeat(3, 1fr); } }
 
 /* App Cards */
 .app-card { background:#fff; border:1px solid var(--s200); border-radius:16px; padding:20px; margin-bottom:15px; display:flex; align-items:center; gap:20px; box-shadow:0 2px 8px rgba(0,0,0,.03); text-decoration:none; color:inherit; transition: all 0.2s ease; cursor: pointer; }
@@ -107,12 +111,17 @@ body{ background:var(--s900); color:var(--s900); }
         <div class="dashboard">
             <div class="sec-title"><i class="fa-solid fa-chart-simple"></i> 로컬 데이터 등록 현황</div>
             <div class="stat-grid">
-                <div class="stat-box"><div class="stat-lbl">관리 현장</div><div class="stat-val" style="color:var(--green);" id="cnt-site">0</div></div>
-                <div class="stat-box"><div class="stat-lbl">협력업체</div><div class="stat-val" style="color:var(--pink);" id="cnt-partner">0</div></div>
-                <div class="stat-box"><div class="stat-lbl">순회점검</div><div class="stat-val" style="color:var(--red);" id="cnt-inspection">0</div></div>
-                <div class="stat-box"><div class="stat-lbl">위험성평가</div><div class="stat-val" style="color:var(--amber);" id="cnt-risk">0</div></div>
-                <div class="stat-box"><div class="stat-lbl">작업일보</div><div class="stat-val" style="color:var(--blue);" id="cnt-report">0</div></div>
-                <div class="stat-box"><div class="stat-lbl">장비점검</div><div class="stat-val" style="color:var(--cyan);" id="cnt-machinery">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">1.관리현장</div><div class="stat-val" style="color:var(--green);" id="cnt-site">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">2.협력업체</div><div class="stat-val" style="color:var(--pink);" id="cnt-partner">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">3.순회점검</div><div class="stat-val" style="color:var(--red);" id="cnt-inspection">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">4.위험성평가</div><div class="stat-val" style="color:var(--amber);" id="cnt-risk">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">5.작업일보</div><div class="stat-val" style="color:var(--blue);" id="cnt-report">0</div></div>
+                
+                <div class="stat-box"><div class="stat-lbl">6.원가/손익</div><div class="stat-val" style="color:var(--purple);" id="cnt-cost">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">7.장비점검</div><div class="stat-val" style="color:var(--cyan);" id="cnt-machinery">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">8.신규교육</div><div class="stat-val" style="color:#ea580c;" id="cnt-edu">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">9.건강확인</div><div class="stat-val" style="color:#16a34a;" id="cnt-health">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">10.안전보건비</div><div class="stat-val" style="color:#0284c7;" id="cnt-safetycost">0</div></div>
             </div>
         </div>
 
@@ -133,68 +142,42 @@ body{ background:var(--s900); color:var(--s900); }
 
 <script>
 // ================= 통합 시스템 글로벌 백업/복구 로직 =================
-
-// 1. 전체 데이터 다운로드 (Export)
 function exportGlobalData() {
-    let allData = {};
-    let dataCount = 0;
-    
-    // 로컬 스토리지의 모든 키와 값을 수집
+    let allData = {}; let dataCount = 0;
     for (let i = 0; i < localStorage.length; i++) {
-        let key = localStorage.key(i);
-        allData[key] = localStorage.getItem(key);
-        dataCount++;
+        let key = localStorage.key(i); allData[key] = localStorage.getItem(key); dataCount++;
     }
-
-    if(dataCount === 0) {
-        alert("백업할 데이터가 없습니다.");
-        return;
-    }
+    if(dataCount === 0) { alert("백업할 데이터가 없습니다."); return; }
 
     const dataStr = JSON.stringify(allData);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    
-    // 파일명에 회사명과 날짜 포함
+    const a = document.createElement("a"); a.href = url;
     const compName = localStorage.getItem('scdrs_company_name') || "통합관리";
     const dateStr = new Date().toISOString().slice(0,10);
     a.download = `[${compName}]_전체데이터_백업_${dateStr}.json`;
-    
     a.click();
 }
 
-// 2. 전체 데이터 불러오기 (Import)
 function importGlobalData(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
             const data = JSON.parse(e.target.result);
-            
-            // 기존 스토리지 초기화 여부 확인 후 덮어쓰기
             if(confirm("불러오는 파일로 기존 데이터를 모두 덮어쓰시겠습니까?")) {
-                localStorage.clear(); // 기존 데이터 클리어
-                for (let key in data) {
-                    localStorage.setItem(key, data[key]);
-                }
+                localStorage.clear();
+                for (let key in data) localStorage.setItem(key, data[key]);
                 alert("성공적으로 전체 데이터가 복구되었습니다.\n시스템 대시보드를 갱신합니다.");
-                location.reload(); // 새로고침하여 통계 즉시 반영
+                location.reload();
             }
-        } catch (err) {
-            alert("잘못된 백업 파일이거나 손상된 파일입니다.");
-        }
+        } catch (err) { alert("잘못된 백업 파일이거나 손상된 파일입니다."); }
     };
     reader.readAsText(file);
-    
-    // 입력창 초기화 (동일 파일 재업로드 버그 방지)
     event.target.value = '';
 }
 
-// 3. 전체 데이터 초기화 (Clear)
 function clearGlobalData() {
     if(confirm("⚠️ 경고 ⚠️\n모든 현장, 위험성평가, 비용 데이터 등 시스템 내의 '모든 데이터'가 삭제됩니다.\n삭제 후에는 복구할 수 없습니다. 정말 초기화하시겠습니까?")) {
         const doubleCheck = prompt("초기화를 진행하려면 '초기화진행' 이라고 입력해 주세요.");
@@ -202,9 +185,7 @@ function clearGlobalData() {
             localStorage.clear();
             alert("모든 데이터가 초기화되었습니다.");
             location.reload();
-        } else {
-            alert("초기화가 취소되었습니다.");
-        }
+        } else { alert("초기화가 취소되었습니다."); }
     }
 }
 
@@ -215,12 +196,8 @@ function loadCompanyName() {
         let compName = localStorage.getItem('scdrs_company_name');
         const displayEl = document.getElementById('company-display');
         if (compName && compName.trim() !== "") {
-            displayEl.innerText = compName.trim() + " ";
-            displayEl.style.display = 'inline-block';
-        } else {
-            displayEl.innerText = "";
-            displayEl.style.display = 'none';
-        }
+            displayEl.innerText = compName.trim() + " "; displayEl.style.display = 'inline-block';
+        } else { displayEl.innerText = ""; displayEl.style.display = 'none'; }
     } catch (e) {}
 }
 
@@ -240,43 +217,61 @@ function toggleCompanyEdit(isEditing) {
 function saveCompanyName() {
     const newName = document.getElementById('company-input').value.trim();
     try {
-        localStorage.setItem('scdrs_company_name', newName);
-        loadCompanyName();
-        toggleCompanyEdit(false);
-    } catch (e) {
-        alert("브라우저 설정으로 인해 저장되지 않았습니다.");
-        toggleCompanyEdit(false);
-    }
+        localStorage.setItem('scdrs_company_name', newName); loadCompanyName(); toggleCompanyEdit(false);
+    } catch (e) { alert("브라우저 설정으로 인해 저장되지 않았습니다."); toggleCompanyEdit(false); }
 }
-
-document.getElementById('company-input').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') saveCompanyName();
-});
+document.getElementById('company-input').addEventListener('keypress', function (e) { if (e.key === 'Enter') saveCompanyName(); });
 
 // ================= 대시보드 통계 업데이트 =================
 function updateDashboard() {
     try {
-        let siteCount = 0, partnerCount = 0, inspectionCount = 0, riskCount = 0, reportCount = 0, machineryCount = 0;
-        let sites = JSON.parse(localStorage.getItem('scdrs_sites')) || [];
-        siteCount = sites.length;
-        let partners = JSON.parse(localStorage.getItem('scdrs_partners')) || [];
-        partnerCount = partners.length;
+        // 모든 앱의 카운트 변수 선언
+        let siteCount = 0, partnerCount = 0, inspectionCount = 0, riskCount = 0, reportCount = 0;
+        let costCount = 0, machineryCount = 0, eduCount = 0, healthCount = 0, safetyCostCount = 0;
+        
+        // 1번: 현장 / 2번: 협력업체 / 10번: 안전보건관리비 내역 건수 확인
+        let sites = JSON.parse(localStorage.getItem('scdrs_sites')) || []; siteCount = sites.length;
+        let partners = JSON.parse(localStorage.getItem('scdrs_partners')) || []; partnerCount = partners.length;
+        let safetyCosts = JSON.parse(localStorage.getItem('sh_expenses')) || []; safetyCostCount = safetyCosts.length;
 
+        // 로컬 스토리지 키(Key) 값을 분석하여 각 어플리케이션별 데이터 개수 산출
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key.startsWith("safetyPatrol:insp:")) inspectionCount++;
-            else if (key.startsWith("riskAssess:a_")) riskCount++;
-            else if (key.startsWith("scdrs_machinery_")) machineryCount++;
-            else if (key.startsWith("scdrs_") && !key.startsWith("scdrs_sites") && !key.startsWith("scdrs_partners") && !key.startsWith("scdrs_cost_") && !key.startsWith("scdrs_company_name")) reportCount++;
+            
+            if (key.startsWith("safetyPatrol:insp:")) inspectionCount++; // 3번
+            else if (key.startsWith("riskAssess:a_")) riskCount++; // 4번
+            else if (key.startsWith("scdrs_cost_")) costCount++; // 6번
+            else if (key.startsWith("scdrs_machinery_")) machineryCount++; // 7번
+            else if (key.startsWith("scdrs_edu_") || key.startsWith("scdrs_safety_form_")) eduCount++; // 8번
+            else if (key.startsWith("scdrs_health_")) healthCount++; // 9번
+            else if (key.startsWith("scdrs_") && 
+                     !key.startsWith("scdrs_sites") && 
+                     !key.startsWith("scdrs_partners") && 
+                     !key.startsWith("scdrs_cost_") && 
+                     !key.startsWith("scdrs_machinery_") && 
+                     !key.startsWith("scdrs_edu_") && 
+                     !key.startsWith("scdrs_safety_form_") && 
+                     !key.startsWith("scdrs_health_") && 
+                     !key.startsWith("scdrs_company_name")) {
+                reportCount++; // 5번 (기타 scdrs_ 로 시작하는 작업일보 데이터)
+            }
         }
 
+        // 화면 표기 (1~10번 반영)
         document.getElementById('cnt-site').innerText = siteCount;
         document.getElementById('cnt-partner').innerText = partnerCount;
         document.getElementById('cnt-inspection').innerText = inspectionCount;
         document.getElementById('cnt-risk').innerText = riskCount;
         document.getElementById('cnt-report').innerText = reportCount;
+        document.getElementById('cnt-cost').innerText = costCount;
         document.getElementById('cnt-machinery').innerText = machineryCount;
-    } catch (e) {}
+        document.getElementById('cnt-edu').innerText = eduCount;
+        document.getElementById('cnt-health').innerText = healthCount;
+        document.getElementById('cnt-safetycost').innerText = safetyCostCount;
+        
+    } catch (e) {
+        console.error("통계 업데이트 중 오류 발생:", e);
+    }
 }
 
 window.onload = function() {
