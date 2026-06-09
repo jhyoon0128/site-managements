@@ -20,6 +20,18 @@ body{ background:var(--s900); color:var(--s900); }
 .hdr-title{ font-size:24px; font-weight:800; margin-top:10px; letter-spacing:-0.5px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px;}
 .hdr-sub{ font-size:14px; color:var(--s400); margin-top:5px; }
 
+/* 데이터 백업/복구 관리 패널 (신규 추가) */
+.data-manager-panel { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.2); }
+.data-manager-title { font-size: 13px; color: var(--s200); margin-bottom: 10px; font-weight: bold; }
+.data-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-data { padding: 8px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+.btn-export { background-color: #10b981; color: #fff; }
+.btn-export:hover { background-color: #059669; }
+.btn-import { background-color: #f59e0b; color: #000; }
+.btn-import:hover { background-color: #d97706; }
+.btn-clear { background-color: transparent; border: 1px solid #ef4444; color: #ef4444; margin-left: auto; }
+.btn-clear:hover { background-color: #ef4444; color: #fff; }
+
 /* 회사명 수정 UI 스타일 */
 .edit-btn { background: none; border: none; color: var(--s500); cursor: pointer; font-size: 16px; transition: 0.2s; padding: 4px; }
 .edit-btn:hover { color: var(--amber); }
@@ -30,7 +42,7 @@ body{ background:var(--s900); color:var(--s900); }
 .pad{ padding:25px 30px; }
 .sec-title{ font-size:15px; font-weight:800; color:var(--s700); margin-bottom:15px; }
 
-/* Dashboard Stats (6칸) */
+/* Dashboard Stats */
 .dashboard { background:#fff; border:1px solid var(--s200); border-radius:16px; padding:20px; margin-bottom:25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
 .stat-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
 .stat-box { background:var(--s50); padding:15px 10px; border-radius:12px; text-align:center; border: 1px solid var(--s200); }
@@ -38,17 +50,9 @@ body{ background:var(--s900); color:var(--s900); }
 .stat-val { font-size:22px; font-weight:800; color:var(--s800); }
 
 /* App Cards */
-.app-card {
-    background:#fff; border:1px solid var(--s200); border-radius:16px; padding:20px;
-    margin-bottom:15px; display:flex; align-items:center; gap:20px;
-    box-shadow:0 2px 8px rgba(0,0,0,.03); text-decoration:none; color:inherit;
-    transition: all 0.2s ease; cursor: pointer;
-}
+.app-card { background:#fff; border:1px solid var(--s200); border-radius:16px; padding:20px; margin-bottom:15px; display:flex; align-items:center; gap:20px; box-shadow:0 2px 8px rgba(0,0,0,.03); text-decoration:none; color:inherit; transition: all 0.2s ease; cursor: pointer; }
 .app-card:hover { transform: translateY(-3px); border-color:var(--blue); box-shadow:0 8px 15px rgba(59,130,246,.1); }
-.app-icon {
-    width:65px; height:65px; border-radius:16px; display:flex; 
-    align-items:center; justify-content:center; font-size:30px; flex-shrink: 0;
-}
+.app-icon { width:65px; height:65px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:30px; flex-shrink: 0; }
 .app-info { flex: 1; }
 .app-name { font-size:18px; font-weight:800; margin-bottom:6px; color:var(--s900); }
 .app-desc { font-size:13px; color:var(--s500); line-height:1.4; word-break: keep-all; }
@@ -63,9 +67,9 @@ body{ background:var(--s900); color:var(--s900); }
 .icon-5 { background:#eff6ff; color:var(--blue); }
 .icon-6 { background:#f3e8ff; color:var(--purple); }
 .icon-7 { background:#cffafe; color:var(--cyan); }
-.icon-8 { background:#fff7ed; color:#ea580c; } /* 주황색 톤 */
-.icon-9 { background:#f0fdf4; color:#16a34a; } /* 진녹색 톤 */
-.icon-10 { background:#f0f9ff; color:#0284c7; } /* 10번: 스카이블루 톤 */
+.icon-8 { background:#fff7ed; color:#ea580c; } 
+.icon-9 { background:#f0fdf4; color:#16a34a; } 
+.icon-10 { background:#f0f9ff; color:#0284c7; }
 
 </style>
 </head>
@@ -76,152 +80,140 @@ body{ background:var(--s900); color:var(--s900); }
         
         <div class="hdr-title" id="title-display-mode">
             <span id="company-display" style="color: var(--amber);"></span>
-            <span>공사관리 및 안전보건 통합관리시스템</span>
+            <span>공사관리 및 안전보건 통합시스템</span>
             <button class="edit-btn" onclick="toggleCompanyEdit(true)" title="회사명 수정"><i class="fa-solid fa-pen"></i></button>
         </div>
 
         <div class="hdr-title" id="title-edit-mode" style="display: none; align-items: center; gap: 10px;">
             <input type="text" id="company-input" class="company-input" placeholder="회사명 입력">
-            <span style="font-size: 18px;">공사관리 및 안전보건 통합관리시스템</span>
-            <button class="btn-save-comp" onclick="saveCompanyName()"><i class="fa-solid fa-floppy-disk"></i> 저장</button>
-            <button class="btn-cancel-comp" onclick="toggleCompanyEdit(false)">취소</button>
+            <span style="font-size: 18px;">통합관리시스템</span>
+            <button class="btn-save-comp" onclick="saveCompanyName()"><i class="fa-solid fa-floppy-disk"></i></button>
+            <button class="btn-cancel-comp" onclick="toggleCompanyEdit(false)"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
         <div class="hdr-sub">경영관리, 공사원가, 안전보건 직무 통합 PWA 포털</div>
+
+        <div class="data-manager-panel">
+            <div class="data-manager-title"><i class="fa-solid fa-database"></i> 1~10번 앱 전체 데이터 통합 관리 (스토리지 연동)</div>
+            <div class="data-buttons">
+                <button class="btn-data btn-export" onclick="exportGlobalData()"><i class="fa-solid fa-download"></i> 전체 백업 (다운로드)</button>
+                <button class="btn-data btn-import" onclick="document.getElementById('importFile').click()"><i class="fa-solid fa-upload"></i> 백업 파일 불러오기</button>
+                <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importGlobalData(event)">
+                <button class="btn-data btn-clear" onclick="clearGlobalData()"><i class="fa-solid fa-trash-can"></i> 시스템 초기화</button>
+            </div>
+        </div>
     </div>
 
     <div class="pad">
         <div class="dashboard">
             <div class="sec-title"><i class="fa-solid fa-chart-simple"></i> 로컬 데이터 등록 현황</div>
             <div class="stat-grid">
-                <div class="stat-box">
-                    <div class="stat-lbl">관리 현장</div>
-                    <div class="stat-val" style="color:var(--green);" id="cnt-site">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-lbl">협력업체</div>
-                    <div class="stat-val" style="color:var(--pink);" id="cnt-partner">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-lbl">순회점검</div>
-                    <div class="stat-val" style="color:var(--red);" id="cnt-inspection">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-lbl">위험성평가</div>
-                    <div class="stat-val" style="color:var(--amber);" id="cnt-risk">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-lbl">작업일보</div>
-                    <div class="stat-val" style="color:var(--blue);" id="cnt-report">0</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-lbl">장비점검</div>
-                    <div class="stat-val" style="color:var(--cyan);" id="cnt-machinery">0</div>
-                </div>
+                <div class="stat-box"><div class="stat-lbl">관리 현장</div><div class="stat-val" style="color:var(--green);" id="cnt-site">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">협력업체</div><div class="stat-val" style="color:var(--pink);" id="cnt-partner">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">순회점검</div><div class="stat-val" style="color:var(--red);" id="cnt-inspection">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">위험성평가</div><div class="stat-val" style="color:var(--amber);" id="cnt-risk">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">작업일보</div><div class="stat-val" style="color:var(--blue);" id="cnt-report">0</div></div>
+                <div class="stat-box"><div class="stat-lbl">장비점검</div><div class="stat-val" style="color:var(--cyan);" id="cnt-machinery">0</div></div>
             </div>
         </div>
 
         <div class="sec-title"><i class="fa-solid fa-layer-group"></i> 어플리케이션 실행 (Workflow)</div>
         
-        <a href="site-manager.html" class="app-card">
-            <div class="app-icon icon-1"><i class="fa-solid fa-building"></i></div>
-            <div class="app-info">
-                <div class="app-name">1. 현장 등록 및 관리</div>
-                <div class="app-desc">신규 현장 코드 부여, 공사 세부 정보 및 4대보험/출역 설정</div>
-            </div>
-            <div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </a>
-
-        <a href="partner-manager.html" class="app-card">
-            <div class="app-icon icon-2"><i class="fa-solid fa-handshake"></i></div>
-            <div class="app-info">
-                <div class="app-name">2. 협력업체 등록 및 관리</div>
-                <div class="app-desc">사업자 거래처 대장, 부서별 관리 및 적격 수급인 평가 첨부</div>
-            </div>
-            <div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </a>
-
-        <a href="daily-inspection.html" class="app-card">
-            <div class="app-icon icon-3"><i class="fa-solid fa-person-walking-arrow-right"></i></div>
-            <div class="app-info">
-                <div class="app-name">3. 현장 일일 안전 순회점검</div>
-                <div class="app-desc">모바일 기반 34개 항목 체크, 부적합 사진 촬영 및 서명 결재</div>
-            </div>
-            <div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </a>
-
-        <a href="risk-assessment.html" class="app-card">
-            <div class="app-icon icon-4"><i class="fa-solid fa-triangle-exclamation"></i></div>
-            <div class="app-info">
-                <div class="app-name">4. 공정별 위험성평가</div>
-                <div class="app-desc">3단계 판단법 기반 위험요인 도출 및 안전 대책 결재 시스템</div>
-            </div>
-            <div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </a>
-
-        <a href="report.html" class="app-card">
-            <div class="app-icon icon-5"><i class="fa-solid fa-clipboard-check"></i></div>
-            <div class="app-info">
-                <div class="app-name">5. 일일 작업/안전일보</div>
-                <div class="app-desc">작업 내역 보고, 현장 공정률 산출 및 TBM 안전교육 일지 생성</div>
-            </div>
-            <div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </a>
-
-        <a href="cost-manager.html" class="app-card">
-            <div class="app-icon icon-6"><i class="fa-solid fa-coins"></i></div>
-            <div class="app-info">
-                <div class="app-name">6. 현장별 손익/원가 현황</div>
-                <div class="app-desc">엑셀 업로드 자동 파싱, 예정/실행원가 비교 및 집행률 분석</div>
-            </div>
-            <div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </a>
-
-        <a href="machinery-safetycheck.html" class="app-card">
-            <div class="app-icon icon-7"><i class="fa-solid fa-truck-monster"></i></div>
-            <div class="app-info">
-                <div class="app-name">7. 차량계 건설기계 사전 반입 점검표</div>
-                <div class="app-desc">임대업체/운전자 1차 점검, 서류 첨부, 스마트폰 현장 서명 및 인쇄</div>
-            </div>
-            <div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </a>
-
-        <a href="safety_form.html" class="app-card">
-            <div class="app-icon icon-8"><i class="fa-solid fa-user-shield"></i></div>
-            <div class="app-info">
-                <div class="app-name">8. 신규채용자 특별안전·보건교육</div>
-                <div class="app-desc">신규 작업자 기초안전보건교육 이수 확인, 위험성평가 및 서명</div>
-            </div>
-            <div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </a>
-
-        <a href="health-check.html" class="app-card">
-            <div class="app-icon icon-9"><i class="fa-solid fa-stethoscope"></i></div>
-            <div class="app-info">
-                <div class="app-name">9. 근로자 작업안전 및 건강상태 확인</div>
-                <div class="app-desc">출역 인원 엑셀 연동, 오전/오후 보호구 착용 및 건강/음주 상태 체크</div>
-            </div>
-            <div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </a>
-        
-        <a href="safety_cost.html" class="app-card">
-            <div class="app-icon icon-10"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-            <div class="app-info">
-                <div class="app-name">10. 산업안전보건관리비 통합 사용내역서</div>
-                <div class="app-desc">항목별 전산 집계, 자동 누계 및 갑지/별지 A4 자동 분할 인쇄</div>
-            </div>
-            <div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div>
-        </a>
+        <a href="site-manager.html" class="app-card"><div class="app-icon icon-1"><i class="fa-solid fa-building"></i></div><div class="app-info"><div class="app-name">1. 현장 등록 및 관리</div><div class="app-desc">신규 현장 코드 부여, 공사 세부 정보 및 4대보험/출역 설정</div></div><div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div></a>
+        <a href="partner-manager.html" class="app-card"><div class="app-icon icon-2"><i class="fa-solid fa-handshake"></i></div><div class="app-info"><div class="app-name">2. 협력업체 등록 및 관리</div><div class="app-desc">사업자 거래처 대장, 부서별 관리 및 적격 수급인 평가 첨부</div></div><div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div></a>
+        <a href="daily-inspection.html" class="app-card"><div class="app-icon icon-3"><i class="fa-solid fa-person-walking-arrow-right"></i></div><div class="app-info"><div class="app-name">3. 현장 일일 안전 순회점검</div><div class="app-desc">모바일 기반 34개 항목 체크, 부적합 사진 촬영 및 서명 결재</div></div><div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div></a>
+        <a href="risk-assessment.html" class="app-card"><div class="app-icon icon-4"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="app-info"><div class="app-name">4. 공정별 위험성평가</div><div class="app-desc">3단계 판단법 기반 위험요인 도출 및 안전 대책 결재 시스템</div></div><div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div></a>
+        <a href="report.html" class="app-card"><div class="app-icon icon-5"><i class="fa-solid fa-clipboard-check"></i></div><div class="app-info"><div class="app-name">5. 일일 작업/안전일보</div><div class="app-desc">작업 내역 보고, 현장 공정률 산출 및 TBM 안전교육 일지 생성</div></div><div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div></a>
+        <a href="cost-manager.html" class="app-card"><div class="app-icon icon-6"><i class="fa-solid fa-coins"></i></div><div class="app-info"><div class="app-name">6. 현장별 손익/원가 현황</div><div class="app-desc">엑셀 업로드 자동 파싱, 예정/실행원가 비교 및 집행률 분석</div></div><div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div></a>
+        <a href="machinery-safetycheck.html" class="app-card"><div class="app-icon icon-7"><i class="fa-solid fa-truck-monster"></i></div><div class="app-info"><div class="app-name">7. 차량계 건설기계 사전 반입 점검표</div><div class="app-desc">임대업체/운전자 1차 점검, 서류 첨부, 스마트폰 현장 서명 및 인쇄</div></div><div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div></a>
+        <a href="safety_form.html" class="app-card"><div class="app-icon icon-8"><i class="fa-solid fa-user-shield"></i></div><div class="app-info"><div class="app-name">8. 신규채용자 특별안전·보건교육</div><div class="app-desc">신규 작업자 기초안전보건교육 이수 확인, 위험성평가 및 서명</div></div><div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div></a>
+        <a href="health-check.html" class="app-card"><div class="app-icon icon-9"><i class="fa-solid fa-stethoscope"></i></div><div class="app-info"><div class="app-name">9. 근로자 작업안전 및 건강상태 확인</div><div class="app-desc">출역 인원 엑셀 연동, 오전/오후 보호구 착용 및 건강/음주 상태 체크</div></div><div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div></a>
+        <a href="safety_cost.html" class="app-card"><div class="app-icon icon-10"><i class="fa-solid fa-file-invoice-dollar"></i></div><div class="app-info"><div class="app-name">10. 산업안전보건관리비 통합 사용내역서</div><div class="app-desc">항목별 전산 집계, 자동 누계 및 갑지/별지 A4 자동 분할 인쇄</div></div><div class="app-arrow"><i class="fa-solid fa-chevron-right"></i></div></a>
     </div>
 </div>
 
 <script>
+// ================= 통합 시스템 글로벌 백업/복구 로직 =================
+
+// 1. 전체 데이터 다운로드 (Export)
+function exportGlobalData() {
+    let allData = {};
+    let dataCount = 0;
+    
+    // 로컬 스토리지의 모든 키와 값을 수집
+    for (let i = 0; i < localStorage.length; i++) {
+        let key = localStorage.key(i);
+        allData[key] = localStorage.getItem(key);
+        dataCount++;
+    }
+
+    if(dataCount === 0) {
+        alert("백업할 데이터가 없습니다.");
+        return;
+    }
+
+    const dataStr = JSON.stringify(allData);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    
+    // 파일명에 회사명과 날짜 포함
+    const compName = localStorage.getItem('scdrs_company_name') || "통합관리";
+    const dateStr = new Date().toISOString().slice(0,10);
+    a.download = `[${compName}]_전체데이터_백업_${dateStr}.json`;
+    
+    a.click();
+}
+
+// 2. 전체 데이터 불러오기 (Import)
+function importGlobalData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            
+            // 기존 스토리지 초기화 여부 확인 후 덮어쓰기
+            if(confirm("불러오는 파일로 기존 데이터를 모두 덮어쓰시겠습니까?")) {
+                localStorage.clear(); // 기존 데이터 클리어
+                for (let key in data) {
+                    localStorage.setItem(key, data[key]);
+                }
+                alert("성공적으로 전체 데이터가 복구되었습니다.\n시스템 대시보드를 갱신합니다.");
+                location.reload(); // 새로고침하여 통계 즉시 반영
+            }
+        } catch (err) {
+            alert("잘못된 백업 파일이거나 손상된 파일입니다.");
+        }
+    };
+    reader.readAsText(file);
+    
+    // 입력창 초기화 (동일 파일 재업로드 버그 방지)
+    event.target.value = '';
+}
+
+// 3. 전체 데이터 초기화 (Clear)
+function clearGlobalData() {
+    if(confirm("⚠️ 경고 ⚠️\n모든 현장, 위험성평가, 비용 데이터 등 시스템 내의 '모든 데이터'가 삭제됩니다.\n삭제 후에는 복구할 수 없습니다. 정말 초기화하시겠습니까?")) {
+        const doubleCheck = prompt("초기화를 진행하려면 '초기화진행' 이라고 입력해 주세요.");
+        if(doubleCheck === "초기화진행") {
+            localStorage.clear();
+            alert("모든 데이터가 초기화되었습니다.");
+            location.reload();
+        } else {
+            alert("초기화가 취소되었습니다.");
+        }
+    }
+}
+
+
 // ================= 회사명 인라인 수정 기능 =================
 function loadCompanyName() {
     try {
         let compName = localStorage.getItem('scdrs_company_name');
         const displayEl = document.getElementById('company-display');
-        
         if (compName && compName.trim() !== "") {
             displayEl.innerText = compName.trim() + " ";
             displayEl.style.display = 'inline-block';
@@ -229,9 +221,7 @@ function loadCompanyName() {
             displayEl.innerText = "";
             displayEl.style.display = 'none';
         }
-    } catch (e) {
-        console.error("로컬 스토리지 접근이 차단되었습니다.");
-    }
+    } catch (e) {}
 }
 
 function toggleCompanyEdit(isEditing) {
@@ -239,17 +229,11 @@ function toggleCompanyEdit(isEditing) {
     const editMode = document.getElementById('title-edit-mode');
     const inputField = document.getElementById('company-input');
     if (isEditing) {
-        displayMode.style.display = 'none';
-        editMode.style.display = 'flex';
-        try {
-            inputField.value = localStorage.getItem('scdrs_company_name') || "";
-        } catch (e) {
-            inputField.value = "";
-        }
+        displayMode.style.display = 'none'; editMode.style.display = 'flex';
+        try { inputField.value = localStorage.getItem('scdrs_company_name') || ""; } catch (e) { inputField.value = ""; }
         inputField.focus(); 
     } else {
-        displayMode.style.display = 'flex';
-        editMode.style.display = 'none';
+        displayMode.style.display = 'flex'; editMode.style.display = 'none';
     }
 }
 
@@ -260,7 +244,7 @@ function saveCompanyName() {
         loadCompanyName();
         toggleCompanyEdit(false);
     } catch (e) {
-        alert("브라우저 보안 설정으로 인해 회사명이 저장되지 않았습니다.\n기능을 원활히 사용하시려면 가상 서버(Live Server 등)를 통해 웹 주소 형식으로 실행해 주십시오.");
+        alert("브라우저 설정으로 인해 저장되지 않았습니다.");
         toggleCompanyEdit(false);
     }
 }
@@ -275,29 +259,15 @@ function updateDashboard() {
         let siteCount = 0, partnerCount = 0, inspectionCount = 0, riskCount = 0, reportCount = 0, machineryCount = 0;
         let sites = JSON.parse(localStorage.getItem('scdrs_sites')) || [];
         siteCount = sites.length;
-
         let partners = JSON.parse(localStorage.getItem('scdrs_partners')) || [];
         partnerCount = partners.length;
 
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            
-            if (key.startsWith("safetyPatrol:insp:")) {
-                inspectionCount++;
-            }
-            else if (key.startsWith("riskAssess:a_")) {
-                riskCount++;
-            }
-            else if (key.startsWith("scdrs_machinery_")) {
-                machineryCount++;
-            }
-            else if (key.startsWith("scdrs_") && 
-                !key.startsWith("scdrs_sites") && 
-                !key.startsWith("scdrs_partners") && 
-                !key.startsWith("scdrs_cost_") && 
-                !key.startsWith("scdrs_company_name")) { 
-                reportCount++;
-            }
+            if (key.startsWith("safetyPatrol:insp:")) inspectionCount++;
+            else if (key.startsWith("riskAssess:a_")) riskCount++;
+            else if (key.startsWith("scdrs_machinery_")) machineryCount++;
+            else if (key.startsWith("scdrs_") && !key.startsWith("scdrs_sites") && !key.startsWith("scdrs_partners") && !key.startsWith("scdrs_cost_") && !key.startsWith("scdrs_company_name")) reportCount++;
         }
 
         document.getElementById('cnt-site').innerText = siteCount;
@@ -306,9 +276,7 @@ function updateDashboard() {
         document.getElementById('cnt-risk').innerText = riskCount;
         document.getElementById('cnt-report').innerText = reportCount;
         document.getElementById('cnt-machinery').innerText = machineryCount;
-    } catch (e) {
-        console.error("통계 업데이트 중 로컬 스토리지 접근이 차단되었습니다.");
-    }
+    } catch (e) {}
 }
 
 window.onload = function() {
