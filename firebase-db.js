@@ -10,13 +10,12 @@ var fsdb = null;
 (function () {
     /* ★ STEP 3 에서 복사한 본인의 firebaseConfig 로 교체하세요 ★ */
     var firebaseConfig = {
-        apiKey: "AIzaSyDYeEsHRaIT09XkmZpjliXhqJbBtemslnE",
-        authDomain: "site-managements-709ce.firebaseapp.com",
-        projectId: "site-managements-709ce",
-        storageBucket: "site-managements-709ce.firebasestorage.app",
-        messagingSenderId: "383798239842",
-        appId: "1:383798239842:web:09823a4bd466eff74ba73b",
-        measurementId: "G-PJMM16G5DH"
+        apiKey: "여기에_본인_값",
+        authDomain: "여기에_본인_값",
+        projectId: "여기에_본인_값",
+        storageBucket: "여기에_본인_값",
+        messagingSenderId: "여기에_본인_값",
+        appId: "여기에_본인_값"
     };
 
     /* 현장 구분 코드: 각 PC 최초 1회만 입력받아 기억 */
