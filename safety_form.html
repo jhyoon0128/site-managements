@@ -90,6 +90,11 @@
     </style>
 </head>
 <body>
+<!-- ===== Firebase 클라우드 저장 연결 (전 페이지 공통) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-db.js"></script>
+
 
 <div class="app-container">
     <!-- Header -->
@@ -239,6 +244,16 @@
             return;
         }
         alert('제출이 완료되었습니다. 안전한 작업 되시길 바랍니다.');
+        /* 제출본을 클라우드/로컬에 보관 (제출 시각별 아카이브) */
+        try {
+            var rec = { savedAt: new Date().toISOString(), siteName: document.getElementById('siteName') ? document.getElementById('siteName').value : '', values: [] };
+            document.querySelectorAll('#safetyForm input, #safetyForm select, #safetyForm textarea').forEach(function (el) {
+                rec.values.push((el.type === 'checkbox' || el.type === 'radio') ? (el.checked ? '1' : '0') : el.value);
+            });
+            var k = 'safetyForm:' + Date.now();
+            localStorage.setItem(k, JSON.stringify(rec));
+            if (typeof dbSave === 'function') dbSave(k, rec);
+        } catch (err) {}
     });
 </script>
 </body>

@@ -20,12 +20,19 @@
     </style>
 </head>
 <body>
+<!-- ===== Firebase 클라우드 저장 연결 (전 페이지 공통) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-db.js"></script>
+
 <div class="container">
     <div class="header">
         <h2>근로자 작업안전 및 건강상태 확인</h2>
         <div>
             <button class="btn btn-primary" onclick="location.href='index.html'">🏠 홈</button>
             <input type="file" id="excel-upload" style="display:none" onchange="importExcel(event)">
+            <input type="date" id="check-date" style="padding:8px; border:1px solid #cbd5e1; border-radius:6px;" onchange="loadHealthCheck()">
+            <button class="btn btn-success" onclick="saveHealthCheck()">💾 저장</button>
             <button class="btn btn-success" onclick="document.getElementById('excel-upload').click()">엑셀 불러오기</button>
             <button class="btn btn-primary" onclick="window.print()">인쇄</button>
         </div>
@@ -79,6 +86,87 @@
         };
         reader.readAsArrayBuffer(file);
     }
+
+    /* ===== 클라우드/로컬 저장·불러오기 ===== */
+    function maskJumin(v) {
+        /* 개인정보 보호: 클라우드에는 주민번호 뒷자리를 마스킹하여 저장 */
+        v = (v || "").trim();
+        var m = v.replace(/[^0-9]/g, "");
+        if (m.length >= 7) return m.substring(0, 6) + "-" + m.charAt(6) + "******";
+        return v;
+    }
+
+    function collectRows() {
+        var rows = [];
+        document.querySelectorAll('#data-body tr').forEach(function (tr) {
+            var texts = tr.querySelectorAll('input[type="text"]');
+            var checks = tr.querySelectorAll('input[type="checkbox"]');
+            var row = {
+                name: texts[0].value, jumin: texts[1].value, job: texts[2].value,
+                checks: Array.prototype.map.call(checks, function (c) { return c.checked ? 1 : 0; }),
+                note: texts[3].value
+            };
+            if (row.name || row.jumin || row.job || row.note || row.checks.indexOf(1) >= 0) rows.push(row);
+        });
+        return rows;
+    }
+
+    function applyRows(rows) {
+        var trs = document.querySelectorAll('#data-body tr');
+        trs.forEach(function (tr) {
+            tr.querySelectorAll('input[type="text"]').forEach(function (i) { i.value = ""; });
+            tr.querySelectorAll('input[type="checkbox"]').forEach(function (i) { i.checked = false; });
+        });
+        (rows || []).forEach(function (row, i) {
+            if (!trs[i]) return;
+            var texts = trs[i].querySelectorAll('input[type="text"]');
+            var checks = trs[i].querySelectorAll('input[type="checkbox"]');
+            texts[0].value = row.name || ""; texts[1].value = row.jumin || "";
+            texts[2].value = row.job || ""; texts[3].value = row.note || "";
+            (row.checks || []).forEach(function (v, j) { if (checks[j]) checks[j].checked = !!v; });
+        });
+    }
+
+    function saveHealthCheck() {
+        var date = document.getElementById('check-date').value;
+        if (!date) { alert("작업일자를 먼저 선택해 주세요."); return; }
+        var rows = collectRows();
+        if (!rows.length) { alert("저장할 내용이 없습니다."); return; }
+        var key = 'health_check_' + date;
+        try { localStorage.setItem(key, JSON.stringify({ date: date, rows: rows })); } catch (e) {}
+        if (typeof dbSave === 'function') {
+            /* 클라우드 사본은 주민번호 뒷자리 마스킹 (개인정보 최소 수집) */
+            var cloudRows = rows.map(function (r) {
+                return { name: r.name, jumin: maskJumin(r.jumin), job: r.job, checks: r.checks, note: r.note };
+            });
+            dbSave(key, { date: date, rows: cloudRows });
+        }
+        alert(date + " 건강상태 확인 내역이 저장되었습니다.");
+    }
+
+    function loadHealthCheck() {
+        var date = document.getElementById('check-date').value;
+        if (!date) return;
+        var key = 'health_check_' + date;
+        var saved = null;
+        try { saved = localStorage.getItem(key); } catch (e) {}
+        if (saved) {
+            try { applyRows(JSON.parse(saved).rows); return; } catch (e) {}
+        }
+        applyRows([]);
+        if (typeof dbLoad === 'function') {
+            dbLoad(key, null).then(function (d) {
+                if (d && d.rows) {
+                    try { localStorage.setItem(key, JSON.stringify(d)); } catch (e) {}
+                    applyRows(d.rows);
+                }
+            });
+        }
+    }
+
+    /* 초기화: 오늘 날짜 세팅 후 저장본 자동 복원 */
+    document.getElementById('check-date').value = new Date().toISOString().substring(0, 10);
+    loadHealthCheck();
 </script>
 </body>
 </html>

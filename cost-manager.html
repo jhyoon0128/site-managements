@@ -85,6 +85,11 @@
     </style>
 </head>
 <body>
+<!-- ===== Firebase 클라우드 저장 연결 (전 페이지 공통) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-db.js"></script>
+
 
 <div class="container" id="report-container">
     <div class="header">
@@ -331,7 +336,70 @@
     function saveCostData() {
         const siteId = document.getElementById('site-select').value;
         const month = document.getElementById('base-month').value;
-        
+
+        if (!siteId) { alert("현장을 먼저 선택해 주세요."); return; }
+        if (!month) { alert("기준 월을 선택해 주세요."); return; }
+
         const data = {
             revenue: removeComma(document.getElementById('monthly-revenue').value),
             mat: { b: removeComma(document.getElementById('mat-budget').value), a: removeComma(document.getElementById('mat-actual').value) },
+            lab: { b: removeComma(document.getElementById('lab-budget').value), a: removeComma(document.getElementById('lab-actual').value) },
+            exp: { b: removeComma(document.getElementById('exp-budget').value), a: removeComma(document.getElementById('exp-actual').value) },
+            sub: { b: removeComma(document.getElementById('sub-budget').value), a: removeComma(document.getElementById('sub-actual').value) }
+        };
+
+        const key = `scdrs_cost_${siteId}_${month}`;
+        localStorage.setItem(key, JSON.stringify(data));
+        if (typeof dbSave === 'function') dbSave(key, data);   // 클라우드 동시 저장
+
+        const msg = document.getElementById('status-msg');
+        if (msg) { msg.style.display = 'block'; setTimeout(() => { msg.style.display = 'none'; }, 2000); }
+        alert(`[${month}] 원가 데이터가 저장되었습니다.`);
+    }
+
+    function applyCostData(data) {
+        document.getElementById('monthly-revenue').value = data.revenue ? setComma(data.revenue) : '';
+        ['mat', 'lab', 'exp', 'sub'].forEach(cat => {
+            document.getElementById(`${cat}-budget`).value = (data[cat] && data[cat].b) ? setComma(data[cat].b) : '';
+            document.getElementById(`${cat}-actual`).value = (data[cat] && data[cat].a) ? setComma(data[cat].a) : '';
+        });
+        calculateCost();
+    }
+
+    function loadCostData() {
+        const siteId = document.getElementById('site-select').value;
+        const month = document.getElementById('base-month').value;
+        if (!siteId || !month) return;
+        const key = `scdrs_cost_${siteId}_${month}`;
+        const saved = localStorage.getItem(key);
+        if (saved) {
+            try { applyCostData(JSON.parse(saved)); return; } catch (e) {}
+        }
+        /* 이 PC에 없으면 클라우드에서 불러와 복원 */
+        if (typeof dbLoad === 'function') {
+            dbLoad(key, null).then(d => {
+                if (d) {
+                    try { localStorage.setItem(key, JSON.stringify(d)); } catch (e) {}
+                    applyCostData(d);
+                }
+            });
+        }
+    }
+
+    window.onload = function () {
+        populateSiteDropdown();
+        document.getElementById('site-select').addEventListener('change', loadCostData);
+        document.getElementById('base-month').addEventListener('change', loadCostData);
+        /* 클라우드의 현장 목록으로 드롭다운 갱신 */
+        if (typeof dbLoad === 'function') {
+            dbLoad('scdrs_sites', null).then(cloud => {
+                if (Array.isArray(cloud)) {
+                    try { localStorage.setItem('scdrs_sites', JSON.stringify(cloud)); } catch (e) {}
+                    populateSiteDropdown();
+                }
+            });
+        }
+    };
+</script>
+</body>
+</html>

@@ -85,6 +85,11 @@
     </style>
 </head>
 <body>
+<!-- ===== Firebase 클라우드 저장 연결 (전 페이지 공통) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-db.js"></script>
+
 
 <div class="container" id="report-container">
     <div class="header-actions">
@@ -308,6 +313,7 @@
 
         const key = 'scdrs_machinery_' + (checkData.equipName || 'temp');
         localStorage.setItem(key, JSON.stringify(checkData));
+        if (typeof dbSave === 'function') dbSave(key, checkData);   // 클라우드 동시 저장
         
         showMsg("점검 내역이 저장되어 서류가 확정되었습니다.");
         setEditMode(false);
@@ -317,6 +323,15 @@
         const equipName = document.getElementById('equipName').value;
         const key = 'scdrs_machinery_' + (equipName || 'temp');
         const saved = localStorage.getItem(key);
+        /* 이 PC에 없으면 클라우드에서 불러와 복원 후 재실행 */
+        if (!saved && typeof dbLoad === 'function') {
+            dbLoad(key, null).then(d => {
+                if (d) {
+                    try { localStorage.setItem(key, JSON.stringify(d)); } catch (e) {}
+                    loadData();
+                }
+            });
+        }
 
         if(saved) {
             const data = JSON.parse(saved);
@@ -344,6 +359,7 @@
     }
 
     loadData();
+    document.getElementById('equipName').addEventListener('change', loadData);   // 장비명 입력 시 해당 점검표 자동 불러오기
 </script>
 </body>
 </html>

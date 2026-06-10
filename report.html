@@ -103,6 +103,11 @@
     </style>
 </head>
 <body>
+<!-- ===== Firebase 클라우드 저장 연결 (전 페이지 공통) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-db.js"></script>
+
 
     <div class="app-container">
         <div class="header">
@@ -236,6 +241,15 @@
             }
         }
         populateSiteDropdown();
+        /* 클라우드의 현장 목록으로 드롭다운 갱신 */
+        if (typeof dbLoad === 'function') {
+            dbLoad('scdrs_sites', null).then(cloud => {
+                if (Array.isArray(cloud)) {
+                    try { localStorage.setItem('scdrs_sites', JSON.stringify(cloud)); } catch (e) {}
+                    populateSiteDropdown();
+                }
+            });
+        }
 
         // 테이블 동적 인라인 행 추가 제어 로직
         function addRow(section, team='', content='', worker='') {
@@ -322,6 +336,7 @@
             };
 
             localStorage.setItem(`scdrs_${siteId}_${date}`, JSON.stringify(data));
+            if (typeof dbSave === 'function') dbSave(`scdrs_${siteId}_${date}`, data);   // 클라우드 동시 저장
             
             const msg = document.getElementById('status-msg');
             msg.style.display = 'block';
@@ -333,6 +348,15 @@
             const siteId = document.getElementById('site-select').value;
             const date = document.getElementById('report-date').value;
             const saved = localStorage.getItem(`scdrs_${siteId}_${date}`);
+            /* 이 PC에 없으면 클라우드에서 불러와 복원 후 재실행 */
+            if (!saved && siteId && typeof dbLoad === 'function') {
+                dbLoad(`scdrs_${siteId}_${date}`, null).then(d => {
+                    if (d) {
+                        try { localStorage.setItem(`scdrs_${siteId}_${date}`, JSON.stringify(d)); } catch (e) {}
+                        loadSiteData();
+                    }
+                });
+            }
             
             document.getElementById('author-name').value = "";
             document.querySelectorAll('.data-row').forEach(row => row.remove());

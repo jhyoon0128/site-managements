@@ -233,6 +233,11 @@ textarea{resize:none;line-height:1.5;}
 </style>
 </head>
 <body>
+<!-- ===== Firebase 클라우드 저장 연결 (전 페이지 공통) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-db.js"></script>
+
 <div id="app"><div class="spinner">로딩 중...</div></div>
 
 <script>
@@ -256,7 +261,7 @@ function loadCompanies(){
   catch(e){ return []; }
 }
 function saveCompaniesArr(arr){
-  try{ localStorage.setItem(COMPANIES_KEY, JSON.stringify(arr)); return true; }
+  try{ localStorage.setItem(COMPANIES_KEY, JSON.stringify(arr)); if (typeof dbSave==='function') dbSave(COMPANIES_KEY, arr); return true; }
   catch(e){ return false; }
 }
 function newCompany(name, typeKey){
@@ -338,7 +343,7 @@ var PREFIX = "riskAssess:";
 var SETTINGS_KEY = "riskAssess:settings";
 
 function saveAssess(a){
-  try{ localStorage.setItem(PREFIX+a.id, JSON.stringify(a)); return true; }
+  try{ localStorage.setItem(PREFIX+a.id, JSON.stringify(a)); if (typeof dbSave==='function') dbSave(PREFIX+a.id, a); return true; }
   catch(e){
     alert("저장 공간이 부족합니다. 오래된 평가를 삭제해 주세요.");
     return false;
@@ -355,12 +360,12 @@ function loadAssess(){
   arr.sort(function(a,b){ return new Date(b.createdAt)-new Date(a.createdAt); });
   return arr;
 }
-function delAssess(id){ try{ localStorage.removeItem(PREFIX+id); }catch(e){} }
+function delAssess(id){ try{ localStorage.removeItem(PREFIX+id); if (typeof dbDelete==='function') dbDelete(PREFIX+id); }catch(e){} }
 function loadSettings(){
   try{ var r=localStorage.getItem(SETTINGS_KEY); return r?JSON.parse(r):{companyName:"",siteName:"",assessor:""}; }
   catch(e){ return {companyName:"",siteName:"",assessor:""}; }
 }
-function saveSettings(s){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); }catch(e){} }
+function saveSettings(s){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(s)); if (typeof dbSave==='function') dbSave(SETTINGS_KEY, s); }catch(e){} }
 
 /* ===== 유틸 ===== */
 function esc(s){
@@ -1723,6 +1728,18 @@ if("serviceWorker" in navigator){
     state.companies = [];
   }
   render();
+  /* 클라우드의 이 현장 평가 데이터를 동기화한 뒤 재렌더링 */
+  if (typeof dbSyncAll === 'function') {
+    dbSyncAll(function (ok) {
+      if (!ok) return;
+      try {
+        state.settings = loadSettings();
+        state.assessments = loadAssess();
+        state.companies = loadCompanies();
+        render();
+      } catch (e) {}
+    });
+  }
 })();
 </script>
 </body>

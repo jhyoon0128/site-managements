@@ -83,6 +83,11 @@
     </style>
 </head>
 <body>
+<!-- ===== Firebase 클라우드 저장 연결 (전 페이지 공통) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-db.js"></script>
+
 
 <div class="container">
     <div class="header">
@@ -294,6 +299,7 @@
         }
 
         localStorage.setItem('scdrs_partners', JSON.stringify(partners));
+        if (typeof dbSave === 'function') dbSave('scdrs_partners', partners);   // 클라우드 동시 저장
         renderPartners();
     }
 
@@ -404,6 +410,7 @@
         let partners = JSON.parse(localStorage.getItem('scdrs_partners')) || [];
         partners = partners.filter(p => p.id !== id);
         localStorage.setItem('scdrs_partners', JSON.stringify(partners));
+        if (typeof dbSave === 'function') dbSave('scdrs_partners', partners);   // 클라우드 동시 저장
         
         // 만약 삭제하려는 항목이 현재 수정 중인 항목이라면 수정 모드도 해제
         if(editingId === id) cancelEdit();
@@ -479,6 +486,7 @@
                 });
 
                 localStorage.setItem('scdrs_partners', JSON.stringify(partners));
+        if (typeof dbSave === 'function') dbSave('scdrs_partners', partners);   // 클라우드 동시 저장
                 showMsg(`${importCount}개의 협력업체 데이터가 업로드되었습니다.`);
                 renderPartners();
             } catch(err) {
@@ -491,6 +499,15 @@
 
     // 초기 실행
     renderPartners();
+    /* 클라우드에 저장된 협력업체 목록을 불러와 화면 갱신 */
+    if (typeof dbLoad === 'function') {
+        dbLoad('scdrs_partners', null).then(function (cloud) {
+            if (Array.isArray(cloud)) {
+                try { localStorage.setItem('scdrs_partners', JSON.stringify(cloud)); } catch (e) {}
+                renderPartners();
+            }
+        });
+    }
 </script>
 </body>
 </html>

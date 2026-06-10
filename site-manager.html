@@ -46,6 +46,11 @@
     </style>
 </head>
 <body>
+<!-- ===== Firebase 클라우드 저장 연결 (전 페이지 공통) ===== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="firebase-db.js"></script>
+
 
 <div class="container">
     <div class="header">
@@ -186,6 +191,7 @@
         
         // 로컬 스토리지에 업데이트
         localStorage.setItem('scdrs_sites', JSON.stringify(sites));
+        if (typeof dbSave === 'function') dbSave('scdrs_sites', sites);   // 클라우드 동시 저장
         
         alert(`[${siteName}] 현장이 등록되었습니다. 이제 작업/안전일보에서 선택할 수 있습니다.`);
         document.getElementById('siteForm').reset();
@@ -212,7 +218,18 @@
     }
 
     // 페이지 로드 시 목록 렌더링
-    window.onload = renderSiteList;
+    window.onload = function () {
+        renderSiteList();
+        /* 클라우드에 저장된 현장 목록을 불러와 화면 갱신 */
+        if (typeof dbLoad === 'function') {
+            dbLoad('scdrs_sites', null).then(function (cloud) {
+                if (Array.isArray(cloud)) {
+                    try { localStorage.setItem('scdrs_sites', JSON.stringify(cloud)); } catch (e) {}
+                    renderSiteList();
+                }
+            });
+        }
+    };
 </script>
 
 </body>
