@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>산업안전보건관리비 통합 사용내역서</title>
 <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -13,30 +13,35 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
     body { background: var(--s50); color: var(--s900); padding-bottom: 50px; }
-    
+
     .hdr { background: var(--s900); color: #fff; padding: 20px; display: flex; align-items: center; gap: 15px; }
     .hdr-title { font-size: 20px; font-weight: 700; flex: 1; }
     .back-btn { color: #fff; text-decoration: none; font-size: 24px; }
 
     .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-    
+
     .card { background: #fff; border: 1px solid var(--s200); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-    .card-title { font-size: 16px; font-weight: 700; border-bottom: 2px solid var(--s900); padding-bottom: 10px; margin-bottom: 15px; color: var(--s800); }
+    .card-title { font-size: 16px; font-weight: 700; border-bottom: 2px solid var(--s900); padding-bottom: 10px; margin-bottom: 15px; color: var(--s800); display:flex; align-items:center; gap:8px; }
+    .card-title .spacer { flex:1; }
 
     /* 입력 폼 스타일 */
     .form-group { margin-bottom: 15px; }
     .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--s700); margin-bottom: 6px; }
-    .form-control { width: 100%; padding: 10px; border: 1px solid var(--s200); border-radius: 6px; font-size: 14px; outline: none; transition: 0.2s; }
+    .form-control { width: 100%; padding: 10px; border: 1px solid var(--s200); border-radius: 6px; font-size: 14px; outline: none; transition: 0.2s; background:#fff; }
     .form-control:focus { border-color: var(--blue); }
-    
+    .form-control:disabled { background: var(--s50); color: var(--s500); }
+
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    
-    /* 수기 입력창 (기본 숨김, 스크립트로 제어) */
-    #inDescCustom { display: none; margin-top: 10px; border: 2px solid var(--amber); background: #fffbeb; }
+
+    /* 수기 입력창 (기본 숨김) */
+    #inDescCustom { display: none; margin-top: 8px; border-color: var(--amber); background: #fffbeb; }
+    .hint { display:none; font-size: 12px; color: var(--amber); margin-top: 6px; font-weight: 600; }
 
     .btn-submit { width: 100%; background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; }
     .btn-submit:hover { background: #0369a1; }
     .btn-danger { background: var(--red); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+    .btn-print { background: var(--s700); color:#fff; border:none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight:600; cursor:pointer; }
+    .btn-print:hover { background: var(--s900); }
 
     /* 데이터 테이블 스타일 */
     .table-responsive { overflow-x: auto; }
@@ -45,6 +50,38 @@
     th { background: var(--s50); font-weight: 700; color: var(--s700); }
     td.text-left { text-align: left; }
     td.text-right { text-align: right; font-weight: 600; }
+    tfoot td { background: var(--s50); font-weight: 700; }
+
+    /* ========== 갑지 (별지 제1호 서식) 스타일 ========== */
+    .gapji-note { font-size: 11px; color: var(--s500); margin-bottom: 8px; }
+    .gapji { width:100%; border-collapse: collapse; min-width: 640px; font-size: 13px; background:#fff; }
+    .gapji th, .gapji td { border: 1px solid var(--s800); padding: 8px; }
+    .gapji .gj-title { font-size: 18px; font-weight: 700; text-align: center; letter-spacing: 8px; padding: 14px; border:1px solid var(--s800); }
+    .gapji .gj-label { background: var(--s50); font-weight: 700; text-align: center; width: 18%; white-space: nowrap; }
+    .gapji .gj-val { width: 32%; }
+    .gapji .gj-val input { width: 100%; border: none; outline: none; font-size: 13px; padding: 2px; background: transparent; text-align: left; font-family:'Pretendard',sans-serif; }
+    .gapji .gj-val input:focus { background: #f0f9ff; }
+    .gapji .gj-money { text-align: right; font-weight: 600; white-space: nowrap; }
+    .gapji .gj-cat { text-align: left; padding-left: 12px; }
+    .gapji .gj-sum-hdr { background: var(--s50); font-weight: 700; text-align: center; }
+    .gapji .gj-total td { background: var(--s50); font-weight: 700; }
+    .gapji .gj-etc td { background: #fffbeb; color:#92400e; }
+    .gapji .gj-footer { text-align: center; font-size: 12px; padding: 14px 10px; line-height: 2.1; }
+    .gapji .gj-footer .sign-line input { border:none; border-bottom:1px solid var(--s500); outline:none; width:90px; text-align:center; font-size:12px; background:transparent; }
+    .gj-month-bar { display:flex; align-items:center; gap:10px; margin-bottom: 12px; flex-wrap:wrap; }
+    .gj-month-bar label { font-size:13px; font-weight:600; color:var(--s700); }
+    .gj-month-bar input[type="month"] { padding:8px; border:1px solid var(--s200); border-radius:6px; font-size:13px; }
+    .gj-usage { font-size:12px; color:var(--s500); margin-left:auto; }
+    .gj-usage b { color: var(--blue); }
+
+    /* 인쇄 시 갑지만 출력 */
+    @media print {
+        body { background:#fff; padding:0; }
+        .hdr, .no-print, .btn-print, .gj-month-bar input { display:none !important; }
+        .card { border:none; box-shadow:none; padding:0; }
+        .container { max-width:100%; padding:0; }
+        .gapji { min-width:0; }
+    }
 </style>
 </head>
 <body>
@@ -55,54 +92,144 @@
 </div>
 
 <div class="container">
-    <div class="card">
+    <!-- ===================== 1. 비용 집행 내역 등록 ===================== -->
+    <div class="card no-print">
         <div class="card-title"><i class="fa-solid fa-pen-to-square"></i> 비용 집행 내역 등록</div>
-        
+
         <div class="form-group">
             <label class="form-label">사용 일자</label>
             <input type="date" id="inDate" class="form-control">
         </div>
 
         <div class="form-group">
-            <label class="form-label">항목 분류 (9대 고시 기준 및 기타)</label>
+            <label class="form-label">항목 분류 (건설업 산업안전보건관리비 계상 및 사용기준 고시)</label>
             <select id="inCat" class="form-control">
                 <option value="">대분류를 선택하세요</option>
-                <option value="1">1. 안전/보건관리자 임금 등</option>
+                <option value="1">1. 안전관리자·보건관리자의 임금 등</option>
                 <option value="2">2. 안전시설비 등</option>
-                <option value="3">3. 개인보호구 및 안전장구 구입비 등</option>
+                <option value="3">3. 보호구 등 (개인보호구·안전장구)</option>
                 <option value="4">4. 안전보건진단비 등</option>
                 <option value="5">5. 안전보건교육비 등</option>
                 <option value="6">6. 근로자 건강장해예방비 등</option>
                 <option value="7">7. 건설재해예방전문지도기관 기술지도비</option>
                 <option value="8">8. 본사 전담조직 근로자 임금 등</option>
                 <option value="9">9. 위험성평가 등에 따른 소요비용</option>
-                <option value="10">10. 기타 (직접 수기 입력)</option>
+                <option value="0">기타 (직접 수기 입력)</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label class="form-label">세부 품목 및 내역</label>
+            <label class="form-label">세부 품목 및 내역 (고시 기준 선택)</label>
             <select id="inSubCat" class="form-control">
                 <option value="">대분류를 먼저 선택하세요</option>
             </select>
-            <input type="text" id="inDescCustom" class="form-control" placeholder="수기로 세부내역을 정확히 입력해 주세요 (예: 안전화 10켤레)">
+            <input type="text" id="inDescCustom" class="form-control" placeholder="수기로 세부내역을 정확히 입력해 주세요 (예: 안전화 265mm 10켤레)">
+            <div class="hint" id="etcHint"><i class="fa-solid fa-triangle-exclamation"></i> 기타 항목은 고시상 사용 가능 항목인지 반드시 확인 후 정산하세요. (고시 외 항목은 부정사용으로 환수·제재 대상이 될 수 있습니다)</div>
         </div>
 
         <div class="grid-2">
             <div class="form-group">
                 <label class="form-label">수량</label>
-                <input type="number" id="inQty" class="form-control" placeholder="예: 1" value="1">
+                <input type="number" id="inQty" class="form-control" placeholder="예: 1" value="1" min="1">
             </div>
             <div class="form-group">
                 <label class="form-label">총 금액 (원)</label>
-                <input type="number" id="inAmount" class="form-control" placeholder="예: 50000">
+                <input type="number" id="inAmount" class="form-control" placeholder="예: 50000" min="0">
             </div>
         </div>
 
-        <button class="btn-submit" onclick="addExpense()"><i class="fa-solid fa-floppy-disk"></i> 데이터 반영 및 저장</button>
+        <button type="button" class="btn-submit" id="btnSave"><i class="fa-solid fa-floppy-disk"></i> 데이터 반영 및 저장</button>
     </div>
 
+    <!-- ===================== 2. 사용내역서 (갑지 / 별지 제1호 서식) ===================== -->
     <div class="card">
+        <div class="card-title">
+            <i class="fa-solid fa-file-contract"></i> 안전보건관리비 사용내역서 (갑지)
+            <span class="spacer"></span>
+            <button type="button" class="btn-print" id="btnPrint"><i class="fa-solid fa-print"></i> 갑지 인쇄</button>
+        </div>
+        <div class="gapji-note no-print">[별지 제1호 서식] (개정 2022.6.2.) — 「건설업 산업안전보건관리비 계상 및 사용기준」 제10조제1항 서식과 동일 양식이며, 아래 사용금액은 등록된 집행 내역에서 자동 집계됩니다.</div>
+
+        <div class="gj-month-bar no-print">
+            <label for="gapMonth"><i class="fa-solid fa-calendar-days"></i> 작성 기준월</label>
+            <input type="month" id="gapMonth">
+            <span class="gj-usage">계상액 대비 누계 사용률: <b id="gjUsageRate">-</b></span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="gapji" id="gapjiTable">
+                <tbody>
+                    <tr><td colspan="4" class="gj-title">안전보건관리비 사용내역서</td></tr>
+                    <tr>
+                        <td class="gj-label">건설업체명</td>
+                        <td class="gj-val"><input type="text" id="gjCompany" data-info placeholder="(주)○○전기공사"></td>
+                        <td class="gj-label">공 사 명</td>
+                        <td class="gj-val"><input type="text" id="gjProject" data-info placeholder="○○ 전기·소방·정보통신 공사"></td>
+                    </tr>
+                    <tr>
+                        <td class="gj-label">소 재 지</td>
+                        <td class="gj-val"><input type="text" id="gjAddress" data-info placeholder="현장 소재지"></td>
+                        <td class="gj-label">대 표 자</td>
+                        <td class="gj-val"><input type="text" id="gjCeo" data-info placeholder="대표자 성명"></td>
+                    </tr>
+                    <tr>
+                        <td class="gj-label">공사금액</td>
+                        <td class="gj-val"><input type="text" id="gjContract" data-info data-money placeholder="0"> 원</td>
+                        <td class="gj-label">공사기간</td>
+                        <td class="gj-val"><input type="text" id="gjPeriod" data-info placeholder="2026.01.01. ~ 2026.12.31."></td>
+                    </tr>
+                    <tr>
+                        <td class="gj-label">발 주 자</td>
+                        <td class="gj-val"><input type="text" id="gjOwner" data-info placeholder="발주처 (정부기관/원도급사)"></td>
+                        <td class="gj-label">누계공정률</td>
+                        <td class="gj-val"><input type="text" id="gjProgress" data-info placeholder="0"> %</td>
+                    </tr>
+                    <tr>
+                        <td class="gj-label">계상된 안전관리비</td>
+                        <td class="gj-val" colspan="3"><input type="text" id="gjBudget" data-info data-money placeholder="0"> 원</td>
+                    </tr>
+                    <tr>
+                        <td class="gj-sum-hdr" colspan="4">사  용  금  액</td>
+                    </tr>
+                    <tr>
+                        <td class="gj-sum-hdr" colspan="2">항 목</td>
+                        <td class="gj-sum-hdr" style="width:20%;"><span id="gjMonthLabel">( )월</span> 사용금액</td>
+                        <td class="gj-sum-hdr" style="width:20%;">누계 사용금액</td>
+                    </tr>
+                    <tr class="gj-total">
+                        <td class="gj-cat" colspan="2" style="text-align:center;">계</td>
+                        <td class="gj-money" id="gjM-total">0</td>
+                        <td class="gj-money" id="gjC-total">0</td>
+                    </tr>
+                    <tr><td class="gj-cat" colspan="2">1. 안전·보건관리자 임금 등</td><td class="gj-money" id="gjM-1">0</td><td class="gj-money" id="gjC-1">0</td></tr>
+                    <tr><td class="gj-cat" colspan="2">2. 안전시설비 등</td><td class="gj-money" id="gjM-2">0</td><td class="gj-money" id="gjC-2">0</td></tr>
+                    <tr><td class="gj-cat" colspan="2">3. 보호구 등</td><td class="gj-money" id="gjM-3">0</td><td class="gj-money" id="gjC-3">0</td></tr>
+                    <tr><td class="gj-cat" colspan="2">4. 안전보건진단비 등</td><td class="gj-money" id="gjM-4">0</td><td class="gj-money" id="gjC-4">0</td></tr>
+                    <tr><td class="gj-cat" colspan="2">5. 안전보건교육비 등</td><td class="gj-money" id="gjM-5">0</td><td class="gj-money" id="gjC-5">0</td></tr>
+                    <tr><td class="gj-cat" colspan="2">6. 근로자 건강장해예방비 등</td><td class="gj-money" id="gjM-6">0</td><td class="gj-money" id="gjC-6">0</td></tr>
+                    <tr><td class="gj-cat" colspan="2">7. 건설재해예방전문지도기관 기술지도비</td><td class="gj-money" id="gjM-7">0</td><td class="gj-money" id="gjC-7">0</td></tr>
+                    <tr><td class="gj-cat" colspan="2">8. 본사 전담조직 근로자 임금 등</td><td class="gj-money" id="gjM-8">0</td><td class="gj-money" id="gjC-8">0</td></tr>
+                    <tr><td class="gj-cat" colspan="2">9. 위험성평가 등에 따른 소요비용</td><td class="gj-money" id="gjM-9">0</td><td class="gj-money" id="gjC-9">0</td></tr>
+                    <tr class="gj-etc" id="gjEtcRow" style="display:none;">
+                        <td class="gj-cat" colspan="2">기타 — 고시 외 수기입력 항목 (정산 적격 여부 확인 필요)</td>
+                        <td class="gj-money" id="gjM-0">0</td>
+                        <td class="gj-money" id="gjC-0">0</td>
+                    </tr>
+                    <tr>
+                        <td class="gj-footer" colspan="4">
+                            「건설업 산업안전보건관리비 계상 및 사용기준」 제10조제1항에 따라 위와 같이 사용내역서를 작성하였습니다.<br>
+                            <span id="gjSignDate">년&nbsp;&nbsp;&nbsp;월&nbsp;&nbsp;&nbsp;일</span><br>
+                            <span class="sign-line">작 성 자&nbsp;&nbsp;직책 <input type="text" id="gjWriterRole" data-info>&nbsp;&nbsp;성명 <input type="text" id="gjWriterName" data-info>&nbsp;&nbsp;(서명 또는 인)</span><br>
+                            <span class="sign-line">확 인 자&nbsp;&nbsp;직책 <input type="text" id="gjCheckerRole" data-info>&nbsp;&nbsp;성명 <input type="text" id="gjCheckerName" data-info>&nbsp;&nbsp;(서명 또는 인)</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ===================== 3. 등록된 세부 집행 내역 (별지) ===================== -->
+    <div class="card no-print">
         <div class="card-title"><i class="fa-solid fa-list"></i> 등록된 세부 집행 내역 (별지)</div>
         <div class="table-responsive">
             <table>
@@ -116,189 +243,346 @@
                         <th>관리</th>
                     </tr>
                 </thead>
-                <tbody id="dataTableBody">
-                </tbody>
+                <tbody id="dataTableBody"></tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4">누계 합계</td>
+                        <td class="text-right" id="totalAmount" style="color:var(--blue);">0원</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </div>
 </div>
 
 <script>
-// ================= 1. 고시 기준 데이터 매핑 =================
-const categoryMapping = {
-    1: { name: "1. 안전/보건관리자 임금 등", items: ["안전관리자 인건비", "보건관리자 인건비", "업무수행 출장비", "안전보건보조원 인건비", "기타 (직접 수기 입력)"] },
-    2: { name: "2. 안전시설비 등", items: ["안전난간 및 추락방호망", "안전대 부착설비", "안전표지판 및 현수막", "접근통제 설비", "기타 (직접 수기 입력)"] },
-    3: { name: "3. 개인보호구 및 안전장구", items: ["안전모", "안전화", "안전대", "보안경 및 방진마스크", "기타 (직접 수기 입력)"] },
-    4: { name: "4. 안전보건진단비 등", items: ["안전보건진단비", "작업환경측정비", "특수건강진단비", "기타 (직접 수기 입력)"] },
-    5: { name: "5. 안전보건교육비 등", items: ["기초안전보건교육 이수비용", "안전보건교육 교재 및 강사료", "현장 안전조회(TBM) 비품", "기타 (직접 수기 입력)"] },
-    6: { name: "6. 근로자 건강장해예방비", items: ["휴게시설 설치 및 유지비", "혹서기 탈수예방 음료/식염포도당", "미세먼지 마스크", "기타 (직접 수기 입력)"] },
-    7: { name: "7. 기술지도비", items: ["건설재해예방전문지도기관 기술지도비", "기타 (직접 수기 입력)"] },
-    8: { name: "8. 본사 전담조직 근로자 임금", items: ["본사 안전전담조직 인건비", "기타 (직접 수기 입력)"] },
-    9: { name: "9. 위험성평가 소요비용", items: ["위험성평가 개선조치 소요비용", "스마트 안전장비 구입/임대비", "기타 (직접 수기 입력)"] }
+"use strict";
+
+/* ================= 1. 고시 기준 데이터 매핑 =================
+   - 고용노동부 「건설업 산업안전보건관리비 계상 및 사용기준」 9개 항목
+   - key "0" : 고시 외 기타 항목 (수기 입력 전용)                       */
+var ETC_LABEL = "기타 (직접 수기 입력)";
+
+var categoryMapping = {
+    "1": { name: "1. 안전관리자·보건관리자 임금 등", items: ["안전관리자 인건비", "보건관리자 인건비", "겸직 안전관리자 임금의 50%", "업무수행 출장비", "안전보건보조원 인건비", "유도자·신호수 인건비(고시 요건 충족 시)", ETC_LABEL] },
+    "2": { name: "2. 안전시설비 등", items: ["안전난간 및 추락방호망", "개구부 덮개", "안전대 부착설비", "방호선반", "안전표지판·경고등·현수막", "출입금지 등 접근통제 설비", "감전방지용 누전차단기", "임시소방시설(소화기·비상경보장치 등)", "스마트 안전장비 구입·임대비(한도 내)", ETC_LABEL] },
+    "3": { name: "3. 보호구 등", items: ["안전모", "안전화", "안전대(벨트·죔줄)", "보안경·보안면", "방진·방독마스크", "절연장갑·절연화 등 감전방지용 보호구", "용접용 보호구(앞치마·각반 등)", "철골작업용 고무바닥 안전화", "보호구 수리·관리비", ETC_LABEL] },
+    "4": { name: "4. 안전보건진단비 등", items: ["안전보건진단비", "유해위험방지계획서 작성·심사·확인 비용", "작업환경측정비", "안전순찰차량(전용) 유류비·수리비·보험료", ETC_LABEL] },
+    "5": { name: "5. 안전보건교육비 등", items: ["건설업 기초안전보건교육 이수비용", "정기·특별 안전보건교육 강사료", "교육교재·시청각 기자재", "교육장 대여·설치비", "현장 안전조회(TBM) 운영 비품", "안전보건행사·캠페인 비용(한도 내)", ETC_LABEL] },
+    "6": { name: "6. 근로자 건강장해예방비 등", items: ["휴게시설 설치·관리·유지비", "혹서기 음료수·식염포도당 등 온열질환 예방물품", "혹한기 방한용품", "미세먼지 마스크·세척시설", "감염병 예방물품(마스크·손소독제 등)", "응급처치 구급용품", "특수건강진단비(법정 외 추가분 등 고시 요건 확인)", ETC_LABEL] },
+    "7": { name: "7. 건설재해예방전문지도기관 기술지도비", items: ["건설재해예방전문지도기관 기술지도 계약·수수료", ETC_LABEL] },
+    "8": { name: "8. 본사 전담조직 근로자 임금 등", items: ["본사 안전보건 전담조직 근로자 임금·출장비(한도 내)", ETC_LABEL] },
+    "9": { name: "9. 위험성평가 등에 따른 소요비용", items: ["위험성평가 발굴 유해·위험요인 개선비용(한도 내)", "중대재해처벌법 시행령 제4조제3호 개선비용", "스마트 안전장비 등 위험성평가 후속 조치 비용", ETC_LABEL] },
+    "0": { name: "기타 (고시 외 항목·수기 입력)", items: [ETC_LABEL] }
 };
 
-// 페이지 로드 완료 후 스크립트를 실행하여 브라우저 호환성 및 이벤트 누락 방지
-document.addEventListener("DOMContentLoaded", function() {
-    const inCat = document.getElementById('inCat');
-    const inSubCat = document.getElementById('inSubCat');
-    const inDescCustom = document.getElementById('inDescCustom');
+/* ================= 2. 저장소 안전 래퍼 ================= */
+function safeGet(key, fallback) {
+    try {
+        var raw = window.localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+    } catch (e) { return fallback; }
+}
+function safeSet(key, value) {
+    try { window.localStorage.setItem(key, JSON.stringify(value)); }
+    catch (e) { /* 저장 불가 환경: 화면 표시만 유지 */ }
+}
 
-    // ================= 2. UI 연동: 대분류 선택 시 동작 =================
-    inCat.addEventListener('change', function() {
-        const val = this.value;
-        
-        // 상태 초기화
-        inSubCat.innerHTML = '<option value="">세부품목을 선택하세요</option>';
-        inDescCustom.style.display = 'none';
-        inDescCustom.value = '';
+var expenses = [];
+var siteInfo = {};
 
-        if (val === "10") {
-            // [대분류 10번] '기타'를 선택했을 때
-            inSubCat.style.display = 'none'; // 세부품목 드롭다운 숨김
-            inDescCustom.style.display = 'block'; // 수기입력창 바로 표시
-            inDescCustom.focus();
-        } else if (val && categoryMapping[val]) {
-            // [대분류 1~9번] 정상 선택 시
-            inSubCat.style.display = 'block'; // 세부품목 드롭다운 표시
-            categoryMapping[val].items.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item;
-                opt.textContent = item;
-                inSubCat.appendChild(opt);
-            });
-        } else {
-            // 대분류 미선택 시
-            inSubCat.style.display = 'block';
-            inSubCat.innerHTML = '<option value="">대분류를 먼저 선택하세요</option>';
-        }
-    });
+/* ================= 3. 대분류 → 세부품목 동적 생성 ================= */
+function onCategoryChange() {
+    var catId = document.getElementById('inCat').value;
+    var subSelect = document.getElementById('inSubCat');
+    var customInput = document.getElementById('inDescCustom');
+    var etcHint = document.getElementById('etcHint');
 
-    // ================= 3. UI 연동: 세부품목 선택 시 동작 =================
-    inSubCat.addEventListener('change', function() {
-        if (this.value === "기타 (직접 수기 입력)") {
-            inDescCustom.style.display = 'block';
-            inDescCustom.focus();
-        } else {
-            inDescCustom.style.display = 'none';
-            inDescCustom.value = '';
-        }
-    });
+    subSelect.innerHTML = '';
+    customInput.style.display = 'none';
+    customInput.value = '';
+    etcHint.style.display = 'none';
 
-    // 초기 오늘 날짜 셋팅 및 테이블 렌더링
-    document.getElementById('inDate').value = new Date().toISOString().substring(0, 10);
-    renderTable();
-});
-
-// ================= 4. 데이터 검증 및 저장 로직 =================
-function addExpense() {
-    const dateStr = document.getElementById('inDate').value;
-    const catId = document.getElementById('inCat').value;
-    const subCat = document.getElementById('inSubCat').value;
-    const customDesc = document.getElementById('inDescCustom').value.trim();
-    const qty = parseInt(document.getElementById('inQty').value) || 1;
-    const amount = parseInt(document.getElementById('inAmount').value);
-
-    // 필수 입력값 1차 검증
-    if (!dateStr || !catId || !amount) {
-        alert("일자, 분류, 금액은 필수 입력 항목입니다.");
+    if (!catId || !categoryMapping[catId]) {
+        var ph = document.createElement('option');
+        ph.value = '';
+        ph.textContent = '대분류를 먼저 선택하세요';
+        subSelect.appendChild(ph);
+        subSelect.disabled = false;
         return;
     }
 
-    let catName = "";
-    let finalDesc = "";
-
-    // 대분류에 따른 조건부 검증
-    if (catId === "10") {
-        catName = "10. 기타 항목 (수기입력)";
-        finalDesc = customDesc;
-        if (!finalDesc) {
-            alert("기타 항목의 세부 내역을 수기로 입력해 주세요.");
-            return;
-        }
-    } else {
-        catName = categoryMapping[catId].name;
-        if (subCat === "기타 (직접 수기 입력)") {
-            finalDesc = customDesc;
-            if (!finalDesc) {
-                alert("세부 내역을 수기로 입력해 주세요.");
-                return;
-            }
-        } else {
-            finalDesc = subCat;
-            if (!finalDesc) {
-                alert("세부품목을 선택해 주세요.");
-                return;
-            }
-        }
+    if (catId === "0") {
+        var etcOpt = document.createElement('option');
+        etcOpt.value = ETC_LABEL;
+        etcOpt.textContent = ETC_LABEL + " — 아래 칸에 직접 입력";
+        etcOpt.selected = true;
+        subSelect.appendChild(etcOpt);
+        subSelect.disabled = true;
+        customInput.style.display = 'block';
+        etcHint.style.display = 'block';
+        try { customInput.focus(); } catch (e) {}
+        return;
     }
 
-    // 객체 생성
-    const newEntry = {
+    subSelect.disabled = false;
+    var ph2 = document.createElement('option');
+    ph2.value = '';
+    ph2.textContent = '세부품목을 선택하세요';
+    subSelect.appendChild(ph2);
+
+    categoryMapping[catId].items.forEach(function (item) {
+        var opt = document.createElement('option');
+        opt.value = item;
+        opt.textContent = item;
+        subSelect.appendChild(opt);
+    });
+}
+
+/* ================= 4. 세부품목 "기타" 선택 시 수기입력창 토글 ================= */
+function onSubCategoryChange() {
+    var customInput = document.getElementById('inDescCustom');
+    var etcHint = document.getElementById('etcHint');
+    var isEtc = document.getElementById('inSubCat').value === ETC_LABEL;
+
+    customInput.style.display = isEtc ? 'block' : 'none';
+    etcHint.style.display = isEtc ? 'block' : 'none';
+    if (isEtc) { try { customInput.focus(); } catch (e) {} }
+    else { customInput.value = ''; }
+}
+
+/* ================= 5. 등록 / 삭제 ================= */
+function addExpense() {
+    var dateStr = document.getElementById('inDate').value;
+    var catId = document.getElementById('inCat').value;
+    var subCat = document.getElementById('inSubCat').value;
+    var customDesc = document.getElementById('inDescCustom').value.trim();
+    var qty = parseInt(document.getElementById('inQty').value, 10) || 1;
+    var amount = parseInt(document.getElementById('inAmount').value, 10);
+
+    var finalDesc = (subCat === ETC_LABEL) ? customDesc : subCat;
+
+    if (!dateStr) { alert("사용 일자를 입력해 주세요."); return; }
+    if (!catId)   { alert("항목 분류(대분류)를 선택해 주세요."); return; }
+    if (!finalDesc) {
+        alert(subCat === ETC_LABEL ? "기타 항목의 세부내역을 수기로 입력해 주세요." : "세부 품목을 선택해 주세요.");
+        return;
+    }
+    if (!amount || amount <= 0) { alert("금액을 올바르게 입력해 주세요."); return; }
+
+    var newEntry = {
         id: Date.now(),
         date: dateStr,
-        catId: parseInt(catId),
-        catName: catName,
+        catId: catId,
+        catName: categoryMapping[catId].name,
         desc: finalDesc,
+        isCustom: (subCat === ETC_LABEL),
         qty: qty,
         amount: amount
     };
 
-    // 로컬 스토리지 저장 및 업데이트
-    let expenses = JSON.parse(localStorage.getItem('sh_expenses')) || [];
     expenses.push(newEntry);
-    localStorage.setItem('sh_expenses', JSON.stringify(expenses));
+    safeSet('sh_expenses', expenses);
 
-    // UI 입력창 초기화
+    /* 💡 [향후 구글 시트 연동 시 이곳에 fetch API를 삽입합니다] 💡 */
+
     document.getElementById('inAmount').value = '';
     document.getElementById('inQty').value = '1';
-    
-    if (catId === "10" || subCat === "기타 (직접 수기 입력)") {
-        document.getElementById('inDescCustom').value = '';
-        document.getElementById('inDescCustom').style.display = 'none';
-        if (catId !== "10") document.getElementById('inSubCat').selectedIndex = 0;
-    } else {
-        document.getElementById('inSubCat').selectedIndex = 0;
-    }
+    if (newEntry.isCustom) document.getElementById('inDescCustom').value = '';
 
-    renderTable();
-    alert("내역이 성공적으로 저장되었습니다.");
+    renderAll();   // 별지 목록 + 갑지 동시 갱신
+    alert("안전보건관리비 내역이 등록되어 사용내역서(갑지)에 반영되었습니다.");
 }
 
-// ================= 5. 테이블 렌더링 및 삭제 기능 =================
 function deleteExpense(id) {
-    if(confirm("정말 이 내역을 삭제하시겠습니까?")) {
-        let expenses = JSON.parse(localStorage.getItem('sh_expenses')) || [];
-        expenses = expenses.filter(exp => exp.id !== id);
-        localStorage.setItem('sh_expenses', JSON.stringify(expenses));
-        renderTable();
+    if (confirm("정말 이 내역을 삭제하시겠습니까?")) {
+        expenses = expenses.filter(function (exp) { return exp.id !== id; });
+        safeSet('sh_expenses', expenses);
+        renderAll();
     }
 }
 
+/* ================= 6. 별지(세부 집행 내역) 렌더링 ================= */
 function renderTable() {
-    const tbody = document.getElementById('dataTableBody');
-    let expenses = JSON.parse(localStorage.getItem('sh_expenses')) || [];
+    var tbody = document.getElementById('dataTableBody');
+    var totalCell = document.getElementById('totalAmount');
     tbody.innerHTML = '';
 
     if (expenses.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="color:#94a3b8; padding:20px;">등록된 집행 내역이 없습니다.</td></tr>';
+        var emptyTr = document.createElement('tr');
+        var emptyTd = document.createElement('td');
+        emptyTd.colSpan = 6;
+        emptyTd.style.color = '#94a3b8';
+        emptyTd.style.padding = '20px';
+        emptyTd.textContent = '등록된 집행 내역이 없습니다.';
+        emptyTr.appendChild(emptyTd);
+        tbody.appendChild(emptyTr);
+        totalCell.textContent = '0원';
         return;
     }
 
-    // 최신 날짜순 정렬
-    const sortedExp = [...expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
+    var sortedExp = expenses.slice().sort(function (a, b) {
+        return new Date(b.date) - new Date(a.date);
+    });
 
-    sortedExp.forEach(exp => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${exp.date}</td>
-            <td class="text-left" style="font-size:12px; color:var(--s500);">${exp.catName}</td>
-            <td class="text-left" style="font-weight:600;">${exp.desc}</td>
-            <td>${exp.qty}</td>
-            <td class="text-right" style="color:var(--blue);">${exp.amount.toLocaleString()}원</td>
-            <td><button class="btn-danger" onclick="deleteExpense(${exp.id})"><i class="fa-solid fa-trash"></i></button></td>
-        `;
+    var total = 0;
+
+    sortedExp.forEach(function (exp) {
+        total += exp.amount;
+        var tr = document.createElement('tr');
+
+        var tdDate = document.createElement('td');
+        tdDate.textContent = exp.date;
+
+        var tdCat = document.createElement('td');
+        tdCat.className = 'text-left';
+        tdCat.style.fontSize = '12px';
+        tdCat.style.color = 'var(--s500)';
+        tdCat.textContent = exp.catName;
+
+        var tdDesc = document.createElement('td');
+        tdDesc.className = 'text-left';
+        tdDesc.style.fontWeight = '600';
+        tdDesc.textContent = (exp.isCustom ? '[수기] ' : '') + exp.desc;   // XSS 방지: textContent 사용
+
+        var tdQty = document.createElement('td');
+        tdQty.textContent = exp.qty;
+
+        var tdAmt = document.createElement('td');
+        tdAmt.className = 'text-right';
+        tdAmt.style.color = 'var(--blue)';
+        tdAmt.textContent = exp.amount.toLocaleString() + '원';
+
+        var tdMgr = document.createElement('td');
+        var delBtn = document.createElement('button');
+        delBtn.className = 'btn-danger';
+        delBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+        delBtn.addEventListener('click', function () { deleteExpense(exp.id); });
+        tdMgr.appendChild(delBtn);
+
+        tr.appendChild(tdDate);
+        tr.appendChild(tdCat);
+        tr.appendChild(tdDesc);
+        tr.appendChild(tdQty);
+        tr.appendChild(tdAmt);
+        tr.appendChild(tdMgr);
         tbody.appendChild(tr);
     });
+
+    totalCell.textContent = total.toLocaleString() + '원';
+}
+
+/* ================= 7. 갑지(사용내역서) 자동 집계 렌더링 =================
+   - ( )월 사용금액 : 작성 기준월(YYYY-MM)에 사용된 금액 합계
+   - 누계 사용금액  : 작성 기준월 말일까지의 전체 누계 (착공 ~ 기준월)        */
+function renderGapji() {
+    var selMonth = document.getElementById('gapMonth').value;   // "YYYY-MM"
+    if (!selMonth) {
+        selMonth = new Date().toISOString().substring(0, 7);
+        document.getElementById('gapMonth').value = selMonth;
+    }
+
+    // 항목 헤더 ( )월 라벨 갱신
+    var monthNum = parseInt(selMonth.split('-')[1], 10);
+    document.getElementById('gjMonthLabel').textContent = '(' + monthNum + ')월';
+
+    // 집계: catId별 [당월, 누계]
+    var monthSum = {}, cumSum = {};
+    var keys = ["1","2","3","4","5","6","7","8","9","0"];
+    keys.forEach(function (k) { monthSum[k] = 0; cumSum[k] = 0; });
+
+    expenses.forEach(function (exp) {
+        var expMonth = String(exp.date).substring(0, 7);
+        var k = String(exp.catId);
+        if (!(k in monthSum)) return;
+        if (expMonth === selMonth) monthSum[k] += exp.amount;
+        if (expMonth <= selMonth) cumSum[k] += exp.amount;   // ISO 문자열 비교
+    });
+
+    var mTotal = 0, cTotal = 0;
+    keys.forEach(function (k) {
+        mTotal += monthSum[k];
+        cTotal += cumSum[k];
+        var mCell = document.getElementById('gjM-' + k);
+        var cCell = document.getElementById('gjC-' + k);
+        if (mCell) mCell.textContent = monthSum[k].toLocaleString();
+        if (cCell) cCell.textContent = cumSum[k].toLocaleString();
+    });
+
+    document.getElementById('gjM-total').textContent = mTotal.toLocaleString();
+    document.getElementById('gjC-total').textContent = cTotal.toLocaleString();
+
+    // 기타 행: 내역이 있을 때만 표시 (공식 서식엔 없는 행이므로 구분 표기)
+    var hasEtc = (monthSum["0"] > 0 || cumSum["0"] > 0);
+    document.getElementById('gjEtcRow').style.display = hasEtc ? '' : 'none';
+
+    // 계상액 대비 누계 사용률
+    var budget = parseInt(String(siteInfo.gjBudget || '').replace(/[^0-9]/g, ''), 10);
+    var rateEl = document.getElementById('gjUsageRate');
+    if (budget > 0) {
+        rateEl.textContent = (cTotal / budget * 100).toFixed(1) + '% (' + cTotal.toLocaleString() + ' / ' + budget.toLocaleString() + '원)';
+    } else {
+        rateEl.textContent = '계상액을 입력하세요';
+    }
+
+    // 작성일 표기 (기준월 기준)
+    var parts = selMonth.split('-');
+    document.getElementById('gjSignDate').textContent = parts[0] + '년 ' + monthNum + '월     일';
+}
+
+/* ================= 8. 갑지 상단 현장정보 저장/복원 ================= */
+function bindSiteInfo() {
+    var fields = document.querySelectorAll('#gapjiTable input[data-info]');
+    fields.forEach(function (el) {
+        // 복원
+        if (siteInfo[el.id] !== undefined) el.value = siteInfo[el.id];
+        // 변경 시 저장
+        el.addEventListener('input', function () {
+            // 금액 필드는 천단위 콤마 자동 표기
+            if (el.hasAttribute('data-money')) {
+                var num = el.value.replace(/[^0-9]/g, '');
+                el.value = num ? parseInt(num, 10).toLocaleString() : '';
+            }
+            siteInfo[el.id] = el.value;
+            safeSet('sh_siteinfo', siteInfo);
+            if (el.id === 'gjBudget') renderGapji();   // 계상액 변경 시 사용률 갱신
+        });
+    });
+}
+
+function renderAll() {
+    renderTable();
+    renderGapji();
+}
+
+/* ================= 9. 초기화 (DOM 준비 후 안전하게 바인딩) ================= */
+function init() {
+    expenses = safeGet('sh_expenses', []);
+    if (!Array.isArray(expenses)) expenses = [];
+    siteInfo = safeGet('sh_siteinfo', {});
+    if (typeof siteInfo !== 'object' || siteInfo === null) siteInfo = {};
+
+    document.getElementById('inCat').addEventListener('change', onCategoryChange);
+    document.getElementById('inSubCat').addEventListener('change', onSubCategoryChange);
+    document.getElementById('btnSave').addEventListener('click', addExpense);
+    document.getElementById('gapMonth').addEventListener('change', renderGapji);
+    document.getElementById('btnPrint').addEventListener('click', function () { window.print(); });
+
+    try {
+        var now = new Date().toISOString();
+        document.getElementById('inDate').value = now.substring(0, 10);
+        document.getElementById('gapMonth').value = now.substring(0, 7);
+    } catch (e) {}
+
+    bindSiteInfo();
+    renderAll();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
 }
 </script>
 </body>
