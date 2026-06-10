@@ -1,300 +1,261 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>안전보건관리비 사용내역서 (자동저장 및 백업 지원)</title>
-    <style>
-        body { font-family: 'Malgun Gothic', '맑은 고딕', sans-serif; background-color: #e9ecef; margin: 0; padding: 20px; color: #000; }
-        .control-panel { max-width: 1000px; margin: 0 auto 20px auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 2px solid #1F385C; }
-        .control-panel h3 { margin-top: 0; color: #1F385C; border-bottom: 2px solid #1F385C; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* 스토리지 관리 패널 스타일 */
-        .storage-panel { display: flex; gap: 8px; font-size: 13px; }
-        .btn-sm { padding: 5px 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; }
-        .btn-export { background-color: #17a2b8; }
-        .btn-import { background-color: #ffc107; color: #000; }
-        .btn-clear { background-color: #dc3545; }
-        
-        .input-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; align-items: end; margin-bottom: 15px; }
-        .input-group { display: flex; flex-direction: column; }
-        .input-group label { font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #333; }
-        .input-group input, .input-group select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; outline: none; }
-        .input-group input:focus, .input-group select:focus { border-color: #1F385C; }
-        
-        .btn-panel { display: flex; gap: 10px; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 15px; border-radius: 4px; }
-        .btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; font-size: 14px; }
-        .btn-add { background-color: #28a745; width: 100%; height: 35px; }
-        .btn-print { background-color: #1F385C; }
-        
-        .page { width: 210mm; min-height: 297mm; margin: 0 auto 30px auto; background: white; padding: 15mm 15mm; box-shadow: 0 5px 10px rgba(0,0,0,0.2); box-sizing: border-box; position: relative; page-break-after: always; }
-        .page:last-child { page-break-after: auto; }
-        .doc-title { text-align: center; font-size: 26px; font-weight: bold; margin-bottom: 30px; letter-spacing: 2px; }
-        .sub-title { text-align: left; font-size: 15px; font-weight: bold; margin-bottom: 10px; display: flex; justify-content: space-between; }
-        
-        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px; table-layout: fixed; }
-        th, td { border: 1px solid #000; padding: 6px; vertical-align: middle; height: 22px; }
-        th { background-color: #f4f4f4; text-align: center; font-weight: bold; }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; padding-right: 5px; }
-        .text-left { text-align: left; padding-left: 5px; }
-        
-        .editable { border: 1px dashed #ccc; width: 100%; background: transparent; font-family: inherit; font-size: inherit; padding: 3px; box-sizing: border-box; text-align: center; outline: none; }
-        .editable:focus { border: 1px solid #1F385C; background: #eef5ff; }
-        .editable.left { text-align: left; }
-        .editable.right { text-align: right; font-weight: bold; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>산업안전보건관리비 통합 사용내역서</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+    :root {
+        --s900:#0f172a; --s800:#1e293b; --s700:#334155; --s500:#64748b; --s200:#e2e8f0; --s50:#f8fafc;
+        --blue:#0284c7; --amber:#f59e0b; --red:#ef4444; --green:#10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
+    body { background: var(--s50); color: var(--s900); padding-bottom: 50px; }
+    
+    .hdr { background: var(--s900); color: #fff; padding: 20px; display: flex; align-items: center; gap: 15px; }
+    .hdr-title { font-size: 20px; font-weight: 700; flex: 1; }
+    .back-btn { color: #fff; text-decoration: none; font-size: 24px; }
 
-        .statement { text-align: center; margin-top: 20px; font-weight: bold; line-height: 1.8; font-size: 13px; }
-        .signature-box { margin-top: 20px; font-size: 13px; line-height: 2.2; display: flex; justify-content: flex-end; }
-        .sig-row { display: flex; align-items: center; margin-bottom: 5px; }
-        .sig-label { width: 70px; font-weight: bold; }
+    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    
+    .card { background: #fff; border: 1px solid var(--s200); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+    .card-title { font-size: 16px; font-weight: 700; border-bottom: 2px solid var(--s900); padding-bottom: 10px; margin-bottom: 15px; color: var(--s800); }
 
-        @media print {
-            body { background: white; margin: 0; padding: 0; }
-            .no-print { display: none !important; }
-            .page { margin: 0; padding: 15mm; box-shadow: none; border: none; width: 100%; height: 100%; }
-            .editable { border: none !important; background: transparent !important; }
-            input::placeholder { color: transparent !important; }
-            th { background-color: #f4f4f4 !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
-            .summary-row { background-color: #f9f9f9 !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
-            .total-row { background-color: #eef5ff !important; -webkit-print-color-adjust: exact; color-adjust: exact; }
-        }
-    </style>
+    /* 입력 폼 스타일 */
+    .form-group { margin-bottom: 15px; }
+    .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--s700); margin-bottom: 6px; }
+    .form-control { width: 100%; padding: 10px; border: 1px solid var(--s200); border-radius: 6px; font-size: 14px; outline: none; transition: 0.2s; }
+    .form-control:focus { border-color: var(--blue); }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    
+    /* 수기 입력창 (기본 숨김) */
+    #inDescCustom { display: none; margin-top: 8px; border-color: var(--amber); background: #fffbeb; }
+
+    .btn-submit { width: 100%; background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .btn-submit:hover { background: #0369a1; }
+    .btn-danger { background: var(--red); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+
+    /* 데이터 테이블 스타일 */
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; font-size: 13px; }
+    th, td { border: 1px solid var(--s200); padding: 10px; text-align: center; }
+    th { background: var(--s50); font-weight: 700; color: var(--s700); }
+    td.text-left { text-align: left; }
+    td.text-right { text-align: right; font-weight: 600; }
+</style>
 </head>
 <body>
 
-<div class="control-panel no-print">
-    <h3>
-        📊 안전보건관리비 항목별 전산집계 
-        <div class="storage-panel">
-            <button class="btn-sm btn-export" onclick="exportData()">💾 백업 파일 다운로드</button>
-            <button class="btn-sm btn-import" onclick="document.getElementById('importFile').click()">📂 백업 파일 불러오기</button>
-            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
-            <button class="btn-sm btn-clear" onclick="clearData()">🗑️ 데이터 전체 초기화</button>
-        </div>
-    </h3>
-    
-    <div class="btn-panel" style="margin-bottom: 20px;">
-        <div style="font-weight: bold; color: #1F385C;">
-            <label>출력 기준 연/월 : </label>
-            <input type="month" id="targetMonth" value="2026-10" onchange="renderAll()" style="padding: 6px; font-size: 15px; border-radius: 4px; border: 1px solid #1F385C;">
-        </div>
-        <span style="font-size: 12px; color: #555;">※ 기준 월을 기점으로 당월 사용분과 전월 누계분이 자동으로 나뉘어 집계되며, 모든 데이터는 브라우저에 자동 저장됩니다.</span>
-    </div>
+<div class="hdr">
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+    <div class="hdr-title">10. 산업안전보건관리비 사용내역</div>
+</div>
 
-    <div class="input-grid">
-        <div class="input-group" style="grid-column: span 2;"><label>사용 일자</label><input type="date" id="inDate"></div>
-        <div class="input-group" style="grid-column: span 3;">
-            <label>정산 대분류 항목</label>
-            <select id="inCat" onchange="updateSubCat()">
-                <option value="1">1. 안전·보건관리자 임금 등</option><option value="2">2. 안전시설비 등</option>
-                <option value="3" selected>3. 보호구 등</option><option value="4">4. 안전보건진단비 등</option>
-                <option value="5">5. 안전보건교육비 등</option><option value="6">6. 근로자 건강장해예방비 등</option>
-                <option value="7">7. 건설재해예방전문지도기관 기술지도비</option><option value="8">8. 본사 전담조직 근로자 임금 등</option>
+<div class="container">
+    <div class="card">
+        <div class="card-title"><i class="fa-solid fa-pen-to-square"></i> 비용 집행 내역 등록</div>
+        
+        <div class="form-group">
+            <label class="form-label">사용 일자</label>
+            <input type="date" id="inDate" class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">항목 분류 (9대 고시 기준)</label>
+            <select id="inCat" class="form-control">
+                <option value="">대분류를 선택하세요</option>
+                <option value="1">1. 안전/보건관리자 임금 등</option>
+                <option value="2">2. 안전시설비 등</option>
+                <option value="3">3. 개인보호구 및 안전장구 구입비 등</option>
+                <option value="4">4. 안전보건진단비 등</option>
+                <option value="5">5. 안전보건교육비 등</option>
+                <option value="6">6. 근로자 건강장해예방비 등</option>
+                <option value="7">7. 건설재해예방전문지도기관 기술지도비</option>
+                <option value="8">8. 본사 전담조직 근로자 임금 등</option>
                 <option value="9">9. 위험성평가 등에 따른 소요비용</option>
             </select>
         </div>
-        <div class="input-group" style="grid-column: span 4;">
-            <label>세부품목 (고시기준 선택)</label>
-            <select id="inSubCat" onchange="checkCustomInput()"></select>
-            <input type="text" id="inDescCustom" placeholder="수기 내역 입력" style="display: none; margin-top: 5px; border-color: #28a745; background-color: #f8fff9;">
-        </div>
-        <div class="input-group" style="grid-column: span 1;"><label>수량</label><input type="number" id="inQty" value="1" min="1"></div>
-        <div class="input-group" style="grid-column: span 2;"><label>사용 금액 (원)</label><input type="number" id="inAmount" placeholder="총 금액"></div>
-        <div class="input-group" style="grid-column: span 12; margin-top: 5px;"><button class="btn btn-add" onclick="addExpense()">➕ 내역 시스템에 반영하기</button></div>
-    </div>
-    <div class="btn-panel">
-        <button class="btn btn-print" onclick="window.print()">🖨️ A4 10장(갑지+별지) 자동 분할 인쇄</button>
-    </div>
-</div>
 
-<div class="page" id="page-0">
-    <div style="text-align: right; margin-bottom: 20px;">
-        <table style="width: 180px; float: right; margin: 0;">
-            <tr><th rowspan="2" style="width:30px;">결<br>재</th><th>담 당</th><th>안전관리자</th><th>현장소장</th></tr>
-            <tr><td style="height: 45px;"></td><td></td><td></td></tr>
-        </table><div style="clear: both;"></div>
+        <div class="form-group">
+            <label class="form-label">세부 품목 및 내역</label>
+            <select id="inSubCat" class="form-control">
+                <option value="">대분류를 먼저 선택하세요</option>
+            </select>
+            <input type="text" id="inDescCustom" class="form-control" placeholder="수기로 세부내역을 정확히 입력해 주세요 (예: 안전화 265mm 10켤레)">
+        </div>
+
+        <div class="grid-2">
+            <div class="form-group">
+                <label class="form-label">수량</label>
+                <input type="number" id="inQty" class="form-control" placeholder="예: 1" value="1">
+            </div>
+            <div class="form-group">
+                <label class="form-label">총 금액 (원)</label>
+                <input type="number" id="inAmount" class="form-control" placeholder="예: 50000">
+            </div>
+        </div>
+
+        <button class="btn-submit" onclick="addExpense()"><i class="fa-solid fa-floppy-disk"></i> 데이터 반영 및 저장</button>
     </div>
-    <div class="doc-title">안전보건관리비 사용내역서 (갑지)</div>
-    <table style="margin-bottom: 20px;">
-        <colgroup><col style="width: 15%;"><col style="width: 35%;"><col style="width: 15%;"><col style="width: 35%;"></colgroup>
-        <tbody>
-            <tr><th>건설업체명</th><td><input type="text" class="editable doc-input" placeholder="업체명"></td><th>공 사 명</th><td><input type="text" class="editable doc-input left" placeholder="공사명 입력"></td></tr>
-            <tr><th>소 재 지</th><td><input type="text" class="editable doc-input left" placeholder="현장 소재지"></td><th>대 표 자</th><td><input type="text" class="editable doc-input" placeholder="대표자 성명"></td></tr>
-            <tr><th>공사금액</th><td><input type="text" class="editable doc-input right" placeholder="총 공사금액(원)" oninput="formatNum(this); saveData();"></td><th>공사기간</th><td><input type="text" class="editable doc-input" placeholder="YYYY.MM.DD ~ YYYY.MM.DD"></td></tr>
-            <tr><th>발 주 자</th><td><input type="text" class="editable doc-input" placeholder="발주자명"></td><th>누계공정율</th><td><input type="text" class="editable doc-input" placeholder="예: 70%"></td></tr>
-            <tr>
-                <th>계상된<br>안전보건관리비</th>
-                <td><input type="text" id="docBudget" class="editable doc-input right" style="color:#d93025;" placeholder="예산 총액 입력" oninput="formatNum(this); renderAll();"></td>
-                <th>집 행 율</th><td class="text-center" id="docRatio" style="font-weight: bold; font-size: 15px; background: #fffde7;">0.00%</td>
-            </tr>
-        </tbody>
-    </table>
-    <table id="gabjiTable">
-        <colgroup><col style="width: 40%;"><col style="width: 20%;"><col style="width: 20%;"><col style="width: 20%;"></colgroup>
-        <thead>
-            <tr><th colspan="4" style="letter-spacing: 3px;">사 용 금 액</th></tr>
-            <tr><th>항 목</th><th id="gabjiCurMonthTxt">( )월 사용금액</th><th>전월 누계<br>사용금액</th><th>누계 사용금액</th></tr>
-        </thead>
-        <tbody id="gabjiBody"></tbody>
-    </table>
-    <div class="statement">「건설업 산업안전보건관리비 계상 및 사용기준」 제10조제1항에 따라<br>위와 같이 사용내역서를 작성하였습니다.</div>
-    <div style="text-align: right; margin-top: 30px;">
-        <input type="text" class="editable doc-input" style="width: 50px;">년 <input type="text" class="editable doc-input" style="width: 30px;">월 <input type="text" class="editable doc-input" style="width: 30px;">일
-    </div>
-    <div class="signature-box">
-        <div style="width: 350px;">
-            <div class="sig-row"><div class="sig-label">작 성 자</div>직책: <input type="text" class="editable doc-input" style="width:70px;"> 성명: <input type="text" class="editable doc-input" style="width:80px;"> (서명/인)</div>
-            <div class="sig-row"><div class="sig-label">확 인 자</div>직책: <input type="text" class="editable doc-input" style="width:70px;"> 성명: <input type="text" class="editable doc-input" style="width:80px;"> (서명/인)</div>
+
+    <div class="card">
+        <div class="card-title"><i class="fa-solid fa-list"></i> 등록된 세부 집행 내역 (별지)</div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>일자</th>
+                        <th>항목 분류</th>
+                        <th>세부 품목/내역</th>
+                        <th>수량</th>
+                        <th>금액(원)</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTableBody">
+                    </tbody>
+            </table>
         </div>
     </div>
 </div>
-
-<div id="detailPagesContainer"></div>
 
 <script>
-    const categoryMapping = {
-        1: { name: "1. 안전·보건관리자 임금 등", subs: ["안전관리자 임금", "보건관리자 임금", "안전보조원 임금", "기타 (직접 수기 입력)"]},
-        2: { name: "2. 안전시설비 등", subs: ["소화기", "불티방지포", "아웃트리거", "사다리벌어짐방지와이어", "안전로프", "문틀바", "기타 (직접 수기 입력)"]},
-        3: { name: "3. 보호구 등", subs: ["안전화", "안전모", "안전대", "방진마스크", "보안경", "보안면", "용접앞치마", "용접토시", "절연장갑", "절연안전화", "[가목] 영 제74조/77조에 따른 보호구의 구입ㆍ수리ㆍ관리 소요비용", "[나목] 근로자가 직접 구매ㆍ사용하는 보호구 합리적 범위 내 보전 비용", "[다목] 안전관리자 등 업무용 피복, 기기 등 구입비용", "[라목] 안전/보건관리자 현장 점검용 차량 유류비ㆍ수리비ㆍ보험료 등", "기타 (직접 수기 입력)"]},
-        4: { name: "4. 안전보건진단비 등", subs: ["안전보건진단비", "작업환경측정비", "기타 (직접 수기 입력)"]},
-        5: { name: "5. 안전보건교육비 등", subs: ["신규채용 교육", "작업내용변경시 교육", "관리감독자 직무교육", "특별안전교육", "안전관리자 직무교육", "보건관리자 직무교육", "안전보건관리책임자 교육", "기타 (직접 수기 입력)"]},
-        6: { name: "6. 근로자 건강장해예방비 등", subs: ["특수 건강검진", "배치전 건강검진", "일반 건강검진", "기타 (직접 수기 입력)"]},
-        7: { name: "7. 건설재해예방전문지도기관 기술지도비", subs: ["재해예방 기술지도비", "기타 (직접 수기 입력)"]},
-        8: { name: "8. 본사 전담조직 근로자 임금 등", subs: ["본사 전담조직 근로자 임금", "기타 (직접 수기 입력)"]},
-        9: { name: "9. 위험성평가 등에 따른 소요비용", subs: ["위험성평가 회의비", "위험성평가 물품/기자재", "기타 (직접 수기 입력)"]}
+// ================= 1. 고시 기준 데이터 매핑 (검증 완료) =================
+const categoryMapping = {
+    1: { name: "1. 안전/보건관리자 임금 등", items: ["안전관리자 인건비", "보건관리자 인건비", "업무수행 출장비", "안전보건보조원 인건비", "기타 (직접 수기 입력)"] },
+    2: { name: "2. 안전시설비 등", items: ["안전난간 및 추락방호망", "안전대 부착설비", "안전표지판 및 현수막", "접근통제 설비", "기타 (직접 수기 입력)"] },
+    3: { name: "3. 개인보호구 및 안전장구", items: ["안전모", "안전화", "안전대", "보안경 및 방진마스크", "기타 (직접 수기 입력)"] },
+    4: { name: "4. 안전보건진단비 등", items: ["안전보건진단비", "작업환경측정비", "특수건강진단비", "기타 (직접 수기 입력)"] },
+    5: { name: "5. 안전보건교육비 등", items: ["기초안전보건교육 이수비용", "안전보건교육 교재 및 강사료", "현장 안전조회(TBM) 비품", "기타 (직접 수기 입력)"] },
+    6: { name: "6. 근로자 건강장해예방비", items: ["휴게시설 설치 및 유지비", "혹서기 탈수예방 음료/식염포도당", "미세먼지 마스크", "기타 (직접 수기 입력)"] },
+    7: { name: "7. 기술지도비", items: ["건설재해예방전문지도기관 기술지도비", "기타 (직접 수기 입력)"] },
+    8: { name: "8. 본사 전담조직 근로자 임금", items: ["본사 안전전담조직 인건비", "기타 (직접 수기 입력)"] },
+    9: { name: "9. 위험성평가 소요비용", items: ["위험성평가 개선조치 소요비용", "스마트 안전장비 구입/임대비", "기타 (직접 수기 입력)"] }
+};
+
+// ================= 2. UI 연동: 대분류 선택 시 세부품목 동적 생성 =================
+document.getElementById('inCat').addEventListener('change', function() {
+    const catId = this.value;
+    const subSelect = document.getElementById('inSubCat');
+    const customInput = document.getElementById('inDescCustom');
+    
+    // 초기화
+    subSelect.innerHTML = '<option value="">세부품목을 선택하세요</option>';
+    customInput.style.display = 'none';
+    customInput.value = '';
+
+    if (catId && categoryMapping[catId]) {
+        // 해당 카테고리의 배열을 순회하며 option 태그 생성
+        categoryMapping[catId].items.forEach(function(item) {
+            const opt = document.createElement('option');
+            opt.value = item;
+            opt.textContent = item;
+            subSelect.appendChild(opt);
+        });
+    }
+});
+
+// ================= 3. UI 연동: '기타 (수기 입력)' 선택 시 텍스트창 표시 =================
+document.getElementById('inSubCat').addEventListener('change', function() {
+    const customInput = document.getElementById('inDescCustom');
+    if (this.value === "기타 (직접 수기 입력)") {
+        customInput.style.display = 'block';
+        customInput.focus();
+    } else {
+        customInput.style.display = 'none';
+    }
+});
+
+// ================= 4. 데이터 저장 및 화면 렌더링 로직 =================
+let expenses = JSON.parse(localStorage.getItem('sh_expenses')) || [];
+
+function addExpense() {
+    const dateStr = document.getElementById('inDate').value;
+    const catId = document.getElementById('inCat').value;
+    const subCat = document.getElementById('inSubCat').value;
+    const customDesc = document.getElementById('inDescCustom').value.trim();
+    const qty = parseInt(document.getElementById('inQty').value) || 1;
+    const amount = parseInt(document.getElementById('inAmount').value);
+
+    // 수기 입력 처리 로직
+    let finalDesc = subCat;
+    if (subCat === "기타 (직접 수기 입력)") {
+        finalDesc = customDesc;
+    }
+
+    // 유효성 검사
+    if (!dateStr || !catId || !finalDesc || !amount) {
+        alert("모든 필수 항목(일자, 분류, 내역, 금액)을 입력해 주세요.");
+        return;
+    }
+
+    // 객체 생성
+    const newEntry = {
+        id: Date.now(),
+        date: dateStr,
+        catId: parseInt(catId),
+        catName: categoryMapping[catId].name,
+        desc: finalDesc,
+        qty: qty,
+        amount: amount
     };
 
-    let expenses = []; 
+    // 로컬 스토리지 저장 (대시보드 통계와 연동됨)
+    expenses.push(newEntry);
+    localStorage.setItem('sh_expenses', JSON.stringify(expenses));
 
-    function parseNum(str) { return parseInt(str.toString().replace(/,/g, '').replace(/[^0-9]/g, '')) || 0; }
-    function formatNum(el) { let v = parseNum(el.value); el.value = v > 0 ? v.toLocaleString('ko-KR') : ''; }
-    function toMoney(num) { return num === 0 ? "0" : num.toLocaleString('ko-KR'); }
+    /* 💡 [향후 구글 시트 연동 시 이곳에 fetch API를 삽입합니다] 💡 */
+    
+    // 폼 초기화 및 재렌더링
+    document.getElementById('inAmount').value = '';
+    if(subCat === "기타 (직접 수기 입력)") document.getElementById('inDescCustom').value = '';
+    
+    renderTable();
+    alert("안전보건관리비 내역이 성공적으로 등록되었습니다.");
+}
 
-    // 💡 [저장 로직 1] 브라우저 자동 저장 (LocalStorage)
-    function saveData() {
+function deleteExpense(id) {
+    if(confirm("정말 이 내역을 삭제하시겠습니까?")) {
+        expenses = expenses.filter(exp => exp.id !== id);
         localStorage.setItem('sh_expenses', JSON.stringify(expenses));
-        let inputs = [];
-        document.querySelectorAll('.doc-input').forEach(el => inputs.push(el.value));
-        localStorage.setItem('sh_inputs', JSON.stringify(inputs));
+        renderTable();
+    }
+}
+
+function renderTable() {
+    const tbody = document.getElementById('dataTableBody');
+    tbody.innerHTML = '';
+
+    if (expenses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="color:#94a3b8; padding:20px;">등록된 집행 내역이 없습니다.</td></tr>';
+        return;
     }
 
-    // 💡 [저장 로직 2] 브라우저 데이터 불러오기
-    function loadData() {
-        let savedExp = localStorage.getItem('sh_expenses');
-        if(savedExp) expenses = JSON.parse(savedExp);
+    // 최신 날짜가 위로 오도록 정렬
+    const sortedExp = [...expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
 
-        let savedInputs = localStorage.getItem('sh_inputs');
-        if(savedInputs) {
-            let inputsArr = JSON.parse(savedInputs);
-            document.querySelectorAll('.doc-input').forEach((el, idx) => {
-                if(inputsArr[idx]) el.value = inputsArr[idx];
-            });
-        }
-    }
+    sortedExp.forEach(exp => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${exp.date}</td>
+            <td class="text-left" style="font-size:12px; color:var(--s500);">${exp.catName}</td>
+            <td class="text-left" style="font-weight:600;">${exp.desc}</td>
+            <td>${exp.qty}</td>
+            <td class="text-right" style="color:var(--blue);">${exp.amount.toLocaleString()}원</td>
+            <td><button class="btn-danger" onclick="deleteExpense(${exp.id})"><i class="fa-solid fa-trash"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
 
-    // 💡 [저장 로직 3] JSON 파일 백업 다운로드
-    function exportData() {
-        let inputs = [];
-        document.querySelectorAll('.doc-input').forEach(el => inputs.push(el.value));
-        const dataStr = JSON.stringify({ expenses: expenses, inputs: inputs });
-        const blob = new Blob([dataStr], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `안전보건관리비_백업_${new Date().toISOString().slice(0,10)}.json`;
-        a.click();
-    }
-
-    // 💡 [저장 로직 4] JSON 파일 복구
-    function importData(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if(data.expenses) expenses = data.expenses;
-                if(data.inputs) {
-                    document.querySelectorAll('.doc-input').forEach((el, idx) => {
-                        if(data.inputs[idx]) el.value = data.inputs[idx];
-                    });
-                }
-                saveData();
-                renderAll();
-                alert("데이터가 성공적으로 복구되었습니다.");
-            } catch (err) {
-                alert("잘못된 백업 파일입니다.");
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    function clearData() {
-        if(confirm("모든 내역과 입력값을 초기화하시겠습니까? (복구 불가)")) {
-            expenses = [];
-            document.querySelectorAll('.doc-input').forEach(el => el.value = "");
-            saveData();
-            renderAll();
-        }
-    }
-
-    function updateSubCat() {
-        const catId = document.getElementById("inCat").value;
-        const subSelect = document.getElementById("inSubCat");
-        subSelect.innerHTML = "";
-        categoryMapping[catId].subs.forEach(sub => {
-            let option = document.createElement("option");
-            option.value = sub; option.text = sub;
-            subSelect.appendChild(option);
-        });
-        checkCustomInput(); 
-    }
-
-    function checkCustomInput() {
-        const subSelect = document.getElementById("inSubCat");
-        const customInput = document.getElementById("inDescCustom");
-        if (subSelect.value === "기타 (직접 수기 입력)") {
-            customInput.style.display = "block"; customInput.focus();
-        } else {
-            customInput.style.display = "none"; customInput.value = "";
-        }
-    }
-
-    function addExpense() {
-        const dateStr = document.getElementById("inDate").value;
-        const catId = parseInt(document.getElementById("inCat").value);
-        const subSelectVal = document.getElementById("inSubCat").value;
-        const customVal = document.getElementById("inDescCustom").value.trim();
-        const qty = parseInt(document.getElementById("inQty").value) || 1;
-        const amount = parseInt(document.getElementById("inAmount").value);
-        let finalDesc = (subSelectVal === "기타 (직접 수기 입력)") ? customVal : subSelectVal;
-
-        if(!dateStr || !finalDesc || !amount) {
-            alert("사용 일자, 내역(세부품목), 금액을 모두 정확히 입력해 주세요."); return;
-        }
-
-        expenses.push({
-            date: dateStr, year: parseInt(dateStr.split('-')[0]), month: parseInt(dateStr.split('-')[1]),
-            catId: catId, desc: finalDesc, qty: qty, amount: amount, unitPrice: Math.round(amount / qty)
-        });
-
-        if(subSelectVal === "기타 (직접 수기 입력)") document.getElementById("inDescCustom").value = "";
-        document.getElementById("inAmount").value = "";
-        
-        saveData(); // 데이터 반영 시 자동 저장
-        renderAll(); 
-    }
-
-    function renderAll() {
-        saveData(); // 수기 입력란 텍스트 변경도 실시간으로 스토리지에 저장
-        const targetYM = document.getElementById("targetMonth").value;
-        if(!targetYM) return;
-        
-        const targetYear = parseInt(targetYM.split('-')[0]);
-        const targetMonth = parseInt(targetYM.split('-')[1]);
-
-        document.getElementById("gabjiCurMonthTxt").innerText = `( ${targetMonth} )월 사용금액`;
-
-        let gabjiData = Array.from({length: 10}, () => ({ cur: 0, prev: 0 }));
-        let
+// 초기 로딩 시 오늘 날짜 세팅 및 테이블 렌더링
+window.onload = function() {
+    document.getElementById('inDate').value = new Date().toISOString().substring(0, 10);
+    renderTable();
+};
+</script>
+</body>
+</html>
