@@ -31,8 +31,8 @@
     
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     
-    /* 수기 입력창 (기본 숨김) */
-    #inDescCustom { display: none; margin-top: 8px; border-color: var(--amber); background: #fffbeb; }
+    /* 수기 입력창 (기본 숨김, 스크립트로 제어) */
+    #inDescCustom { display: none; margin-top: 10px; border: 2px solid var(--amber); background: #fffbeb; }
 
     .btn-submit { width: 100%; background: var(--blue); color: #fff; border: none; padding: 12px; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; transition: 0.2s; }
     .btn-submit:hover { background: #0369a1; }
@@ -64,7 +64,7 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">항목 분류 (9대 고시 기준)</label>
+            <label class="form-label">항목 분류 (9대 고시 기준 및 기타)</label>
             <select id="inCat" class="form-control">
                 <option value="">대분류를 선택하세요</option>
                 <option value="1">1. 안전/보건관리자 임금 등</option>
@@ -76,6 +76,7 @@
                 <option value="7">7. 건설재해예방전문지도기관 기술지도비</option>
                 <option value="8">8. 본사 전담조직 근로자 임금 등</option>
                 <option value="9">9. 위험성평가 등에 따른 소요비용</option>
+                <option value="10">10. 기타 (직접 수기 입력)</option>
             </select>
         </div>
 
@@ -84,7 +85,7 @@
             <select id="inSubCat" class="form-control">
                 <option value="">대분류를 먼저 선택하세요</option>
             </select>
-            <input type="text" id="inDescCustom" class="form-control" placeholder="수기로 세부내역을 정확히 입력해 주세요 (예: 안전화 265mm 10켤레)">
+            <input type="text" id="inDescCustom" class="form-control" placeholder="수기로 세부내역을 정확히 입력해 주세요 (예: 안전화 10켤레)">
         </div>
 
         <div class="grid-2">
@@ -116,14 +117,14 @@
                     </tr>
                 </thead>
                 <tbody id="dataTableBody">
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </div>
 </div>
 
 <script>
-// ================= 1. 고시 기준 데이터 매핑 (검증 완료) =================
+// ================= 1. 고시 기준 데이터 매핑 =================
 const categoryMapping = {
     1: { name: "1. 안전/보건관리자 임금 등", items: ["안전관리자 인건비", "보건관리자 인건비", "업무수행 출장비", "안전보건보조원 인건비", "기타 (직접 수기 입력)"] },
     2: { name: "2. 안전시설비 등", items: ["안전난간 및 추락방호망", "안전대 부착설비", "안전표지판 및 현수막", "접근통제 설비", "기타 (직접 수기 입력)"] },
@@ -136,42 +137,59 @@ const categoryMapping = {
     9: { name: "9. 위험성평가 소요비용", items: ["위험성평가 개선조치 소요비용", "스마트 안전장비 구입/임대비", "기타 (직접 수기 입력)"] }
 };
 
-// ================= 2. UI 연동: 대분류 선택 시 세부품목 동적 생성 =================
-document.getElementById('inCat').addEventListener('change', function() {
-    const catId = this.value;
-    const subSelect = document.getElementById('inSubCat');
-    const customInput = document.getElementById('inDescCustom');
-    
-    // 초기화
-    subSelect.innerHTML = '<option value="">세부품목을 선택하세요</option>';
-    customInput.style.display = 'none';
-    customInput.value = '';
+// 페이지 로드 완료 후 스크립트를 실행하여 브라우저 호환성 및 이벤트 누락 방지
+document.addEventListener("DOMContentLoaded", function() {
+    const inCat = document.getElementById('inCat');
+    const inSubCat = document.getElementById('inSubCat');
+    const inDescCustom = document.getElementById('inDescCustom');
 
-    if (catId && categoryMapping[catId]) {
-        // 해당 카테고리의 배열을 순회하며 option 태그 생성
-        categoryMapping[catId].items.forEach(function(item) {
-            const opt = document.createElement('option');
-            opt.value = item;
-            opt.textContent = item;
-            subSelect.appendChild(opt);
-        });
-    }
+    // ================= 2. UI 연동: 대분류 선택 시 동작 =================
+    inCat.addEventListener('change', function() {
+        const val = this.value;
+        
+        // 상태 초기화
+        inSubCat.innerHTML = '<option value="">세부품목을 선택하세요</option>';
+        inDescCustom.style.display = 'none';
+        inDescCustom.value = '';
+
+        if (val === "10") {
+            // [대분류 10번] '기타'를 선택했을 때
+            inSubCat.style.display = 'none'; // 세부품목 드롭다운 숨김
+            inDescCustom.style.display = 'block'; // 수기입력창 바로 표시
+            inDescCustom.focus();
+        } else if (val && categoryMapping[val]) {
+            // [대분류 1~9번] 정상 선택 시
+            inSubCat.style.display = 'block'; // 세부품목 드롭다운 표시
+            categoryMapping[val].items.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.textContent = item;
+                inSubCat.appendChild(opt);
+            });
+        } else {
+            // 대분류 미선택 시
+            inSubCat.style.display = 'block';
+            inSubCat.innerHTML = '<option value="">대분류를 먼저 선택하세요</option>';
+        }
+    });
+
+    // ================= 3. UI 연동: 세부품목 선택 시 동작 =================
+    inSubCat.addEventListener('change', function() {
+        if (this.value === "기타 (직접 수기 입력)") {
+            inDescCustom.style.display = 'block';
+            inDescCustom.focus();
+        } else {
+            inDescCustom.style.display = 'none';
+            inDescCustom.value = '';
+        }
+    });
+
+    // 초기 오늘 날짜 셋팅 및 테이블 렌더링
+    document.getElementById('inDate').value = new Date().toISOString().substring(0, 10);
+    renderTable();
 });
 
-// ================= 3. UI 연동: '기타 (수기 입력)' 선택 시 텍스트창 표시 =================
-document.getElementById('inSubCat').addEventListener('change', function() {
-    const customInput = document.getElementById('inDescCustom');
-    if (this.value === "기타 (직접 수기 입력)") {
-        customInput.style.display = 'block';
-        customInput.focus();
-    } else {
-        customInput.style.display = 'none';
-    }
-});
-
-// ================= 4. 데이터 저장 및 화면 렌더링 로직 =================
-let expenses = JSON.parse(localStorage.getItem('sh_expenses')) || [];
-
+// ================= 4. 데이터 검증 및 저장 로직 =================
 function addExpense() {
     const dateStr = document.getElementById('inDate').value;
     const catId = document.getElementById('inCat').value;
@@ -180,16 +198,38 @@ function addExpense() {
     const qty = parseInt(document.getElementById('inQty').value) || 1;
     const amount = parseInt(document.getElementById('inAmount').value);
 
-    // 수기 입력 처리 로직
-    let finalDesc = subCat;
-    if (subCat === "기타 (직접 수기 입력)") {
-        finalDesc = customDesc;
+    // 필수 입력값 1차 검증
+    if (!dateStr || !catId || !amount) {
+        alert("일자, 분류, 금액은 필수 입력 항목입니다.");
+        return;
     }
 
-    // 유효성 검사
-    if (!dateStr || !catId || !finalDesc || !amount) {
-        alert("모든 필수 항목(일자, 분류, 내역, 금액)을 입력해 주세요.");
-        return;
+    let catName = "";
+    let finalDesc = "";
+
+    // 대분류에 따른 조건부 검증
+    if (catId === "10") {
+        catName = "10. 기타 항목 (수기입력)";
+        finalDesc = customDesc;
+        if (!finalDesc) {
+            alert("기타 항목의 세부 내역을 수기로 입력해 주세요.");
+            return;
+        }
+    } else {
+        catName = categoryMapping[catId].name;
+        if (subCat === "기타 (직접 수기 입력)") {
+            finalDesc = customDesc;
+            if (!finalDesc) {
+                alert("세부 내역을 수기로 입력해 주세요.");
+                return;
+            }
+        } else {
+            finalDesc = subCat;
+            if (!finalDesc) {
+                alert("세부품목을 선택해 주세요.");
+                return;
+            }
+        }
     }
 
     // 객체 생성
@@ -197,28 +237,37 @@ function addExpense() {
         id: Date.now(),
         date: dateStr,
         catId: parseInt(catId),
-        catName: categoryMapping[catId].name,
+        catName: catName,
         desc: finalDesc,
         qty: qty,
         amount: amount
     };
 
-    // 로컬 스토리지 저장 (대시보드 통계와 연동됨)
+    // 로컬 스토리지 저장 및 업데이트
+    let expenses = JSON.parse(localStorage.getItem('sh_expenses')) || [];
     expenses.push(newEntry);
     localStorage.setItem('sh_expenses', JSON.stringify(expenses));
 
-    /* 💡 [향후 구글 시트 연동 시 이곳에 fetch API를 삽입합니다] 💡 */
-    
-    // 폼 초기화 및 재렌더링
+    // UI 입력창 초기화
     document.getElementById('inAmount').value = '';
-    if(subCat === "기타 (직접 수기 입력)") document.getElementById('inDescCustom').value = '';
+    document.getElementById('inQty').value = '1';
     
+    if (catId === "10" || subCat === "기타 (직접 수기 입력)") {
+        document.getElementById('inDescCustom').value = '';
+        document.getElementById('inDescCustom').style.display = 'none';
+        if (catId !== "10") document.getElementById('inSubCat').selectedIndex = 0;
+    } else {
+        document.getElementById('inSubCat').selectedIndex = 0;
+    }
+
     renderTable();
-    alert("안전보건관리비 내역이 성공적으로 등록되었습니다.");
+    alert("내역이 성공적으로 저장되었습니다.");
 }
 
+// ================= 5. 테이블 렌더링 및 삭제 기능 =================
 function deleteExpense(id) {
     if(confirm("정말 이 내역을 삭제하시겠습니까?")) {
+        let expenses = JSON.parse(localStorage.getItem('sh_expenses')) || [];
         expenses = expenses.filter(exp => exp.id !== id);
         localStorage.setItem('sh_expenses', JSON.stringify(expenses));
         renderTable();
@@ -227,6 +276,7 @@ function deleteExpense(id) {
 
 function renderTable() {
     const tbody = document.getElementById('dataTableBody');
+    let expenses = JSON.parse(localStorage.getItem('sh_expenses')) || [];
     tbody.innerHTML = '';
 
     if (expenses.length === 0) {
@@ -234,7 +284,7 @@ function renderTable() {
         return;
     }
 
-    // 최신 날짜가 위로 오도록 정렬
+    // 최신 날짜순 정렬
     const sortedExp = [...expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
 
     sortedExp.forEach(exp => {
@@ -250,12 +300,6 @@ function renderTable() {
         tbody.appendChild(tr);
     });
 }
-
-// 초기 로딩 시 오늘 날짜 세팅 및 테이블 렌더링
-window.onload = function() {
-    document.getElementById('inDate').value = new Date().toISOString().substring(0, 10);
-    renderTable();
-};
 </script>
 </body>
 </html>
