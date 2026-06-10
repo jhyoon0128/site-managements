@@ -15,7 +15,7 @@ var fsdb = null;
         projectId: "site-managements-709ce",
         storageBucket: "site-managements-709ce.firebasestorage.app",
         messagingSenderId: "383798239842",
-        appId: "1:383798239842:web:09823a4bd466eff74ba73b"
+        appId: "1:383798239842:web:09823a4bd466eff74ba73b",
         measurementId: "G-PJMM16G5DH"
     };
 
