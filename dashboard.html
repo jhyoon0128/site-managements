@@ -80,6 +80,7 @@
         <div class="status"><span class="dot" id="connDot"></span><span id="connText">클라우드 연결 확인 중…</span></div>
         <button class="ghost" id="btnRefresh"><i class="fa-solid fa-rotate"></i> 새로고침</button>
         <button class="primary" id="btnExcel"><i class="fa-solid fa-file-excel"></i> 엑셀 내보내기</button>
+        <button class="ghost" id="btnLogout"><i class="fa-solid fa-right-from-bracket"></i> 관리자 로그아웃</button>
     </div>
 
     <div class="err-box" id="errBox"></div>
@@ -130,6 +131,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="firebase-db.js"></script>
+<script src="admin-auth.js"></script>
 <script>
 "use strict";
 
@@ -394,12 +396,49 @@ function exportExcel(){
 }
 
 /* ---- 5. 이벤트 바인딩 ---- */
-window.addEventListener('DOMContentLoaded', function(){
+/* 본사 관리자 전용 페이지 접근 가드 (암호 인증 기반) */
+function showLockScreen(){
+    document.body.innerHTML =
+        '<div style="max-width:520px;margin:80px auto;padding:32px;text-align:center;font-family:Pretendard,sans-serif;">' +
+        '<div style="font-size:46px;color:#ef4444;margin-bottom:16px;"><i class="fa-solid fa-lock"></i></div>' +
+        '<h2 style="color:#0f172a;margin-bottom:12px;">본사 관리자 전용 페이지입니다</h2>' +
+        '<p style="color:#64748b;line-height:1.7;margin-bottom:24px;">이 통합 대시보드는 본사 관리자 암호를 입력해야 열람할 수 있습니다.</p>' +
+        '<button id="retryLogin" style="background:#0284c7;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;margin-right:8px;">암호 다시 입력</button>' +
+        '<a href="index.html" style="display:inline-block;background:#64748b;color:#fff;text-decoration:none;padding:12px 24px;border-radius:8px;font-weight:600;">홈으로</a>' +
+        '</div>';
+    var btn = document.getElementById('retryLogin');
+    if (btn) btn.addEventListener('click', function(){
+        promptAdminLogin(function(ok){ if(ok) location.reload(); });
+    });
+}
+
+function startDashboard(){
     document.getElementById('siteFilter').addEventListener('change', render);
     document.getElementById('monthFilter').addEventListener('change', render);
     document.getElementById('btnRefresh').addEventListener('click', loadAll);
     document.getElementById('btnExcel').addEventListener('click', exportExcel);
+    var lo = document.getElementById('btnLogout');
+    if (lo) lo.addEventListener('click', function(){
+        if (confirm('이 기기의 관리자 인증을 해제할까요? 다음 접속 시 암호를 다시 입력해야 합니다.')) {
+            adminLogout();
+            location.href = 'index.html';
+        }
+    });
     loadAll();
+}
+
+window.addEventListener('DOMContentLoaded', function(){
+    /* 이미 인증된 기기면 바로 시작 */
+    if (typeof isAdminAuthed === 'function' && isAdminAuthed()) { startDashboard(); return; }
+    /* 아니면 암호를 요구하고, 통과 시 시작 */
+    if (typeof promptAdminLogin === 'function') {
+        promptAdminLogin(function(ok){
+            if (ok) startDashboard();
+            else showLockScreen();
+        });
+    } else {
+        showLockScreen();
+    }
 });
 </script>
 </body>
