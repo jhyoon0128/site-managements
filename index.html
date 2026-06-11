@@ -3,157 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>안전보건 및 경영관리 시스템</title>
-    
+    <title>공사관리 및 안전보건 통합시스템</title>
     <style>
-        /* 기본 배경 및 글꼴 설정 */
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        /* 기본 디자인 설정 */
+        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
+        * { box-sizing: border-box; }
         
-        /* 화면 컨테이너 (가운데 정렬된 박스) */
-        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 600px; text-align: center; position: relative; }
-        
-        /* 각 화면 구역 설정 (처음에는 선택 화면만 보임) */
-        #selectionScreen { display: block; }
-        #loginScreen { display: none; }
-        #dashboardScreen { display: none; text-align: left; }
-        
-        /* 입력창 및 버튼 디자인 */
-        input[type="password"] { padding: 12px; width: 80%; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; text-align: center; }
-        .btn { padding: 15px 30px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 10px; transition: 0.3s; }
-        
-        .btn-select { background-color: #007bff; width: 40%; min-width: 150px; height: 100px; font-size: 18px; }
-        .btn-select:hover { background-color: #0056b3; }
+        /* 상단 헤더 영역 (다크 네이비) */
+        .header { background-color: #0f172a; color: white; padding: 40px 20px; }
+        .header-content { max-width: 1000px; margin: 0 auto; }
+        .header h1 { margin: 0 0 10px 0; font-size: 28px; display: flex; align-items: center; gap: 10px; }
+        .header p { margin: 0; color: #94a3b8; font-size: 15px; }
 
-        .btn-login { background-color: #2c3e50; width: 85%; }
-        .btn-login:hover { background-color: #1a252f; }
+        /* 통합 관리 박스 */
+        .admin-box { background-color: #1e293b; border-radius: 10px; padding: 20px; margin-top: 20px; border: 1px solid #334155; }
+        .admin-box-title { color: #e2e8f0; font-size: 14px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
+        .btn-left { display: flex; gap: 10px; }
         
-        .btn-back { background-color: #6c757d; padding: 8px 15px; font-size: 14px; margin-top: 10px; width: 85%; }
-        .btn-back:hover { background-color: #5a6268; }
+        /* 메인 컨텐츠 영역 */
+        .main-content { max-width: 1000px; margin: -20px auto 40px; padding: 0 20px; position: relative; z-index: 10; }
+        
+        /* 섹션 카드 공통 디자인 */
+        .section-card { background: white; border-radius: 15px; padding: 30px; margin-top: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .section-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; color: #1e293b; }
 
-        .btn-home { background-color: #6c757d; padding: 10px 20px; font-size: 14px; float: right; margin: 0; }
-        
-        /* 대시보드 내부 내용 디자인 */
-        .content-box { border: 1px solid #ddd; padding: 20px; border-radius: 5px; margin-top: 20px; background-color: #fafafa; }
-        h2 { color: #333; margin-top: 0; }
-        p.subtitle { color: #666; margin-bottom: 30px; }
-        ul { line-height: 1.8; }
+        /* 로컬 데이터 등록 현황 그리드 */
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        .grid-item { border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: center; }
+        .grid-title { font-size: 13px; color: #64748b; margin-bottom: 10px; font-weight: bold; }
+        .grid-value { font-size: 24px; font-weight: bold; }
+        .val-green { color: #10b981; }
+        .val-red { color: #ef4444; }
+        .val-yellow { color: #f59e0b; }
+        .val-blue { color: #3b82f6; }
+        .val-purple { color: #8b5cf6; }
+
+        /* 워크플로우 리스트 */
+        .workflow-item { border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; cursor: pointer; transition: 0.2s; }
+        .workflow-item:hover { border-color: #cbd5e1; background-color: #f8fafc; }
+        .wf-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .wf-icon-1 { background-color: #d1fae5; color: #10b981; }
+        .wf-icon-2 { background-color: #fce7f3; color: #ec4899; }
+        .wf-text h3 { margin: 0 0 5px 0; font-size: 18px; color: #1e293b; }
+        .wf-text p { margin: 0; color: #64748b; font-size: 14px; }
+        .wf-arrow { margin-left: auto; color: #94a3b8; font-size: 20px; }
+
+        /* 버튼 디자인 */
+        .btn { padding: 10px 20px; border-radius: 5px; font-weight: bold; font-size: 14px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-green { background-color: #10b981; color: white; }
+        .btn-orange { background-color: #f59e0b; color: white; }
+        .btn-red-outline { background-color: transparent; border: 1px solid #ef4444; color: #ef4444; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div id="securityGateway" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: 'Malgun Gothic', sans-serif;">
         
-        <div id="selectionScreen">
-            <h2>접속 영역 선택</h2>
-            <p class="subtitle">확인하실 업무 범위를 먼저 선택해 주십시오.</p>
-            <div>
-                <button class="btn btn-select" onclick="goToLogin('hq')">🏢 본사 경영/인사</button>
-                <button class="btn btn-select" onclick="goToLogin('site')">🚧 현장 안전보건</button>
+        <div id="gatewaySelect" style="text-align: center;">
+            <h2 style="margin-bottom: 10px; font-size: 26px;">통합시스템 접근 승인</h2>
+            <p style="color: #94a3b8; margin-bottom: 40px;">접속하실 업무 영역을 선택해 주십시오.</p>
+            <div style="display: flex; gap: 20px; justify-content: center;">
+                <button onclick="goToLogin()" style="padding: 25px 40px; font-size: 20px; border-radius: 12px; border: none; background: #2563eb; color: white; cursor: pointer; font-weight: bold; width: 180px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">🏢 본사<br><span style="font-size:14px; font-weight:normal; display:block; margin-top:5px;">(경영관리)</span></button>
+                <button onclick="enterSiteDirectly()" style="padding: 25px 40px; font-size: 20px; border-radius: 12px; border: none; background: #10b981; color: white; cursor: pointer; font-weight: bold; width: 180px; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">🚧 현장<br><span style="font-size:14px; font-weight:normal; display:block; margin-top:5px;">(안전보건)</span></button>
             </div>
         </div>
 
-        <div id="loginScreen">
-            <h2>시스템 접근 승인</h2>
-            <p class="subtitle">관리자 암호를 입력해 주십시오.</p>
-            <input type="password" id="passwordInput" placeholder="암호 입력">
+        <div id="gatewayLogin" style="display: none; text-align: center;">
+            <h2 style="margin-bottom: 20px; font-size: 24px;">본사 관리자 인증</h2>
+            <p style="color: #94a3b8; margin-bottom: 30px;">관리자 암호를 입력해 주십시오.</p>
+            <input type="password" id="hqPassword" placeholder="암호 입력" style="padding: 15px; font-size: 16px; width: 280px; border-radius: 8px; border: none; margin-bottom: 15px; text-align: center;">
             <br>
-            <button class="btn btn-login" onclick="checkPassword()">로그인</button>
-            <button class="btn btn-back" onclick="goBackToSelection()">선택 화면으로 돌아가기</button>
-            <p id="errorMessage" style="color: red; display: none; margin-top: 15px;">암호가 일치하지 않습니다.</p>
+            <button onclick="checkHqPassword()" style="padding: 15px 30px; font-size: 16px; border-radius: 8px; border: none; background: #2563eb; color: white; cursor: pointer; font-weight: bold; width: 280px; margin-bottom: 10px;">로그인</button>
+            <br>
+            <button onclick="backToSelect()" style="padding: 12px 30px; font-size: 14px; border-radius: 8px; border: none; background: #475569; color: white; cursor: pointer; width: 280px;">뒤로 가기</button>
+            <p id="pwdError" style="color: #ef4444; margin-top: 15px; display: none; font-weight: bold;">암호가 일치하지 않습니다.</p>
         </div>
+    </div>
+    <div class="header">
+        <div class="header-content">
+            <h1>⛑️ 공사관리 및 안전보건 통합시스템 🪄</h1>
+            <p>경영관리, 공사원가, 안전보건 직무 통합 PWA 포털</p>
 
-        <div id="dashboardScreen">
-            <button class="btn btn-home" onclick="goBackToSelection()">처음으로</button>
-            <h2 id="dashboardTitle">대시보드</h2>
-            
-            <div id="dashboardContent" class="content-box">
+            <div class="admin-box">
+                <div class="admin-box-title">🗄️ 1~10번 앱 전체 데이터 통합 관리 (스토리지 연동)</div>
+                <div class="btn-group">
+                    <div class="btn-left">
+                        <button class="btn btn-green">⬇️ 전체 백업 (다운로드)</button>
+                        <button class="btn btn-orange">⬆️ 백업 파일 불러오기</button>
+                    </div>
+                    <button class="btn btn-red-outline">🗑️ 시스템 초기화</button>
                 </div>
+            </div>
         </div>
-
     </div>
 
-    <script>
-        // 1. 요청하신 관리자 암호 설정
-        const SECRET_PASSWORD = "yangji0722@@!!";
-        let currentSelection = ""; // 사용자가 선택한 메뉴(본사 또는 현장)를 기억하는 변수
-
-        // 화면 요소 가져오기
-        const selectionScreen = document.getElementById('selectionScreen');
-        const loginScreen = document.getElementById('loginScreen');
-        const dashboardScreen = document.getElementById('dashboardScreen');
-        const errorMessage = document.getElementById('errorMessage');
-        const passwordInput = document.getElementById('passwordInput');
-        
-        // [기능 1] 선택 화면에서 항목 클릭 시 로그인 화면으로 이동
-        function goToLogin(type) {
-            currentSelection = type; // 선택한 값 저장 ('hq' 또는 'site')
-            
-            selectionScreen.style.display = 'none';
-            loginScreen.style.display = 'block';
-            dashboardScreen.style.display = 'none';
-            
-            // 로그인 화면 진입 시 이전 입력값 및 에러메시지 초기화
-            passwordInput.value = '';
-            errorMessage.style.display = 'none';
-            passwordInput.focus();
-        }
-
-        // [기능 2] 암호 확인 및 대시보드 진입
-        function checkPassword() {
-            const inputVal = passwordInput.value;
-            
-            if (inputVal === SECRET_PASSWORD) {
-                // 로그인 성공: 로그인 화면 숨기고 대시보드 표시
-                loginScreen.style.display = 'none';
-                showDashboard(currentSelection);
-            } else {
-                // 로그인 실패: 에러 메시지 표시
-                errorMessage.style.display = 'block';
-            }
-        }
-
-        // 엔터키로도 로그인 버튼이 눌리도록 설정
-        passwordInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') { checkPassword(); }
-        });
-
-        // [기능 3] 선택한 버튼에 따라 대시보드 내용 채우기
-        function showDashboard(type) {
-            dashboardScreen.style.display = 'block';
-            
-            const titleElement = document.getElementById('dashboardTitle');
-            const contentElement = document.getElementById('dashboardContent');
-
-            if (type === 'hq') {
-                titleElement.innerText = "🏢 본사 경영관리 대시보드";
-                contentElement.innerHTML = `
-                    <h3>주요 공지 및 업무</h3>
-                    <ul>
-                        <li>전사 ISO 9001 / 14001 인증 갱신 준비 현황</li>
-                        <li>본사 주관 관리감독자 정기 교육 실적 보고</li>
-                        <li>신규 채용자 인사 서류 검토 대기건</li>
-                    </ul>
-                `;
-            } else if (type === 'site') {
-                titleElement.innerText = "🚧 현장 안전보건 대시보드";
-                contentElement.innerHTML = `
-                    <h3>현장별 주요 점검 사항</h3>
-                    <ul>
-                        <li><strong>A현장:</strong> 흙막이 지보공 및 굴착 작업 위험성 평가 회의 완료</li>
-                        <li><strong>B현장:</strong> 혹서기 온열질환 예방 물품 지급 대장 점검</li>
-                        <li><strong>C현장:</strong> 이동식 비계 사용 전 안전 점검표 작성 누락분 보완</li>
-                    </ul>
-                `;
-            }
-        }
-
-        // [기능 4] 처음으로 돌아가기 (선택 화면으로 복귀)
-        function goBackToSelection() {
-            loginScreen.style.display = 'none';
-            dashboardScreen.style.display = 'none';
-            selectionScreen.style.display = 'block';
-        }
-    </script>
-
-</body>
-</html>
+    <div class="main-content">
+        <div class="section-card">
+            <div class="section-title">📊 로컬 데이터 등록 현황</div>
+            <div class="grid-container">
+                <div class="grid-item">
+                    <div class="grid-title">1.관리현장</div>
+                    <div class="grid-value val-green">1</div>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-title">2.협력업체</div>
+                    <div class="grid-value val-red">0</div>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-title">3.순회점검</div>
+                    <div class="grid-value val-red">0</div>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-title">4.위험성평가</div>
+                    <div class="grid-value val-yellow">0</div>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-title">5.작업일보</div>
+                    <div class="grid-value val-blue">0</div>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-title">6.원가/손익</div>
+                    <div class="grid-value val-purple">0</div>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-title">7.장비점검</div>
+                    <div class="grid-value val-blue">0</div>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-title">8.신규교육</div>
+                    <div class="grid-value val-red">0</div>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-title">9.건강확인</div>
+                    <div class="grid-value val-green">0</div>
+                </div>
+                <div class="grid-item">
+                    <div class="grid-title">10.안전보건비</div>
+                    <div class="grid-value val-blue">0</div>
+                </div>
+            </div>
+        </div>
