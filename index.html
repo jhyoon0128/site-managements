@@ -10,28 +10,32 @@
         body { font-family: 'Malgun Gothic', sans-serif; background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
         /* 화면 컨테이너 (가운데 정렬된 박스) */
-        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 600px; text-align: center; }
+        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 600px; text-align: center; position: relative; }
         
-        /* 각 화면 구역 (처음에는 로그인 화면만 보임) */
-        #loginScreen { display: block; }
-        #selectionScreen { display: none; }
+        /* 각 화면 구역 설정 (처음에는 선택 화면만 보임) */
+        #selectionScreen { display: block; }
+        #loginScreen { display: none; }
         #dashboardScreen { display: none; text-align: left; }
         
         /* 입력창 및 버튼 디자인 */
         input[type="password"] { padding: 12px; width: 80%; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; text-align: center; }
         .btn { padding: 15px 30px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 10px; transition: 0.3s; }
         
+        .btn-select { background-color: #007bff; width: 40%; min-width: 150px; height: 100px; font-size: 18px; }
+        .btn-select:hover { background-color: #0056b3; }
+
         .btn-login { background-color: #2c3e50; width: 85%; }
         .btn-login:hover { background-color: #1a252f; }
         
-        .btn-select { background-color: #007bff; width: 40%; min-width: 150px; height: 100px; font-size: 18px; }
-        .btn-select:hover { background-color: #0056b3; }
-        
-        .btn-back { background-color: #6c757d; padding: 10px 20px; font-size: 14px; float: right; }
+        .btn-back { background-color: #6c757d; padding: 8px 15px; font-size: 14px; margin-top: 10px; width: 85%; }
+        .btn-back:hover { background-color: #5a6268; }
+
+        .btn-home { background-color: #6c757d; padding: 10px 20px; font-size: 14px; float: right; margin: 0; }
         
         /* 대시보드 내부 내용 디자인 */
         .content-box { border: 1px solid #ddd; padding: 20px; border-radius: 5px; margin-top: 20px; background-color: #fafafa; }
         h2 { color: #333; margin-top: 0; }
+        p.subtitle { color: #666; margin-bottom: 30px; }
         ul { line-height: 1.8; }
     </style>
 </head>
@@ -39,26 +43,27 @@
 
     <div class="container">
         
-        <div id="loginScreen">
-            <h2>시스템 접근 승인</h2>
-            <p style="color: #666; margin-bottom: 30px;">관리자 암호를 입력해 주십시오.</p>
-            <input type="password" id="passwordInput" placeholder="암호 입력">
-            <br>
-            <button class="btn btn-login" onclick="checkPassword()">로그인</button>
-            <p id="errorMessage" style="color: red; display: none; margin-top: 15px;">암호가 일치하지 않습니다.</p>
-        </div>
-
         <div id="selectionScreen">
             <h2>접속 영역 선택</h2>
-            <p style="color: #666; margin-bottom: 30px;">확인하실 업무 범위를 선택해 주십시오.</p>
+            <p class="subtitle">확인하실 업무 범위를 먼저 선택해 주십시오.</p>
             <div>
-                <button class="btn btn-select" onclick="showDashboard('hq')">🏢 본사 경영/인사</button>
-                <button class="btn btn-select" onclick="showDashboard('site')">🚧 현장 안전보건</button>
+                <button class="btn btn-select" onclick="goToLogin('hq')">🏢 본사 경영/인사</button>
+                <button class="btn btn-select" onclick="goToLogin('site')">🚧 현장 안전보건</button>
             </div>
         </div>
 
+        <div id="loginScreen">
+            <h2>시스템 접근 승인</h2>
+            <p class="subtitle">관리자 암호를 입력해 주십시오.</p>
+            <input type="password" id="passwordInput" placeholder="암호 입력">
+            <br>
+            <button class="btn btn-login" onclick="checkPassword()">로그인</button>
+            <button class="btn btn-back" onclick="goBackToSelection()">선택 화면으로 돌아가기</button>
+            <p id="errorMessage" style="color: red; display: none; margin-top: 15px;">암호가 일치하지 않습니다.</p>
+        </div>
+
         <div id="dashboardScreen">
-            <button class="btn btn-back" onclick="goBackToSelection()">뒤로 가기</button>
+            <button class="btn btn-home" onclick="goBackToSelection()">처음으로</button>
             <h2 id="dashboardTitle">대시보드</h2>
             
             <div id="dashboardContent" class="content-box">
@@ -68,24 +73,39 @@
     </div>
 
     <script>
-        // 1. 설정할 관리자 암호를 여기에 입력합니다.
-        const SECRET_PASSWORD = "1234";
+        // 1. 요청하신 관리자 암호 설정
+        const SECRET_PASSWORD = "yangji0722@@!!";
+        let currentSelection = ""; // 사용자가 선택한 메뉴(본사 또는 현장)를 기억하는 변수
 
         // 화면 요소 가져오기
-        const loginScreen = document.getElementById('loginScreen');
         const selectionScreen = document.getElementById('selectionScreen');
+        const loginScreen = document.getElementById('loginScreen');
         const dashboardScreen = document.getElementById('dashboardScreen');
         const errorMessage = document.getElementById('errorMessage');
+        const passwordInput = document.getElementById('passwordInput');
         
-        // [기능 1] 암호 확인 및 로그인
+        // [기능 1] 선택 화면에서 항목 클릭 시 로그인 화면으로 이동
+        function goToLogin(type) {
+            currentSelection = type; // 선택한 값 저장 ('hq' 또는 'site')
+            
+            selectionScreen.style.display = 'none';
+            loginScreen.style.display = 'block';
+            dashboardScreen.style.display = 'none';
+            
+            // 로그인 화면 진입 시 이전 입력값 및 에러메시지 초기화
+            passwordInput.value = '';
+            errorMessage.style.display = 'none';
+            passwordInput.focus();
+        }
+
+        // [기능 2] 암호 확인 및 대시보드 진입
         function checkPassword() {
-            const inputVal = document.getElementById('passwordInput').value;
+            const inputVal = passwordInput.value;
             
             if (inputVal === SECRET_PASSWORD) {
-                // 로그인 성공: 로그인 화면 숨기고 선택 화면 표시
+                // 로그인 성공: 로그인 화면 숨기고 대시보드 표시
                 loginScreen.style.display = 'none';
-                selectionScreen.style.display = 'block';
-                errorMessage.style.display = 'none';
+                showDashboard(currentSelection);
             } else {
                 // 로그인 실패: 에러 메시지 표시
                 errorMessage.style.display = 'block';
@@ -93,13 +113,12 @@
         }
 
         // 엔터키로도 로그인 버튼이 눌리도록 설정
-        document.getElementById('passwordInput').addEventListener('keypress', function (e) {
+        passwordInput.addEventListener('keypress', function (e) {
             if (e.key === 'Enter') { checkPassword(); }
         });
 
-        // [기능 2] 선택한 버튼에 따라 화면 내용 바꾸기
+        // [기능 3] 선택한 버튼에 따라 대시보드 내용 채우기
         function showDashboard(type) {
-            selectionScreen.style.display = 'none';
             dashboardScreen.style.display = 'block';
             
             const titleElement = document.getElementById('dashboardTitle');
@@ -112,7 +131,7 @@
                     <ul>
                         <li>전사 ISO 9001 / 14001 인증 갱신 준비 현황</li>
                         <li>본사 주관 관리감독자 정기 교육 실적 보고</li>
-                        <li>신규 채용자 인사 서류 검토 대기건 (2건)</li>
+                        <li>신규 채용자 인사 서류 검토 대기건</li>
                     </ul>
                 `;
             } else if (type === 'site') {
@@ -128,8 +147,9 @@
             }
         }
 
-        // [기능 3] 뒤로 가기 (선택 화면으로 복귀)
+        // [기능 4] 처음으로 돌아가기 (선택 화면으로 복귀)
         function goBackToSelection() {
+            loginScreen.style.display = 'none';
             dashboardScreen.style.display = 'none';
             selectionScreen.style.display = 'block';
         }
