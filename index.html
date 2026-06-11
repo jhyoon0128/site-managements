@@ -5,23 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>공사관리 및 안전보건 통합시스템</title>
     <style>
-        /* ================= 기존 시스템 디자인 ================= */
-        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background-color: #f8f9fa; color: #333; overflow: hidden; /* 팝업 떠있을때 스크롤 방지 */ }
+        /* ================= 공통 및 기존 디자인 ================= */
+        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
         * { box-sizing: border-box; }
         
+        /* 항상 고정되는 상단 헤더 */
         .header { background-color: #0f172a; color: white; padding: 40px 20px; }
         .header-content { max-width: 1000px; margin: 0 auto; }
         .header h1 { margin: 0 0 10px 0; font-size: 28px; display: flex; align-items: center; gap: 10px; }
         .header p { margin: 0; color: #94a3b8; font-size: 15px; }
 
-        .admin-box { background-color: #1e293b; border-radius: 10px; padding: 20px; margin-top: 20px; border: 1px solid #334155; }
+        /* 화면 전환용 컨테이너 (선택, 로그인, 대시보드 공통 영역) */
+        .view-container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+
+        /* ================= 1. 접속 선택 & 2. 로그인 화면 전용 디자인 ================= */
+        .center-box {
+            background: white; border-radius: 15px; padding: 40px; margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: center; max-width: 500px; margin: 40px auto;
+        }
+        .center-title { font-size: 22px; font-weight: bold; margin-bottom: 30px; color: #1e293b; }
+        
+        .big-btn {
+            width: 100%; padding: 20px; font-size: 18px; font-weight: bold; border-radius: 10px;
+            border: none; cursor: pointer; margin-bottom: 15px; color: white; transition: 0.2s;
+        }
+        .btn-hq { background-color: #2563eb; } .btn-hq:hover { background-color: #1d4ed8; }
+        .btn-site { background-color: #10b981; } .btn-site:hover { background-color: #059669; }
+
+        .auth-input {
+            width: 100%; padding: 15px; font-size: 16px; border-radius: 8px; border: 1px solid #cbd5e1;
+            text-align: center; margin-bottom: 15px; background-color: #f8fafc;
+        }
+        .auth-input:focus { outline: none; border-color: #3b82f6; }
+        
+        .btn-submit { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; background-color: #2563eb; color: white; cursor: pointer; margin-bottom: 10px; }
+        .btn-back { width: 100%; padding: 12px; font-size: 14px; border-radius: 8px; border: none; background-color: #64748b; color: white; cursor: pointer; }
+
+        /* ================= 3. 대시보드 전용 디자인 ================= */
+        .admin-box { background-color: #1e293b; border-radius: 10px; padding: 20px; margin-top: -20px; border: 1px solid #334155; position: relative; z-index: 10; margin-bottom: 30px; }
         .admin-box-title { color: #e2e8f0; font-size: 14px; font-weight: bold; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         .btn-group { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; }
         .btn-left { display: flex; gap: 10px; }
         
-        .main-content { max-width: 1000px; margin: -20px auto 40px; padding: 0 20px; position: relative; z-index: 10; }
-        
-        .section-card { background: white; border-radius: 15px; padding: 30px; margin-top: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .section-card { background: white; border-radius: 15px; padding: 30px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .section-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; color: #1e293b; }
 
         .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
@@ -43,90 +69,49 @@
         .btn-green { background-color: #10b981; color: white; }
         .btn-orange { background-color: #f59e0b; color: white; }
         .btn-red-outline { background-color: transparent; border: 1px solid #ef4444; color: #ef4444; }
-
-
-        /* ================= 팝업창(Modal) 다크 테마 디자인 ================= */
-        /* 팝업 뒷배경 (어둡게 처리) */
-        #modalOverlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); /* 단순하고 명확한 반투명 검정 */
-            z-index: 9999; display: flex; align-items: center; justify-content: center;
-        }
-
-        /* 팝업 박스 본체 */
-        .modal-box {
-            background-color: #1e293b; /* 다크 네이비 팝업창 */
-            border-radius: 16px; width: 90%; max-width: 420px; padding: 40px 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #475569;
-            text-align: center; color: white;
-        }
-
-        .modal-title { font-size: 22px; font-weight: bold; margin-bottom: 25px; }
-        
-        /* 팝업 버튼 */
-        .modal-btn {
-            width: 100%; padding: 20px; margin-bottom: 15px; border-radius: 10px;
-            border: 1px solid #475569; background-color: #0f172a; color: white;
-            font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s;
-        }
-        .modal-btn:hover { background-color: #334155; border-color: #64748b; }
-        
-        /* 로그인 입력창 */
-        .modal-input {
-            width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #475569;
-            background-color: #0f172a; color: white; font-size: 16px; text-align: center; margin-bottom: 15px;
-        }
-        .modal-input:focus { outline: none; border-color: #3b82f6; }
-        
-        .modal-btn-submit {
-            width: 100%; padding: 15px; border-radius: 8px; border: none; background-color: #2563eb;
-            color: white; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px;
-        }
-        .modal-btn-submit:hover { background-color: #1d4ed8; }
-        
-        .modal-btn-text { background: transparent; color: #94a3b8; border: none; font-size: 14px; cursor: pointer; }
-        .modal-btn-text:hover { color: white; text-decoration: underline; }
     </style>
 </head>
 <body>
-
-    <div id="modalOverlay">
-        
-        <div id="popupSelect" class="modal-box">
-            <div class="modal-title">접속 경로를 선택하세요</div>
-            <button onclick="goToLogin()" class="modal-btn">🏢 본사 (HQ)</button>
-            <button onclick="enterSiteDirectly()" class="modal-btn">🚧 현장 (Site)</button>
-        </div>
-
-        <div id="popupLogin" class="modal-box" style="display: none;">
-            <div class="modal-title">시스템 접근 승인</div>
-            <p style="color: #94a3b8; margin-bottom: 25px; font-size: 14px;">관리자 암호를 입력해 주십시오.</p>
-            <input type="password" id="hqPassword" class="modal-input" placeholder="••••••••••••">
-            <button onclick="checkHqPassword()" class="modal-btn-submit">로그인</button>
-            <button onclick="backToSelect()" class="modal-btn-text">뒤로 가기</button>
-            <p id="pwdError" style="color: #ef4444; margin-top: 15px; display: none; font-weight: bold;">암호가 일치하지 않습니다.</p>
-        </div>
-
-    </div>
 
     <div class="header">
         <div class="header-content">
             <h1>⛑️ 공사관리 및 안전보건 통합시스템 🪄</h1>
             <p>경영관리, 공사원가, 안전보건 직무 통합 PWA 포털</p>
-            <div class="admin-box">
-                <div class="admin-box-title">🗄️ 1~10번 앱 전체 데이터 통합 관리 (스토리지 연동)</div>
-                <div class="btn-group">
-                    <div class="btn-left">
-                        <button class="btn btn-green">⬇️ 전체 백업 (다운로드)</button>
-                        <button class="btn btn-orange">⬆️ 백업 파일 불러오기</button>
-                    </div>
-                    <button class="btn btn-red-outline">🗑️ 시스템 초기화</button>
-                </div>
-            </div>
         </div>
     </div>
 
-    <div class="main-content">
+    <div id="viewSelect" class="view-container">
+        <div class="center-box">
+            <div class="center-title">접속 영역을 선택해 주십시오</div>
+            <button onclick="goToLogin()" class="big-btn btn-hq">🏢 본사 (HQ)</button>
+            <button onclick="goToDashboard()" class="big-btn btn-site">🚧 현장 (Site)</button>
+        </div>
+    </div>
+
+    <div id="viewLogin" class="view-container" style="display: none;">
+        <div class="center-box">
+            <div class="center-title">본사 관리자 인증</div>
+            <p style="color: #64748b; margin-bottom: 25px; font-size: 14px;">관리자 암호를 입력해 주십시오.</p>
+            <input type="password" id="hqPassword" class="auth-input" placeholder="••••••••••••">
+            <button onclick="checkHqPassword()" class="btn-submit">로그인</button>
+            <button onclick="backToSelect()" class="btn-back">뒤로 가기</button>
+            <p id="pwdError" style="color: #ef4444; margin-top: 15px; display: none; font-weight: bold;">암호가 일치하지 않습니다.</p>
+        </div>
+    </div>
+
+    <div id="viewDashboard" class="view-container" style="display: none;">
+        
+        <div class="admin-box">
+            <div class="admin-box-title">🗄️ 1~10번 앱 전체 데이터 통합 관리 (스토리지 연동)</div>
+            <div class="btn-group">
+                <div class="btn-left">
+                    <button class="btn btn-green">⬇️ 전체 백업 (다운로드)</button>
+                    <button class="btn btn-orange">⬆️ 백업 파일 불러오기</button>
+                </div>
+                <button class="btn btn-red-outline">🗑️ 시스템 초기화</button>
+            </div>
+        </div>
+
         <div class="section-card">
             <div class="section-title">📊 로컬 데이터 등록 현황</div>
             <div class="grid-container">
@@ -160,47 +145,52 @@
 
     <script>
         const SECRET_PWD = "yangji0722@@!!";
-        const modalOverlay = document.getElementById('modalOverlay');
-        const popupSelect = document.getElementById('popupSelect');
-        const popupLogin = document.getElementById('popupLogin');
-        const errorMsg = document.getElementById('pwdError');
+        
+        // 화면 3가지 가져오기
+        const viewSelect = document.getElementById('viewSelect');
+        const viewLogin = document.getElementById('viewLogin');
+        const viewDashboard = document.getElementById('viewDashboard');
+        
+        // 입력창 및 에러메시지
         const pwdInput = document.getElementById('hqPassword');
+        const errorMsg = document.getElementById('pwdError');
 
-        // [기능 1] 본사 버튼 클릭 시 로그인 화면으로 전환
+        // [기능 1] 본사 클릭 -> 로그인 화면으로 전환
         function goToLogin() {
-            popupSelect.style.display = 'none';
-            popupLogin.style.display = 'block';
+            viewSelect.style.display = 'none';
+            viewLogin.style.display = 'block';
             pwdInput.focus();
         }
 
-        // [기능 2] 뒤로 가기
+        // [기능 2] 로그인 화면에서 뒤로 가기
         function backToSelect() {
-            popupLogin.style.display = 'none';
-            popupSelect.style.display = 'block';
+            viewLogin.style.display = 'none';
+            viewSelect.style.display = 'block';
             errorMsg.style.display = 'none';
             pwdInput.value = '';
         }
 
-        // [기능 3] 현장 버튼 클릭 시 암호 없이 즉시 팝업 제거
-        function enterSiteDirectly() {
-            modalOverlay.style.display = 'none';
-            document.body.style.overflow = 'auto'; // 스크롤 기능 활성화
+        // [기능 3] 현장 클릭 또는 인증 성공 -> 대시보드 표시
+        function goToDashboard() {
+            viewSelect.style.display = 'none';
+            viewLogin.style.display = 'none';
+            viewDashboard.style.display = 'block';
         }
 
-        // [기능 4] 본사 암호 검증
+        // [기능 4] 본사 암호 검사
         function checkHqPassword() {
             if (pwdInput.value === SECRET_PWD) {
-                modalOverlay.style.display = 'none'; // 팝업 제거
-                document.body.style.overflow = 'auto'; // 스크롤 기능 활성화
+                goToDashboard();
             } else {
                 errorMsg.style.display = 'block';
             }
         }
 
-        // 엔터키 지원
+        // 키보드 엔터키 입력 지원
         pwdInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') checkHqPassword();
         });
     </script>
+
 </body>
 </html>
