@@ -3,74 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>안전보건 현장 관리 시스템</title>
+    <title>안전보건 및 경영관리 시스템</title>
     
     <style>
-        body { font-family: 'Malgun Gothic', sans-serif; padding: 20px; background-color: #f4f4f9; }
+        /* 기본 배경 및 글꼴 설정 */
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f0f2f5; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        /* 팝업창 디자인 */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; padding: 30px; border-radius: 8px; width: 80%; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
-        .modal-content h2 { color: #333; margin-top: 0; }
+        /* 화면 컨테이너 (가운데 정렬된 박스) */
+        .container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 600px; text-align: center; }
         
-        /* 버튼 디자인 */
-        .btn-primary { padding: 12px 24px; background-color: #0056b3; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 20px; }
-        .btn-primary:hover { background-color: #004494; }
+        /* 각 화면 구역 (처음에는 로그인 화면만 보임) */
+        #loginScreen { display: block; }
+        #selectionScreen { display: none; }
+        #dashboardScreen { display: none; text-align: left; }
         
-        /* 본문 구역 디자인 */
-        .content-section { background: white; padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .content-section h3 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        /* 입력창 및 버튼 디자인 */
+        input[type="password"] { padding: 12px; width: 80%; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; text-align: center; }
+        .btn { padding: 15px 30px; font-size: 16px; font-weight: bold; color: white; border: none; border-radius: 5px; cursor: pointer; margin: 10px; transition: 0.3s; }
+        
+        .btn-login { background-color: #2c3e50; width: 85%; }
+        .btn-login:hover { background-color: #1a252f; }
+        
+        .btn-select { background-color: #007bff; width: 40%; min-width: 150px; height: 100px; font-size: 18px; }
+        .btn-select:hover { background-color: #0056b3; }
+        
+        .btn-back { background-color: #6c757d; padding: 10px 20px; font-size: 14px; float: right; }
+        
+        /* 대시보드 내부 내용 디자인 */
+        .content-box { border: 1px solid #ddd; padding: 20px; border-radius: 5px; margin-top: 20px; background-color: #fafafa; }
+        h2 { color: #333; margin-top: 0; }
+        ul { line-height: 1.8; }
     </style>
 </head>
 <body>
 
-    <div id="dashboardModal" class="modal-overlay">
-        <div class="modal-content">
-            <h2>전체 종합 대시보드</h2>
-            <p>본사 공지사항 및 전 현장 종합 관리 지표입니다.</p>
-            <p style="color: #666; font-size: 14px;">(여기에 전체 현장 재해율, 요약 그래프 등이 들어갑니다)</p>
-            
-            <button id="ignoreBtn" class="btn-primary">무시하고 현장 사항만 보기</button>
+    <div class="container">
+        
+        <div id="loginScreen">
+            <h2>시스템 접근 승인</h2>
+            <p style="color: #666; margin-bottom: 30px;">관리자 암호를 입력해 주십시오.</p>
+            <input type="password" id="passwordInput" placeholder="암호 입력">
+            <br>
+            <button class="btn btn-login" onclick="checkPassword()">로그인</button>
+            <p id="errorMessage" style="color: red; display: none; margin-top: 15px;">암호가 일치하지 않습니다.</p>
         </div>
-    </div>
 
-    <h1>통합 관리 시스템</h1>
+        <div id="selectionScreen">
+            <h2>접속 영역 선택</h2>
+            <p style="color: #666; margin-bottom: 30px;">확인하실 업무 범위를 선택해 주십시오.</p>
+            <div>
+                <button class="btn btn-select" onclick="showDashboard('hq')">🏢 본사 경영/인사</button>
+                <button class="btn btn-select" onclick="showDashboard('site')">🚧 현장 안전보건</button>
+            </div>
+        </div>
 
-    <div id="headquarterInfo" class="content-section">
-        <h3>🏢 본사 공지 및 일반 경영 사항</h3>
-        <ul>
-            <li>전사 ISO 9001, 14001 인증 갱신 심사 일정 안내</li>
-            <li>정기 노사협의회 개최 및 결과 공유</li>
-            <li>본사 주관 관리감독자 정기 안전보건교육 이수 촉구</li>
-        </ul>
-    </div>
-
-    <div id="siteInfo" class="content-section">
-        <h3>🚧 현장 안전보건 및 관리 사항</h3>
-        <ul>
-            <li><strong>A현장:</strong> 굴착 작업 전 지반 조사 및 흙막이 지보공 점검 완료</li>
-            <li><strong>B현장:</strong> 이번 주 위험성 평가 결과 회의록 업로드 요망</li>
-            <li><strong>C현장:</strong> 신규 채용자 기초안전보건교육 이수증 확인 철저</li>
-        </ul>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // HTML에 있는 요소들을 자바스크립트로 가져옵니다.
-            const modal = document.getElementById('dashboardModal');
-            const ignoreBtn = document.getElementById('ignoreBtn');
-            const hqInfo = document.getElementById('headquarterInfo');
+        <div id="dashboardScreen">
+            <button class="btn btn-back" onclick="goBackToSelection()">뒤로 가기</button>
+            <h2 id="dashboardTitle">대시보드</h2>
             
-            // '무시하고 현장 사항만 보기' 버튼을 클릭했을 때의 동작
-            ignoreBtn.addEventListener('click', function() {
-                // 1. 팝업창을 화면에서 숨깁니다.
-                modal.style.display = 'none';
-                
-                // 2. 본사 정보(headquarterInfo) 구역을 화면에서 숨깁니다.
-                if(hqInfo) {
-                    hqInfo.style.display = 'none';
-                }
-            });
+            <div id="dashboardContent" class="content-box">
+                </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. 설정할 관리자 암호를 여기에 입력합니다.
+        const SECRET_PASSWORD = "1234";
+
+        // 화면 요소 가져오기
+        const loginScreen = document.getElementById('loginScreen');
+        const selectionScreen = document.getElementById('selectionScreen');
+        const dashboardScreen = document.getElementById('dashboardScreen');
+        const errorMessage = document.getElementById('errorMessage');
+        
+        // [기능 1] 암호 확인 및 로그인
+        function checkPassword() {
+            const inputVal = document.getElementById('passwordInput').value;
+            
+            if (inputVal === SECRET_PASSWORD) {
+                // 로그인 성공: 로그인 화면 숨기고 선택 화면 표시
+                loginScreen.style.display = 'none';
+                selectionScreen.style.display = 'block';
+                errorMessage.style.display = 'none';
+            } else {
+                // 로그인 실패: 에러 메시지 표시
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        // 엔터키로도 로그인 버튼이 눌리도록 설정
+        document.getElementById('passwordInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') { checkPassword(); }
         });
+
+        // [기능 2] 선택한 버튼에 따라 화면 내용 바꾸기
+        function showDashboard(type) {
+            selectionScreen.style.display = 'none';
+            dashboardScreen.style.display = 'block';
+            
+            const titleElement = document.getElementById('dashboardTitle');
+            const contentElement = document.getElementById('dashboardContent');
+
+            if (type === 'hq') {
+                titleElement.innerText = "🏢 본사 경영관리 대시보드";
+                contentElement.innerHTML = `
+                    <h3>주요 공지 및 업무</h3>
+                    <ul>
+                        <li>전사 ISO 9001 / 14001 인증 갱신 준비 현황</li>
+                        <li>본사 주관 관리감독자 정기 교육 실적 보고</li>
+                        <li>신규 채용자 인사 서류 검토 대기건 (2건)</li>
+                    </ul>
+                `;
+            } else if (type === 'site') {
+                titleElement.innerText = "🚧 현장 안전보건 대시보드";
+                contentElement.innerHTML = `
+                    <h3>현장별 주요 점검 사항</h3>
+                    <ul>
+                        <li><strong>A현장:</strong> 흙막이 지보공 및 굴착 작업 위험성 평가 회의 완료</li>
+                        <li><strong>B현장:</strong> 혹서기 온열질환 예방 물품 지급 대장 점검</li>
+                        <li><strong>C현장:</strong> 이동식 비계 사용 전 안전 점검표 작성 누락분 보완</li>
+                    </ul>
+                `;
+            }
+        }
+
+        // [기능 3] 뒤로 가기 (선택 화면으로 복귀)
+        function goBackToSelection() {
+            dashboardScreen.style.display = 'none';
+            selectionScreen.style.display = 'block';
+        }
     </script>
+
 </body>
 </html>
