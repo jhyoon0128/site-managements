@@ -6,7 +6,7 @@
     <title>공사관리 및 안전보건 통합시스템</title>
     <style>
         /* ================= 기존 시스템 디자인 ================= */
-        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background-color: #f8f9fa; color: #333; }
+        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; background-color: #f8f9fa; color: #333; overflow: hidden; /* 팝업 떠있을때 스크롤 방지 */ }
         * { box-sizing: border-box; }
         
         .header { background-color: #0f172a; color: white; padding: 40px 20px; }
@@ -45,79 +45,74 @@
         .btn-red-outline { background-color: transparent; border: 1px solid #ef4444; color: #ef4444; }
 
 
-        /* ================= 보안 게이트웨이 다크 테마 (반투명 & 블러) ================= */
-        #securityGateway {
+        /* ================= 팝업창(Modal) 다크 테마 디자인 ================= */
+        /* 팝업 뒷배경 (어둡게 처리) */
+        #modalOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.85); /* 반투명 다크 배경 */
-            backdrop-filter: blur(8px); /* 뒷배경 블러 처리 */
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            color: white; font-family: 'Malgun Gothic', sans-serif;
+            background: rgba(0, 0, 0, 0.7); /* 단순하고 명확한 반투명 검정 */
+            z-index: 9999; display: flex; align-items: center; justify-content: center;
         }
 
-        .gate-container { width: 100%; max-width: 450px; text-align: center; }
-        .gate-title { font-size: 24px; font-weight: bold; margin-bottom: 30px; letter-spacing: -0.5px; }
+        /* 팝업 박스 본체 */
+        .modal-box {
+            background-color: #1e293b; /* 다크 네이비 팝업창 */
+            border-radius: 16px; width: 90%; max-width: 420px; padding: 40px 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #475569;
+            text-align: center; color: white;
+        }
+
+        .modal-title { font-size: 22px; font-weight: bold; margin-bottom: 25px; }
         
-        /* 다크 테마 선택 버튼 */
-        .gate-btn-select {
-            width: 100%; background-color: #1e293b; border: 1px solid #475569; border-radius: 12px;
-            padding: 25px; margin-bottom: 15px; color: white; font-size: 18px; font-weight: bold;
-            cursor: pointer; transition: all 0.2s;
+        /* 팝업 버튼 */
+        .modal-btn {
+            width: 100%; padding: 20px; margin-bottom: 15px; border-radius: 10px;
+            border: 1px solid #475569; background-color: #0f172a; color: white;
+            font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s;
         }
-        .gate-btn-select:hover { background-color: #334155; border-color: #64748b; }
-        .gate-icon { font-size: 28px; display: block; margin-bottom: 10px; }
-
-        /* 다크 테마 로그인 폼 */
-        .gate-input {
+        .modal-btn:hover { background-color: #334155; border-color: #64748b; }
+        
+        /* 로그인 입력창 */
+        .modal-input {
             width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #475569;
             background-color: #0f172a; color: white; font-size: 16px; text-align: center; margin-bottom: 15px;
         }
-        .gate-input:focus { outline: none; border-color: #3b82f6; }
+        .modal-input:focus { outline: none; border-color: #3b82f6; }
         
-        .gate-btn-submit {
+        .modal-btn-submit {
             width: 100%; padding: 15px; border-radius: 8px; border: none; background-color: #2563eb;
-            color: white; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 15px;
+            color: white; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 10px;
         }
-        .gate-btn-submit:hover { background-color: #1d4ed8; }
+        .modal-btn-submit:hover { background-color: #1d4ed8; }
         
-        .gate-btn-text { background: transparent; color: #94a3b8; border: none; font-size: 14px; cursor: pointer; }
-        .gate-btn-text:hover { color: white; text-decoration: underline; }
+        .modal-btn-text { background: transparent; color: #94a3b8; border: none; font-size: 14px; cursor: pointer; }
+        .modal-btn-text:hover { color: white; text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <div id="securityGateway">
+    <div id="modalOverlay">
         
-        <div id="gatewaySelect" class="gate-container">
-            <div class="gate-title">접속 경로를 선택하세요</div>
-            <button onclick="goToLogin()" class="gate-btn-select">
-                <span class="gate-icon">🏢</span>본사 (HQ)
-            </button>
-            <button onclick="enterSiteDirectly()" class="gate-btn-select">
-                <span class="gate-icon">🚧</span>현장 (Site)
-            </button>
-            <div style="margin-top: 40px; border-top: 1px solid #334155; padding-top: 20px; color: #64748b; font-size: 12px;">
-                Gate Status<br><br><span style="color: white; font-size: 14px;">Select</span>
-            </div>
+        <div id="popupSelect" class="modal-box">
+            <div class="modal-title">접속 경로를 선택하세요</div>
+            <button onclick="goToLogin()" class="modal-btn">🏢 본사 (HQ)</button>
+            <button onclick="enterSiteDirectly()" class="modal-btn">🚧 현장 (Site)</button>
         </div>
 
-        <div id="gatewayLogin" class="gate-container" style="display: none;">
-            <div class="gate-title">시스템 접근 승인</div>
-            <p style="color: #94a3b8; margin-bottom: 30px; font-size: 15px;">관리자 암호를 입력해 주십시오.</p>
-            <input type="password" id="hqPassword" class="gate-input" placeholder="••••••••••••">
-            <button onclick="checkHqPassword()" class="gate-btn-submit">로그인</button>
-            <button onclick="backToSelect()" class="gate-btn-text">뒤로 가기</button>
-            <p id="pwdError" style="color: #ef4444; margin-top: 20px; display: none; font-weight: bold;">암호가 일치하지 않습니다.</p>
+        <div id="popupLogin" class="modal-box" style="display: none;">
+            <div class="modal-title">시스템 접근 승인</div>
+            <p style="color: #94a3b8; margin-bottom: 25px; font-size: 14px;">관리자 암호를 입력해 주십시오.</p>
+            <input type="password" id="hqPassword" class="modal-input" placeholder="••••••••••••">
+            <button onclick="checkHqPassword()" class="modal-btn-submit">로그인</button>
+            <button onclick="backToSelect()" class="modal-btn-text">뒤로 가기</button>
+            <p id="pwdError" style="color: #ef4444; margin-top: 15px; display: none; font-weight: bold;">암호가 일치하지 않습니다.</p>
         </div>
 
     </div>
-
 
     <div class="header">
         <div class="header-content">
             <h1>⛑️ 공사관리 및 안전보건 통합시스템 🪄</h1>
             <p>경영관리, 공사원가, 안전보건 직무 통합 PWA 포털</p>
-
             <div class="admin-box">
                 <div class="admin-box-title">🗄️ 1~10번 앱 전체 데이터 통합 관리 (스토리지 연동)</div>
                 <div class="btn-group">
@@ -163,45 +158,46 @@
         </div>
     </div>
 
-
     <script>
         const SECRET_PWD = "yangji0722@@!!";
-        const gateway = document.getElementById('securityGateway');
-        const selectScreen = document.getElementById('gatewaySelect');
-        const loginScreen = document.getElementById('gatewayLogin');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const popupSelect = document.getElementById('popupSelect');
+        const popupLogin = document.getElementById('popupLogin');
         const errorMsg = document.getElementById('pwdError');
         const pwdInput = document.getElementById('hqPassword');
 
-        // 처음 접속 시 뒷배경 스크롤 방지
-        document.body.style.overflow = 'hidden';
-
+        // [기능 1] 본사 버튼 클릭 시 로그인 화면으로 전환
         function goToLogin() {
-            selectScreen.style.display = 'none';
-            loginScreen.style.display = 'block';
+            popupSelect.style.display = 'none';
+            popupLogin.style.display = 'block';
             pwdInput.focus();
         }
 
+        // [기능 2] 뒤로 가기
         function backToSelect() {
-            loginScreen.style.display = 'none';
-            selectScreen.style.display = 'block';
+            popupLogin.style.display = 'none';
+            popupSelect.style.display = 'block';
             errorMsg.style.display = 'none';
             pwdInput.value = '';
         }
 
+        // [기능 3] 현장 버튼 클릭 시 암호 없이 즉시 팝업 제거
         function enterSiteDirectly() {
-            gateway.style.display = 'none';
-            document.body.style.overflow = 'auto'; // 스크롤 복구
+            modalOverlay.style.display = 'none';
+            document.body.style.overflow = 'auto'; // 스크롤 기능 활성화
         }
 
+        // [기능 4] 본사 암호 검증
         function checkHqPassword() {
             if (pwdInput.value === SECRET_PWD) {
-                gateway.style.display = 'none';
-                document.body.style.overflow = 'auto'; 
+                modalOverlay.style.display = 'none'; // 팝업 제거
+                document.body.style.overflow = 'auto'; // 스크롤 기능 활성화
             } else {
                 errorMsg.style.display = 'block';
             }
         }
 
+        // 엔터키 지원
         pwdInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') checkHqPassword();
         });
