@@ -10,12 +10,12 @@ var fsdb = null;
 (function () {
     /* ★ STEP 3 에서 복사한 본인의 firebaseConfig 로 교체하세요 ★ */
     var firebaseConfig = {
-        apiKey: "여기에_본인_값",
-        authDomain: "여기에_본인_값",
-        projectId: "여기에_본인_값",
-        storageBucket: "여기에_본인_값",
-        messagingSenderId: "여기에_본인_값",
-        appId: "여기에_본인_값"
+        apiKey:            "(ehs-site-inspection 의 apiKey)",
+        authDomain:        "ehs-site-inspection.firebaseapp.com",
+        projectId:         "ehs-site-inspection",
+        storageBucket:     "ehs-site-inspection.appspot.com",
+        messagingSenderId: "(ehs-site-inspection 의 messagingSenderId)",
+        appId:             "(ehs-site-inspection 의 appId)"
     };
 
     /* 현장 구분 코드: 각 PC 최초 1회만 입력받아 기억 */
