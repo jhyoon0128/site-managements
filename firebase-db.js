@@ -17,7 +17,6 @@ var fsdb = null;
         messagingSenderId: "1052006632157",
         appId: "1:1052006632157:web:72738b1af7c095aee66934",
          measurementId: "G-7K8GTRQ9VB"
-       ppId)"
     };
 
     /* 현장 구분 코드: 각 PC 최초 1회만 입력받아 기억 */
